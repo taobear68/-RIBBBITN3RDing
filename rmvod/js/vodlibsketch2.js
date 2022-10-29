@@ -1,22 +1,22 @@
-/*
- * Javascript for VodLib Static 2
- * 
- * */
- 
-/*  
-mastercont     // The outermost div
-headercont     // the container div for the header bar
-bigbusiness    // The container for the main portion of the window
-featurecont    // The container for the left portion of bigbusiness  where the player lives
-listcontainer  // The container for the artifact list on the left
 
-sizeStep -- div sizing should be done in steps based on the size of the window
+//vodlibsketch2.js  Copyright 2022 Paul Tourville
 
-1024x768
-1280x768
-1920x1080
+//This file is part of RIBBBITmedia VideoOnDemand (a.k.a. "rmvod").
 
-*/
+//RIBBBITmedia VideoOnDemand (a.k.a. "rmvod") is free software: you 
+//can redistribute it and/or modify it under the terms of the GNU 
+//General Public License as published by the Free Software 
+//Foundation, either version 3 of the License, or (at your option) 
+//any later version.
+
+//RIBBBITmedia VideoOnDemand (a.k.a. "rmvod") is distributed in the 
+//hope that it will be useful, but WITHOUT ANY WARRANTY; without even 
+//the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+//PURPOSE. See the GNU General Public License for more details.
+
+//You should have received a copy of the GNU General Public License 
+//along with RIBBBITmedia VideoOnDemand (a.k.a. "rmvod"). If not, 
+//see <https://www.gnu.org/licenses/>.
 
 
 class CookieCrisp {
@@ -1849,3 +1849,20 @@ function pbEnded (artiIdIn) {
     console.log('The playback it has ended');
     switchboard('vodPlayNextTitle',artiIdIn,{});
 }   
+
+
+ 
+/*  
+mastercont     // The outermost div
+headercont     // the container div for the header bar
+bigbusiness    // The container for the main portion of the window
+featurecont    // The container for the left portion of bigbusiness  where the player lives
+listcontainer  // The container for the artifact list on the left
+
+sizeStep -- div sizing should be done in steps based on the size of the window
+
+1024x768
+1280x768
+1920x1080
+
+*/
