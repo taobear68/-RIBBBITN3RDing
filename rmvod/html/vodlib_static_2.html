@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="/rmvid/css/vodlib.css">
+        <script type="text/javascript" src="/rmvid/js/RMWebAppCoreUtil.js"></script> 
+        <script type="text/javascript" src="/rmvid/js/vodlibsketch2.js"></script> 
+<!--
+        <script type="text/javascript" src="./js/RMWebAppCoreUtil.js"></script>
+        <script type="text/javascript" src="./js/vodlibsketch2.js"></script>
+-->
+    </head>
+    <body onload="switchboard('firstthing','',{})"> <!--  style="font-family:arial;font-size:11px;" -->
+        
+        <div class="mastercont" id="mastercont" style=""><!-- Master Container -->
+            <div class="headercont" id="headercont" style=""><!-- Header Container -->
+                <div class="headerflexwrap" id="headerflexwrap" style="">
+                    <div class="headerflexcell" id="headerblock1" style="">
+                        <div><a href="./vodlib_static_2.html"><img src="./img/rmvod_badge_center.png" height="75" width="75" style="height:75px;width:75px;"></a></div>
+                    </div>
+                    <div class="headerflexcell" id="headerblock2" style="">
+                        <!-- <div>Second thing</div> -->
+                        <div class="" id="" style="display:block;"><!-- SIMPLE SEARCH CONTAINER -->
+                            <div class="" id="" style="display:block;"><!-- SEARCH BY TAG -->
+                                <b>Filter by tag:</b><br>
+                                <select id="tag-search-select" name="tag-search-select" onchange="switchboard('execTagSearch','tag-search-select',{})">
+                                    <option value="">None</option>
+                                    <option value="action">action</option>
+                                    <option value="based_on_a_true_story">based_on_a_true_story</option>
+                                    <option value="cold_war">cold_war</option>
+                                    <option value="comedy">comedy</option>
+                                    <option value="detective">detective</option>
+                                    <option value="disaster">disaster</option>
+                                    <option value="documentary">documentary</option>
+                                    <option value="drama">drama</option>
+                                    <option value="fantasy">fantasy</option>
+                                    <option value="horror">horror</option>
+                                    <option value="intrigue">intrigue</option>
+                                    <option value="nobbly">nobbly</option>
+                                    <option value="noir">noir</option>
+                                    <option value="post-apocalypse">post-apocalypse</option>
+                                    <option value="science_fiction">science_fiction</option>
+                                    <option value="vietnam_war">vietnam_war</option>
+                                    <option value="world_war_2">world_war_2</option>
+                                </select>
+                            </div>
+                            <div class="" id="" style="display:block;"><!-- SEARCH BY TITLE -->
+                                <b>Seach by Title:</b><br>
+                                <input type="text" id="" class="" style="width:150px;">
+                            </div>
+                            <div class="" id="" style="display:block;">
+                                <span class="" id="" style="">
+                                    <u>Advanced Search</u>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="headerflexcell" id="headerblock3" style="">
+                        <div>Third thing</div>
+                    </div>
+                    <div class="headerflexcell" id="headerblock4" style="">
+                        <div class="" id="" style="display:block">
+                            <div>
+                                <b>Settings</b>
+                            </div>
+                            <div>
+<!--
+                                <b>Play next in series: </b><input name="serplaynext" id="serplaynext" type="checkbox" checked="false">
+-->
+                                <b>Play next in series: </b><input name="serplaynext" id="serplaynext" type="checkbox">
+                            </div>
+                            <div>
+<!--
+                                <b>Resume play: </b><input name="resumeplay" id="resumeplay" type="checkbox" checked="false">
+-->
+                                <b>Resume play: </b><input name="resumeplay" id="resumeplay" type="checkbox">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bigbusiness" id="bigbusiness" style=""><!-- Big Business Container -->
+                <div class="featurecont" id="featurecont" style=""><!-- Feature Container -->
+                    <div class="" id="" style="display:block;">
+                        <div class="featureelement" id="structfeatureplayer" style=""><!-- Player Container -->
+                             <!-- &nbsp;Player Container -->
+                            <div style="margin-left:80px; margin-right:80px;">
+                                &nbsp;Player Container<br>
+                                <img src="./img/rmvod_badge_center.png" height=500 width=500>
+                            </div>
+                        </div>
+                        <div class="featureelement" id="structfeaturesearch" style="display:none;"><!-- Search Container -->
+                            &nbsp;Search Container
+                        </div>
+                        <div class="featureelement" id="structfeatureedit" style="display:none;"><!-- ArtiEdit Container -->
+                            &nbsp;ArtiEdit Container
+                        </div>
+                    </div>
+                </div>
+                <div class="listcontainer" id="listcontainer" style=""><!-- List Container -->
+                    <div>
+                        <div style="display:block;"><span onclick="switchboard('exposePlayer','',{})"><b><u>Show Player</u></b></span></div>
+                        <div class="listwidget" id="sideartilistwidget" style=""><!-- List Widget -->
+                            &nbsp;<!-- Artifact List Widget goes here. --> <br>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+    <!--
+    <div class="" id="" style="display:;width:;height:;"></div>
+    <div class="" id="" style="display:;width:;height:;"></div>
+    -->
+</html>

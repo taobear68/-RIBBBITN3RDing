@@ -1,0 +1,1906 @@
+#!/usr/bin/python3
+
+import argparse
+
+from flask import Flask
+from flask import request
+
+app = Flask(__name__)
+
+import pymysql
+import copy
+import json
+import uuid
+import base64
+import os
+import yaml
+import requests
+
+
+class VodLibDB:
+    def __init__(self):
+        self.dbc = {}
+        self.dbc['host'] = 'localhost'
+        self.dbc['user'] = 'vodlibapi'
+        self.dbc['password'] = 'vodlibapipw'
+        self.dbc['database'] = 'vodlib'
+        
+        self.keylists = {}
+        self.keylists['artifact'] = ['artifactid','title','majtype','runmins','season','episode','file','filepath','director','writer','primcast','relorg','relyear','eidrid','imdbid','arbmeta']
+        #self.keylists['artifact'] = ['artifactid','title','majtype','runmins','season','episode','file','filepath','director','writer','primcast','relorg','relyear','eidrid','imdbid','arbmeta','synopsis']
+        # print('VodLibDB - Got through __init__, anyway .... innit?')
+        pass
+    def _connect(self):
+        dbc = pymysql.connect(host=self.dbc['host'],user=self.dbc['user'],password=self.dbc['password'],database=self.dbc['database'])
+        return dbc
+        pass
+    def _stdRead(self,sqlIn):
+        data = None
+        try:
+            assert sqlIn.split(" ")[0].upper() == "SELECT"
+            dbc = self._connect()
+            cursor = dbc.cursor()
+            cursor.execute(sqlIn)
+            data = cursor.fetchall()
+            dbc.close()
+        except:
+            print("Poop")
+        return data
+    def _stdUpdate(self,sqlIn):
+        retval = None
+        try:
+            assert sqlIn.split(" ")[0].upper() == "UPDATE"
+            #print(sqlIn)
+            dbc = self._connect()
+            cursor = dbc.cursor()
+            cursor.execute(sqlIn)
+            dbc.commit()
+            dbc.close()
+            pass
+        except:
+            print("_stdUpdate Poop: " + sqlIn)
+            raise Exception("Update failed!")
+        return retval
+    def _stdInsert(self,sqlIn):
+        retval = None
+        try:
+            assert sqlIn.split(" ")[0].upper() == "INSERT"
+            #print(sqlIn)
+            dbc = self._connect()
+            cursor = dbc.cursor()
+            cursor.execute(sqlIn)
+            dbc.commit()
+            dbc.close()
+            pass
+        except:
+            print("_stdInsert Poop : " + sqlIn)
+            #raise Exception("Insert failed!")
+        return retval
+    def _stdDelete(self,sqlIn):
+        retval = None
+        try:
+            assert sqlIn.split(" ")[0].upper() == "DELETE"
+            #print(sqlIn)
+            dbc = self._connect()
+            cursor = dbc.cursor()
+            cursor.execute(sqlIn)
+            dbc.commit()
+            dbc.close()
+            pass
+        except:
+            print("_stdDelete: Poop")
+            #raise Exception("Insert failed!")
+        return retval
+    def fetchArtiDeetsFromOmdbapi(self):
+        print("vldb.fetchArtiDeetsFromOmdbapi")
+        maxRows = 10
+        selSql = 'SELECT artifactid, title, majtype, imdbid, arbmeta '
+        selSql += 'FROM artifacts '
+        selSql += 'WHERE imdbid != "string" AND arbmeta = \'{"string": "string"}\' '
+        selSql += 'ORDER BY title LIMIT ' + str(maxRows) + ';'
+        rowsTuple = None
+        try:
+            rowsTuple = self._stdRead(selSql)
+        except:
+            print("Source list query failed!")
+            return False
+        pass
+        
+        for rowTuple in rowsTuple:
+            aId = rowTuple[0]
+            aTitle = rowTuple[1]
+            aMajtype = rowTuple[2]
+            aImdbid = rowTuple[3]
+            aArbmeta = rowTuple[4]
+            
+            api_url = "http://www.omdbapi.com/?i=" + aImdbid + "&apikey=87edb0eb"
+            response = requests.get(api_url)
+            try:
+                jsonStr = json.dumps(response.json()).replace("'","\\\'")
+            except:
+                print("json.dumps failed for " + aImdbid + ".  Skipping")
+                continue
+            pass
+            
+            updSql = "UPDATE artifacts SET arbmeta = '" + jsonStr + "' WHERE artifactid = '" + aId + "'"
+            if True == True:
+                try:
+                    self._stdUpdate(updSql)
+                except:
+                    print("Update failed for " + aTitle + " (" + aId + ")")
+                pass
+            else:
+                print(api_url +  " -- " + jsonStr)
+            pass
+        pass
+        return True
+    def createArtifact(self,artiDictIn):
+        retval = None
+        
+        artiProto = {}
+        artiProto['artifactid'] = 'string'
+        artiProto['title'] = 'string'
+        artiProto['majtype'] = 'string'
+        artiProto['runmins'] = -1
+        artiProto['season'] = -1
+        artiProto['episode'] = -1
+        artiProto['file'] = 'string'
+        artiProto['filepath'] = 'string'
+        artiProto['director'] = ['string']
+        artiProto['writer'] = ['string']
+        artiProto['primcast'] = ['string']
+        artiProto['relorg'] = ['string'] 
+        artiProto['relyear'] = -1
+        artiProto['eidrid'] = 'string'
+        artiProto['imdbid'] = 'string'
+        artiProto['arbmeta'] = {'string':'string'}
+        
+        # Prototype artifact keys list
+        apKeys = list(artiProto.keys())
+        
+        # "new" artifact keys list
+        naKeys = list(artiDictIn.keys())
+        
+        try:
+            assert type(artiDictIn) == type({'this':'that'})
+            print("Dict OK")
+            assert type(artiDictIn['artifactid']) == type("string")
+            print("ID Type OK")
+            print(len(artiDictIn['artifactid']))
+            assert 32 < len(artiDictIn['artifactid']) < 40
+            print("ID Length OK")
+            assert type(artiDictIn['title']) == type("string")
+            print("Title Type OK")
+            assert 1 < len(artiDictIn['title']) < 200
+            print("Title Length OK")
+        except:
+            print("createArtifact - Basic dictionary validation failed on '" + str(artiDictIn) + "'")
+            return False
+        pass
+        
+        
+        sqlSetStr = ""
+        sqlInsSetStr = ""
+        
+        # Preload the artifact ID so the insert will have it.
+        artiProto['artifactid'] = artiDictIn['artifactid']
+        
+        for key in apKeys:
+            valTyp = type(artiProto[key])
+            if valTyp == type("string"):
+                sqlInsSetStr += key + ' = ' + "'" + artiProto[key] + "'"
+            elif valTyp == type(-1):
+                sqlInsSetStr += key + ' = ' + str(artiProto[key])
+            elif valTyp == type(3.14):
+                sqlInsSetStr += key + ' = ' + str(artiProto[key])
+            elif valTyp == type(['string']):
+                sqlInsSetStr += key + ' = ' +  "'" + json.dumps(artiProto[key]) + "'"
+            elif valTyp == type({'string':'string'}):
+                sqlInsSetStr += key + ' = ' +  "'" + json.dumps(artiProto[key]) + "'"
+            else:
+                raise Exception("Illegal Value Type in artiProto")
+            pass
+                
+            #sqlInsSetStr += key + ' = ' + artiProto[key]
+            if key in naKeys:
+                # validate new value
+                if type(artiDictIn[key]) == type(artiProto[key]):
+                    artiProto[key] = artiDictIn[key]
+                else:
+                    pass
+                pass
+            pass
+            # sqlSetStr += key + ' = ' + artiProto[key]
+            
+            valTyp = type(artiProto[key])
+            if valTyp == type("string"):
+                sqlSetStr += key + ' = ' + artiProto[key]
+            elif valTyp == type(-1):
+                sqlSetStr += key + ' = ' + str(artiProto[key])
+            elif valTyp == type(3.14):
+                sqlSetStr += key + ' = ' + str(artiProto[key])
+            elif valTyp == type(['string']):
+                sqlSetStr += key + ' = ' + json.dumps(artiProto[key])
+            elif valTyp == type({'string':'string'}):
+                sqlSetStr += key + ' = ' + json.dumps(artiProto[key])
+            else:
+                raise Exception("Illegal Value Type in artiProto 2: Electric Boogaloo!")
+            pass
+            
+            
+            if apKeys.index(key) < (len(apKeys) - 1):
+                sqlSetStr += ", "
+                sqlInsSetStr += ", "
+            else:
+                sqlSetStr += " "
+                sqlInsSetStr += " "
+            pass
+        pass
+        
+        insertSql = "INSERT INTO artifacts SET " + sqlInsSetStr + ";"
+        try:
+            self._stdInsert(insertSql)
+        except:
+            raise Exception("New Artifact Insert failed")
+            return False
+        pass
+        
+        try:
+            self.updateArtifactByIdAndDict(artiDictIn['artifactid'],artiProto)
+        except:
+            raise Exception("New Artifact Update failed")
+            return False
+        pass
+        
+        return retval
+    def createPerson(self,persNameIn):
+        retval = None
+        # Confirm the Person exists in the 'persons' table
+        persCheckSql = 'SELECT personname FROM persons WHERE personname = "' + persNameIn + '"'
+        # print(persCheckSql)
+        resTuple = self._stdRead(persCheckSql)
+        # print(str(resTuple))
+        # If not there, add it
+        if (type(resTuple) == type(None)) or (len(resTuple) == 0):
+            # It's not there
+            persAddSql = 'INSERT INTO persons  SET personname = "' + persNameIn + '"'
+            self._stdInsert(persAddSql)
+        pass
+        return retval
+    def createCompany(self,compNameIn):
+        retval = None
+        # Confirm the Company exists in the 'companies' table
+        compCheckSql = 'SELECT companyname FROM companies WHERE companyname = "' + compNameIn + '"'
+        resTuple = self._stdRead(compCheckSql)
+        # If not there, add it
+        if (type(resTuple) == type(None)) or (len(resTuple) == 0):
+            # It's not there
+            compAddSql = 'INSERT INTO companies  SET companyname = "' + compNameIn + '"'
+            self._stdInsert(compAddSql)
+        return retval
+    def createTag(self,tagNameIn):
+        retval = None
+        tagAddSql = 'INSERT INTO tags  SET tag = "' + tagNameIn + '"'
+        retval = self._stdInsert(tagAddSql)
+        return retval
+    def createArtiText(self,artiIdIn,fieldNmIn,contentIn):
+        insSql = "INSERT INTO artitexts SET artifactid = '" + artiIdIn 
+        insSql += "', artifield = '" + fieldNmIn 
+        insSql += "', artitext = '" + contentIn + "'"
+        retval = self._stdInsert(insSql)
+        return retval
+    def getArtifactTagsById(self,artiIdIn):
+        retList = [];
+        tagSql = "SELECT tag FROM t2a WHERE artifactid = '" + artiIdIn + "'"
+        resTuple = self._stdRead(tagSql)
+        for res in resTuple:
+            retList.append(res[0])
+        return retList
+    def getArtifactSubListsById(self,artiIdIn):
+        retDict = {'director':[],'writer':[],'primcast':[],'relorg':[]}
+        personSql = "SELECT personname, artifactid, artifield FROM p2a WHERE artifactid = '" + artiIdIn + "'"
+        companySql = "SELECT companyname, artifactid, artifield FROM c2a WHERE artifactid = '" + artiIdIn + "'"
+        personResult = self._stdRead(personSql)
+        companyResult = self._stdRead(companySql)
+        for person in personResult:
+            name = person[0]
+            field = person[2]
+            retDict[field].append(name)
+        for company in companyResult:
+            name = company[0]
+            field = company[2]
+            retDict[field].append(name)
+        return retDict
+    def getArtifactById(self,artiIdIn,listJsonFlagIn=False):
+        keyList = self.keylists['artifact']
+        sqlStr = "SELECT " 
+        fListStr = ""
+        for key in keyList:
+            fListStr += key + ", "
+        sqlStr += fListStr[0:-2]
+        sqlStr += " FROM artifacts WHERE artifactid = '" + artiIdIn + "'"
+        
+        baseTuple = self._stdRead(sqlStr)
+        retList = []
+        for record in baseTuple:
+            # Get the core of the record
+            retDict = {}
+            for key in keyList:
+                keyIdx = keyList.index(key)
+                retDict[key] = record[keyIdx]
+            pass
+            # Get the "list elements"
+            listFieldDict = self.getArtifactSubListsById(artiIdIn)
+            lfdKeys = list(listFieldDict.keys())
+            for lfdKey in lfdKeys:
+                if listJsonFlagIn == False:
+                    retDict[lfdKey] = listFieldDict[lfdKey]
+                else:
+                    retDict[lfdKey] = json.dumps(listFieldDict[lfdKey])
+                pass
+            pass
+            # Get the tags
+            tagList = self.getArtifactTagsById(artiIdIn)
+            if listJsonFlagIn == False:
+                retDict['tags'] = tagList
+            else:
+                retDict['tags'] = json.dumps(tagList)
+            pass
+            
+            textsSql = 'SELECT artifield, artitext FROM artitexts WHERE artifactid = "'
+            textsSql += artiIdIn
+            textsSql += '"'
+            rowsTuple = self._stdRead(textsSql)
+            for rowTuple in rowsTuple:
+                retDict[rowTuple[0]] = rowTuple[1]
+            
+            retList.append(retDict)
+        pass
+        return retList
+    def getArtifactListByTagList(self,tagListIn):
+        retval = None
+        assert type(tagListIn) == type(['thing'])
+        if len(tagListIn) > 0:
+            fetchSql = "SELECT t.artifactid, a.title, a.majtype "
+            fetchSql += "FROM t2a  t "
+            fetchSql += "JOIN artifacts  a ON a.artifactid = t.artifactid "
+            tagListStr = ''
+            tliLen = len(tagListIn)
+            for tag in tagListIn:
+                tagListStr += "'" + tag + "'"
+                if tagListIn.index(tag) < (tliLen - 1):
+                    tagListStr += ', '
+                else:
+                    tagListStr += ' '
+                pass
+            pass
+            
+            fetchSql += "WHERE t.tag IN (" + tagListStr + ")"
+        else:
+            fetchSql = "SELECT a.artifactid, a.title, a.majtype "
+            fetchSql += "FROM artifacts  a "
+        pass
+        
+        fetchSql += "ORDER BY a.title"
+        
+        listTuple = self._stdRead(fetchSql)
+        
+        retList = []
+        for itemTuple in listTuple:
+            tmpDict = {}
+            tmpDict['artifactid'] = itemTuple[0]
+            tmpDict['title'] = itemTuple[1]
+            tmpDict['majtype'] = itemTuple[2]
+            retList.append(tmpDict)
+        
+        return retList
+    def getArtifactListByTitleFrag(self,titleFragIn):
+        retval = None
+        assert type(titleFragIn) == type("string")
+        fetchSql = "SELECT a.artifactid, a.title, a.majtype "
+        fetchSql += "FROM artifacts  a "
+        fetchSql += "WHERE a.title LIKE '%" + titleFragIn + "%'"
+        fetchSql += "ORDER BY a.title"
+        listTuple = self._stdRead(fetchSql)
+        
+        retList = []
+        for itemTuple in listTuple:
+            tmpDict = {}
+            tmpDict['artifactid'] = itemTuple[0]
+            tmpDict['title'] = itemTuple[1]
+            tmpDict['majtype'] = itemTuple[2]
+            retList.append(tmpDict)
+        pass
+        return retList
+    def getEpisodeListBySeriesId(self,sEpiIdIn):
+        fetchSql = "SELECT episodeaid FROM s2e WHERE seriesaid = '" + sEpiIdIn + "'";
+        resTuple = self._stdRead(fetchSql)
+        resList = [];
+        for itemTuple in resTuple:
+            resList.append(itemTuple[0])
+        pass
+        return resList
+    def getNextEpisodeArtifact(self,sEpiIdIn):
+        retDict = {}
+        selSql = "SELECT a.artifactid "
+        selSql += "FROM artifacts a "
+        selSql += "JOIN s2e s ON a.artifactid = s.episodeaid "
+        selSql += "WHERE s.seriesaid = (select seriesaid from s2e where episodeaid = '"
+        selSql += sEpiIdIn
+        selSql += "') " #a7470c75-0514-40ad-8c37-821eda8ccd92')
+        selSql += "ORDER BY a.title;"    
+        rowsTuple = self._stdRead(selSql)
+        idList = []
+        for rowTuple in rowsTuple:
+            idList.append(rowTuple[0])
+        pass
+        lastEpIdx = idList.index(sEpiIdIn)
+        retList = []
+        if lastEpIdx < (len(idList) - 2) :
+            nextEpId = idList[lastEpIdx+1]
+            retList = self.getArtifactById(nextEpId,False)
+        pass
+        return retList
+    def getEpisodeTIMListBySeriesId(self,sEpiIdIn):
+        epiArtiIdList = self.getEpisodeListBySeriesId(sEpiIdIn)
+        if len(epiArtiIdList) == 0:
+            return []
+        pass
+        fetchSql = "SELECT a.artifactid, a.title, a.majtype "
+        fetchSql += "FROM artifacts  a "
+        fetchSql += "WHERE a.artifactid IN ("
+        
+        for artiId in epiArtiIdList:
+            fetchSql += "'" + artiId + "'"
+            if (epiArtiIdList.index(artiId)) < (len(epiArtiIdList) -1 ):
+                fetchSql += ", "
+            else: 
+                fetchSql += ') '
+            pass
+        
+        fetchSql += "ORDER BY a.title"
+        
+        resTuple = self._stdRead(fetchSql)
+        retList = []
+        for itemTuple in resTuple:
+            tmpDict = {}
+            tmpDict['artifactid'] = itemTuple[0]
+            tmpDict['title'] = itemTuple[1]
+            tmpDict['majtype'] = itemTuple[2]
+            retList.append(tmpDict)
+        pass
+        return retList
+    def getTagList(self):
+        retval = None
+        try:
+            tagSQL = "SELECT tag FROM tags ORDER BY tag"
+            rowsTuple = self._stdRead(tagSQL)
+            tagList = []
+            for row in rowsTuple:
+                tagList.append(row[0])
+            retval = tagList
+        except:
+            print("getTagList - POOP")
+        return retval
+    def getSupportList(self,tableNameIn):
+        retval = None
+        slSql = ''
+        if tableNameIn == 'persons':
+            slSql = 'SELECT personname FROM persons ORDER BY personname'
+        elif tableNameIn == 'companies':
+            slSql = 'SELECT companyname FROM companies ORDER BY companyname'
+        elif tableNameIn == 'tags':
+            slSql = 'SELECT tag FROM tags ORDER BY tag'
+        else:
+            print (str(tableNameIn) + ' is invalid')
+            return retval
+            
+        try:
+            # tagSQL = "SELECT tag FROM tags ORDER BY tag"
+            rowsTuple = self._stdRead(slSql)
+            itemList = []
+            for row in rowsTuple:
+                itemList.append(row[0])
+            retval = itemList
+        except:
+            print("getSupportList - POOP")
+        return retval
+    def findTag(self,tagNmIn):
+        retval = None
+        sqlStr = "SELECT tag FROM tags WHERE tag LIKE '%" + tagNmIn + "%'"
+        resTuple = self._stdRead(sqlStr)
+        resList = []
+        for row in resTuple:
+            resList.append(row[0])
+        pass
+        retval = resList
+        return retval
+    def addTagtoArtifact(self,tagStrIn,artiIdIn):
+        retval = None
+        self.createTag(tagStrIn)
+        tagSql = "INSERT INTO t2a SET tag = '" + tagStrIn + "', artifactid = '" + artiIdIn + "'"
+        self._stdInsert(tagSql)
+        return retval
+    def updateJoinTable(self,artiIdin,keyIn,tableIn,valListIn):
+        # We're going to simplify this... Clear out the values for thi
+        # table, artifactid, and fieldname, then insert the ones 
+        # provided.  This is taking a more declarative approach.  The 
+        # expectation is that the full current list will be provided for 
+        # all updates.  This COULD be tedious or ropy for very long lists
+        # but most movies have fairly constrained director, writer, and 
+        # distribution company lists.  Their primary casts are usually 
+        # not that big either.  We'll take the hit on big lists.
+        
+        # updateJoinTable: c539d5b6-316e-4c61-93d6-29613d15ef5d, tags, t2a, ['horror', 'science_fiction', 'thriller', 'world_war_2']
+        # 127.0.0.1 - - [11/Oct/2022 13:34:30] "POST /artifact/update HTTP/1.1" 200 -
+        
+        
+        #print('updateJoinTable: ' + artiIdin + ', ' + keyIn + ', ' + tableIn + ', ' + str(valListIn))
+        
+        retval = None
+        if tableIn == 'p2a':
+            p2aPreClearSql = 'DELETE FROM p2a WHERE artifactid = "'
+            p2aPreClearSql += artiIdin
+            p2aPreClearSql += '" AND artifield = "'
+            p2aPreClearSql += keyIn
+            p2aPreClearSql += '"'
+            # print('p2aPreClearSql: ' + p2aPreClearSql)
+            self._stdDelete(p2aPreClearSql)
+            for val in valListIn:
+                # print('Trying to create Person ' + val)
+                self.createPerson(val)
+                # print('Trying to insert into p2a...')
+                p2aInsSql = 'INSERT INTO p2a SET personname = "'
+                p2aInsSql += val
+                p2aInsSql += '", artifactid = "'
+                p2aInsSql += artiIdin
+                p2aInsSql += '", artifield = "'
+                p2aInsSql += keyIn
+                p2aInsSql += '"'
+                # print('p2aInsSql: ' + p2aInsSql)
+                self._stdInsert(p2aInsSql)
+                # print('...done.')
+                pass
+            pass
+        elif tableIn == 'c2a':
+            c2aPreClearSql = 'DELETE FROM c2a WHERE artifactid = "'
+            c2aPreClearSql += artiIdin
+            c2aPreClearSql += '" AND artifield = "'
+            c2aPreClearSql += keyIn
+            c2aPreClearSql += '"'
+            # print(c2aPreClearSql)
+            self._stdDelete(c2aPreClearSql)
+            for val in valListIn:
+                self.createCompany(val)
+                
+                c2aInsSql = 'INSERT INTO c2a SET companyname = "'
+                c2aInsSql += val
+                c2aInsSql += '", artifactid = "'
+                c2aInsSql += artiIdin
+                c2aInsSql += '", artifield = "'
+                c2aInsSql += keyIn
+                c2aInsSql += '"'
+                self._stdInsert(c2aInsSql)
+                pass
+            pass
+        elif tableIn == 't2a':
+            t2aPreClearSql = 'DELETE FROM t2a WHERE artifactid = "'
+            t2aPreClearSql += artiIdin
+            #t2aPreClearSql += '" AND artifield = "'
+            #t2aPreClearSql += keyIn
+            t2aPreClearSql += '"'
+            # print(c2aPreClearSql)
+            self._stdDelete(t2aPreClearSql)
+            for val in valListIn:
+                self.createTag(val)
+                
+                t2aInsSql = 'INSERT INTO t2a SET tag = "'
+                t2aInsSql += val
+                t2aInsSql += '", artifactid = "'
+                t2aInsSql += artiIdin
+                #t2aInsSql += '", artifield = "'
+                #t2aInsSql += keyIn
+                t2aInsSql += '"'
+                self._stdInsert(t2aInsSql)
+                pass
+            pass
+        elif tableIn == 'artitexts':
+            
+            # MariaDB [vodlib]> desc artitexts;
+            # +------------+-------------+------+-----+---------+-------+
+            # | Field      | Type        | Null | Key | Default | Extra |
+            # +------------+-------------+------+-----+---------+-------+
+            # | artifactid | varchar(40) | NO   | PRI | NULL    |       |
+            # | artifield  | varchar(50) | NO   | PRI | NULL    |       |
+            # | artitext   | mediumtext  | NO   |     | NULL    |       |
+            # +------------+-------------+------+-----+---------+-------+
+            # 3 rows in set (0.001 sec)
+            
+            # INSERT INTO ins_duplicate VALUES (4,'Gorilla') 
+            # ON DUPLICATE KEY UPDATE animal='Gorilla';
+            
+            atUpdateSql = 'INSERT INTO artitexts VALUES ("'
+            atUpdateSql += artiIdin
+            atUpdateSql += '","'
+            atUpdateSql += keyIn
+            atUpdateSql += '","'
+            atUpdateSql += valListIn[0]
+            atUpdateSql += '") ON DUPLICATE KEY UPDATE artitext = "'
+            atUpdateSql += valListIn[0]
+            atUpdateSql += '"'
+            # print('updateJoinTable: ' + atUpdateSql)
+            self._stdInsert(atUpdateSql)
+        else:
+            print('updateJoinTable - Unknown table type: ' + tableIn)
+        #woof
+        pass
+        return retval
+    def updateArtifactByIdAndDict(self,artiIdIn,updateDictIn):
+        
+        # print('updateArtifactByIdAndDict: ' + artiIdIn + ', ' + json.dumps(updateDictIn))
+        
+        # keyList is the reference key list from "self"
+        keyList = self.keylists['artifact']
+        # workingUD is the "working" Update Dictionary
+        workingUD = {}
+        # workingTagsList should be obvious
+        workingTagsList = []
+        
+        # diKeys is the list of keys in updateDictIn
+        # Among other things, we will use this to identifiy
+        # fields which are handled outside the "artifacts" table 
+        diKeys = list(updateDictIn.keys())
+        
+        #  We're building up workingUD to include only those KVPs
+        # represented in keyList 
+        for rKey in keyList:
+            if rKey in diKeys:
+                workingUD[rKey] = updateDictIn[rKey]
+            pass
+        pass
+        
+        # print('updateArtifactByIdAndDict: WOOFWOOF 001 - workingUD: ' + str(workingUD))
+        
+        
+        
+        # Put tags (if any) in workingTagsList for separate handling
+        if "tags" in diKeys:
+            for udiTag in updateDictIn['tags']:
+                workingTagsList.append(udiTag)
+            pass
+        pass
+        
+        
+        
+        # print('updateArtifactByIdAndDict: WOOFWOOF 002 - workingTagsList: ' + str(workingTagsList))
+        
+        # Set up join table references
+        joinTableFieldList = ['director','writer','primcast','relorg','synopsis','tags']
+        joinTableLUDict = {'director':'p2a','writer':'p2a','primcast':'p2a','relorg':'c2a','synopsis':'artitexts','tags':'t2a'}
+        
+        # Start setting up the UPDATE SQL for the artifacts table
+        #workingArtiSql = "UPDATE artifacts SET "
+        workingArtiSql = ""
+        
+        # get the list of keys from the workingUD dictionary, since
+        # we should be done populating it now
+        # "Working Artifact Key List"
+        # wakList = list(workingUD.keys())
+        wakList = list(updateDictIn.keys())
+        
+        # print('updateArtifactByIdAndDict: WOOFWOOF 003 - wakList: ' + str(wakList))
+        
+        #  Now, let's build up the daWKList - this is the keys for 
+        # fields we will actually be updating natively in the artifact.
+        daWAKList = []
+        for key in wakList:
+            if key not in joinTableFieldList:
+                # print('Adding ' + key + ' to daWAKList')
+                daWAKList.append(key)
+            pass
+        pass
+        
+        # print('updateArtifactByIdAndDict: WOOFWOOF 004 - ' + str(daWAKList))
+        
+        # Process the artifact fields
+        if len(daWAKList) > 0:
+            # print('going to try to build up workingArtiSql')
+            # Start setting up the UPDATE SQL for the artifacts table
+            workingArtiSql = "UPDATE artifacts SET "
+            for daWKey in daWAKList:
+                # print('Working daWKey: ' + daWKey)
+                wakVal = workingUD[daWKey]
+                # print('wakVal: ' + str(wakVal))
+                workingArtiSql += daWKey + ' = ' 
+                # print('workingArtiSql: ' + workingArtiSql)
+                wakValTyp = type(wakVal)
+                # print('wakValTyp: ' + str(wakValTyp))
+                if wakValTyp == type('string'):
+                    # print(daWKey + ' STRING!')
+                    workingArtiSql += '"' + wakVal + '"'
+                elif wakValTyp == type(-1):
+                    # print(daWKey + ' INTEGER!')
+                    workingArtiSql +=  str(wakVal) 
+                elif wakValTyp == type(3.14):
+                    # print(daWKey + ' FLOAT!')
+                    workingArtiSql +=  str(wakVal) 
+                elif wakValTyp == type(['poop']):
+                    # print(daWKey + ' LIST!')
+                    # Actually, all the lists have been farmed out to 
+                    # joining tables, so... this needs to be more complex
+                    workingArtiSql +=  "'" + json.dumps(wakVal) + "'"
+                elif wakValTyp == type({'poop':'poop'}):
+                    # print(daWKey + ' DICTIONARY!')
+                    workingArtiSql +=  "'" + json.dumps(wakVal) + "'" 
+                else:
+                    print(daWKey + ' UNKNOWN! WTF?!')
+                    raise Exception ('UNHANDLED TYPE')
+                pass
+                if daWAKList.index(daWKey) < (len(daWAKList) - 1):
+                    # print("Adding a comma.")
+                    workingArtiSql += ', '
+                pass
+            workingArtiSql += " WHERE artifactid = '" + artiIdIn + "'"
+            # print('workingArtiSql: ' + workingArtiSql)
+            # print('updateArtifactByIdAndDict: WOOFWOOF 005 - workingArtiSql: ' + workingArtiSql)
+            self._stdUpdate(workingArtiSql)
+        pass
+        
+        for wak in wakList:
+            if wak in joinTableFieldList:
+                #This is where we handle "join table keys"
+                # print('Handling Join Table key ' + wak)
+                newVal = updateDictIn[wak]
+                jTable = joinTableLUDict[wak]
+                # print('jTable: ' + jTable)
+                if jTable == 'artitexts':
+                    newVal = [updateDictIn[wak]]
+                # print('newVal: ' + str(newVal))
+                self.updateJoinTable(artiIdIn,wak,jTable,newVal)
+                pass
+            pass
+        pass
+        
+        
+        # print('updateArtifactByIdAndDict: WOOFWOOF 006')
+        
+        # workingArtiSql += " WHERE artifactid = '" + artiIdIn + "'"
+        # print(workingArtiSql)
+        # Update the Artifact
+        pass
+    def deleteArtifact(self,artiIdIn):
+        retval = None
+        tblNmList = ['artifacts','c2a','p2a','t2a']
+        for tblNm in tblNmList:
+            try:
+                delArtiSql = "DELETE FROM "
+                delArtiSql += tblNm
+                delArtiSql += " WHERE artifactid = '"
+                delArtiSql += artiIdIn
+                delArtiSql += "'"
+                self._stdDelete(delArtiSql)
+            except:
+                print("Delete of " + artiIdIn + " from " + tblNm + " FAILED")
+                retval = False
+            pass
+        pass
+        if retval == None:
+            retval = True
+        pass
+        return retval
+    def removeTagFromArtifact(self,artiIdIn,tagStrIn):
+        retval = None
+        try:
+            pass
+            delArtiTagSql = "DELETE FROM "
+            delArtiTagSql += "t2a"
+            delArtiTagSql += " WHERE artifactid = '"
+            delArtiTagSql += artiIdIn
+            delArtiTagSql += "' AND tag = '"
+            delArtiTagSql += tagStrIn
+            delArtiTagSql += "'"
+            self._stdDelete(delArtiTagSql)
+        except:
+            print('POOP! removeTagFromArtifact',artiIdIn,tagStrIn)
+            pass
+            
+        return retval
+    def getArtifactNeedingImdbId(self,majtypeIn="movie"):
+        selSql = "SELECT title,artifactid "
+        selSql += "FROM artifacts "
+        selSql += "WHERE imdbid = 'string' AND majtype = '" 
+        selSql += majtypeIn
+        selSql += "' LIMIT 1"
+        
+        rowsTuple = self._stdRead(selSql);
+        retDict = {}
+        if len(rowsTuple) > 0:
+            retDict['title'] = rowsTuple[0][0]
+            retDict['artifactid'] = rowsTuple[0][1]
+        else:
+            raise Exception("No result found")
+        pass
+        return retDict
+    def setImdbId(self,artiIdIn,imdbIdIn):
+        retval = False
+        try:
+            assert type(artiIdIn) == type('string')
+            assert 32 < len(artiIdIn) < 40
+            assert type(imdbIdIn) == type('string')  # tt1856101
+            assert (imdbIdIn == 'none') or (8 < len(imdbIdIn) < 12)
+            
+            updSql = "UPDATE artifacts "
+            updSql += "SET imdbid = '" + imdbIdIn + "' "
+            updSql += "WHERE artifactid = '" + artiIdIn + "'"
+            
+            self._stdUpdate(updSql)
+            
+            retval = True
+        except:
+            print("setImdbId update failed with values: artiIdIn: " + artiIdIn + "; imdbIdIn: " + imdbIdIn )
+        return retval
+    def assignTagToSeries(self, seriesAIDIn, tagIn):
+        retval = False
+        
+        # Confirm the Series exists (e.g. SELECT title, artifactid FROM artifacts WHERE majtype = 'tvseries' and title LIKE 'Perry Mason%';)
+        sql1 = "SELECT COUNT(*) FROM artifacts WHERE majtype = 'tvseries' AND artifactid = '"
+        sql1 += seriesAIDIn
+        sql1 += "'"
+        rowsTuple = self._stdRead(sql1)
+        if rowsTuple[0][0] == 0:
+            print("Series with ID " + seriesAIDIn + " not found")
+            return retval
+        pass
+        
+        # Confirm the Tag exists (e.g. SELECT tag FROM tags WHERE tag = 'detective';)
+        sql2 = "SELECT COUNT(*) FROM tags WHERE tag = '"
+        sql2 += tagIn
+        sql2 += "'"
+        rowsTuple = self._stdRead(sql2)
+        if rowsTuple[0][0] == 0:
+            print("Tag " + tagIn + " not found")
+            return retval
+        pass
+        
+        # Get the list of Episodes (e.g. select episodeaid from s2e where seriesaid = '03d66d13-0c0f-463a-af0b-edbb78d6b517';)
+        sql3 = "SELECT episodeaid FROM s2e WHERE seriesaid = '"
+        sql3 += seriesAIDIn
+        sql3 += "'"
+        rowsTuple = self._stdRead(sql3)
+        epIdList = []
+        for rowTuple in rowsTuple:
+             epIdList.append(rowTuple[0])
+             
+        epIdList.append(seriesAIDIn)
+        
+        # For each Episode in the above result, insert into t2a a 
+        for aId in epIdList:
+            sql4 = "INSERT INTO t2a SET tag = '"
+            sql4 += tagIn
+            sql4 += "', artifactid = '"
+            sql4 += aId
+            sql4 += "'"
+            try:
+                self._stdInsert(sql4)
+            except:
+                print("Tag assignment " + tagIn + ", " + aId + " failed.")
+            pass
+        pass
+        
+        retval = True
+        
+        return retval
+
+class MediaLibraryDB:
+    def __init__(self):
+        # Metadata for this isntantiation
+        self.meta = {}
+        
+        # Set-up the data store for the whole point of why we're here.
+        self.intializeLibDict()
+        
+        # fun fact about tags -- all tags are stored "smash-case lower"
+        # with spaces converted to underscores
+        #  See function __normalizeTagStr for all the deets
+        self.libMeta = {}
+        self.libMeta['libstore'] = {'path':'/home/tourvilp/Desktop/vodlib/DBSCRATCH/data','file':'vml_test.json'}
+        pass
+    def __normalizeTagStr(self,tagStrIn):
+        istr0 = tagStrIn.lower()
+        istr1 = istr0.strip()
+        istr2 = istr1.replace(' ','_')
+        return istr2
+    def intializeLibDict(self):
+        self.libDict = {}
+        self.libDict['n2a'] = {}
+        self.libDict['artifacts'] = {}
+        self.libDict['tags'] = []
+        self.libDict['a2t'] = {}
+        self.libDict['t2a'] = {}
+        self.libDict['series'] = []
+        
+        vldb = VodLibDB()
+        self.libDict['tags'] = vldb.getTagList()
+        
+        self.artifactProto = {}
+        self.artifactProto['artifactid'] = 'string'
+        self.artifactProto['title'] = 'string'
+        self.artifactProto['majtype'] = 'string'
+        self.artifactProto['runmins'] = -1
+        self.artifactProto['season'] = -1
+        self.artifactProto['episode'] = -1
+        self.artifactProto['file'] = 'string'
+        self.artifactProto['filepath'] = 'string'
+        self.artifactProto['director'] = ['string']
+        self.artifactProto['writer'] = ['string']
+        self.artifactProto['primcast'] = ['string']
+        self.artifactProto['relorg'] = ['string'] 
+        self.artifactProto['relyear'] = -1
+        self.artifactProto['eidrid'] = 'string'
+        self.artifactProto['imdbid'] = 'string'
+        self.artifactProto['arbmeta'] = {'string':'string'}
+        
+        pass
+    def loadJsonLibrary(self,jsonStrIn):
+        retval = False
+        try:
+            self.libDict = json.loads(jsonStrIn)
+            retval = True
+        except:
+            print("POOP!  JSON Load FAILED!!!")
+        pass
+        return retval
+    def extractJsonLibrary(self):
+        pass
+        retDict = {}
+        retDict = {'n2a':{},'artifacts':{},'tags':[],'t2a':{},'a2t':{}}
+        artiList = self.findArtifactsByName('')
+        for artiListDict in artiList:
+            artiId = artiListDict['artifactid']
+            thisArtiDict = self.getArtifactById(artiId)
+            retDict['artifacts'][artiId] = thisArtiDict
+            retDict['a2t'] = thisArtiDict['tags']
+            retDict['n2a'][thisArtiDict['title']] = artiId
+        pass
+            
+        return json.dumps(retDict)
+    def extractJsonLibraryFile(self):
+        return json.dumps(self.libDict)
+    def loadLibraryFromFile(self,fqFilPathIn=None):
+        fqfp = None
+        if (fqFilPathIn == None):
+            fqfp = self.libMeta['libstore']['path'] + '/' + self.libMeta['libstore']['file']
+        else:
+            fqfp = fqFilPathIn
+        pass
+        try:
+            fh2 = open(fqfp,'rb')
+            b64InBytes = fh2.read()
+            fh2.close()
+        except IOError as error:
+            print('File Sad: ' + str(error))
+        else:
+            readString = base64.b64decode(b64InBytes)
+            self.loadJsonLibrary(readString)
+        finally:
+            pass
+        pass
+    def saveLibraryToFile(self,fqFilPathIn=None):
+        # WRITE CURRENT BUFFER OUT TO FILE
+        masterString = self.extractJsonLibrary()
+        b64OutBytes = base64.b64encode(masterString.encode('ascii'))
+        fqfp = None
+        if (fqFilPathIn == None):
+            fqfp = self.libMeta['libstore']['path'] + '/' + self.libMeta['libstore']['file']
+        else:
+            fqfp = fqFilPathIn
+        None
+        try:
+            fh1 = open(fqfp,'wb')
+            fh1.write(b64OutBytes)
+            fh1.close()
+        except IOError as error:
+            print('File Sad: ' + str(error))
+        else:
+            pass
+        finally:
+            pass
+        pass
+    def createTag(self,tagStrIn):
+        retval = False
+        try:
+            ntag = self.__normalizeTagStr(tagStrIn)
+            vldb = VodLibDB()
+            vldb.createTag(ntag)
+            retval = True
+        except:
+            retval = False
+            pass
+        pass
+        return retval
+    def createArtitext(self,artiIdIn,fieldNameIn,contentIn):
+        retval = False
+        try:
+            vldb = VodLibDB()
+            vldb.createArtiText(artiIdIn,fieldNameIn,contentIn)
+            retval = True
+        except:
+            retval = False
+            pass
+        pass
+        return retval
+    def deleteTag(self,tagStrIn):
+        retval = False
+        tidx = self.findTag(tagStrIn)
+        if (tidx > -1) :
+            # Tag is present
+            try:
+                ntag = self.__normalizeTagStr(tagStrIn)
+                del self.libDict['tags'][tidx]
+                del self.libDict['t2a'][ntag]
+                retval = True
+            except:
+                retval = False
+                pass
+            pass
+        else:
+            # Tag is not present
+            retval = True
+        pass
+        return retval
+    def findTag(self,tagStrIn):
+        ntag = self.__normalizeTagStr(tagStrIn)
+        retval = -1
+        try:
+            #retval = self.libDict['tags'].index(ntag)
+            
+            vldb = VodLibDB()
+            resTagList = vldb.findTag(ntag)
+            retval = len(resTagList)
+            
+        except:
+            retval = -1
+        pass
+        return retval
+    def getSupportList(self,tableNameIn):
+        retval = None
+        try:
+            assert tableNameIn in ['persons','companies','tags']
+            # ntag = self.__normalizeTagStr(tagStrIn)
+            vldb = VodLibDB()
+            retval = vldb.getSupportList(tableNameIn)
+            # retval = True
+        except:
+            retval = False
+            pass
+        pass
+        return retval
+    def createArtifact(self,artifactDictIn):
+        # We should be confirming that the title doesn't already exist
+        try:
+            assert (type(artifactDictIn['title']) == type("A String"))
+        except:
+            raise Exception("createArtifact - FATAL: No Title Provided")
+        pass
+        aId = str(uuid.uuid4())
+        artifactDictIn['artifactid'] = aId
+        pKeyList = list(self.artifactProto.keys())
+        aKeyList = list(artifactDictIn.keys())
+        skipKeysList = []
+        inserDict = {}
+        for pKey in pKeyList:
+            if pKey in aKeyList:
+                try:
+                    assert (type(self.artifactProto[pKey]) == type(artifactDictIn[pKey]))
+                    inserDict[pKey] = artifactDictIn[pKey]
+                except:
+                    print("createArtifact: POOP " + str(pKey))
+                    skipKeysList.append(pKey)
+                pass
+            else:
+                print("createArtifact: MISSING " + str(pKey))
+                inserDict[pKey] = artifactDictIn[pKey]
+            pass
+        pass
+        vldb = VodLibDB()
+        vldb.createArtifact(inserDict)
+        return aId
+    def modifyArtifact(self,artifactIdIn,artifactDictIn):
+        retval = False
+        try:
+            vldb = VodLibDB()
+            foo = vldb.updateArtifactByIdAndDict(artifactIdIn,artifactDictIn)
+            retval = True
+        except:
+            retval = False
+            print('Artifact update failed')
+        pass
+        return retval
+    def modifyArtifactTitle(self,oldTitleIn,newTitleIn,artifactIdIn):
+        retval = False
+        try:
+            self.modifyArtifact(artifactIdIn,{'title':newTitleIn})
+            retval = True
+        except:
+            print('Title Update failed')
+        return retval
+    def deleteArtifact(self,artifactId=None,artifactName=None):
+        retval = False
+        vldb = VodLibDB()
+        retval = vldb.deleteArtifact()
+        return retval
+    def getTagList(self):
+        retval = None
+        vldb = VodLibDB()
+        retval = vldb.getTagList()
+        return retval
+    def getArtifactById(self,artiIdIn):
+        retval = None
+        try:
+            vldb = VodLibDB()
+            retval = vldb.getArtifactById(artiIdIn,False)[0]
+        except:
+            print("getArtifactById for " + artiIdIn + " FAILED")
+        pass
+        return retval
+    def getNextEpisodeArtifactById(self,artiIdIn):
+        retval = None
+        try:
+            vldb = VodLibDB()
+            retval = vldb.getNextEpisodeArtifact(artiIdIn)[0]
+        except:
+            print("getNextEpisodeArtifactById for " + artiIdIn + " FAILED")
+        return retval
+    def getArtifactByName(self,artiNameIn):
+        retval = False
+        try:
+            vldb = VodLibDB()
+            resList = vldb.getArtifactListByTitleFrag(artiNameFragStrIn)
+            artiId = resList[0]['artifactid']
+            retval = self.getArtifactById(artiId)
+        except:
+            print(getArtifactByName + ": DUNG!")
+        return retval
+    def addTagtoArtifact(self,tagStrIn,artifactIdIn):
+        retval = False
+        stepfail = False
+        ntag = self.__normalizeTagStr(tagStrIn)
+        vldb = VodLibDB()
+        retval = vldb.addTagtoArtifact(ntag,artifactIdIn)
+        return retval
+    def addTagToSeries(self,tagIn,seriesAIDIn):
+        nTag = self.__normalizeTagStr(tagIn)
+        vldb = VodLibDB()
+        retval = vldb.assignTagToSeries(seriesAIDIn, nTag)
+        return retval
+    def removeTagFromArtifact(self,tagStrIn,artifactIdIn):
+        retval = False
+        ntag = self.__normalizeTagStr(tagStrIn)
+        try:
+            vldb = VodLibDB()
+            retval = vldb.removeTagFromArtifact(artifactIdIn,ntag)
+        except:
+            print("Well, poop.")
+        pass
+        return retval
+    def getArtifactsByTag(self,tagStrIn):
+        ntag = self.__normalizeTagStr(tagStrIn)
+        retobj = []
+        try:
+            vldb = VodLibDB()
+            retobj = vldb.getArtifactListByTagList([ntag])
+        except:
+            print('getArtifactsByTag  BARF')
+            pass
+        pass
+        return retobj
+    def findArtifactsByName(self,artiNameFragStrIn):
+        vldb = VodLibDB()
+        resList = vldb.getArtifactListByTitleFrag(artiNameFragStrIn)
+        return resList
+    def getIdTitleListBySeriesArtiId(self,atriIdIn):
+        vldb = VodLibDB()
+        resList = vldb.getEpisodeTIMListBySeriesId(atriIdIn)
+        return resList
+    def getTagsByArtifact(self,artifactIdIn):
+        retval = False
+        try:
+            tagsList = self.libDict['a2t'][artifactIdIn]
+            retval = tagsList
+        except:
+            print('getTagsByArtifact: POOP')
+        pass
+        return retval
+    def getArtifactPrototype(self):
+        artiProtoDict = {}
+        artiProtoDict = copy.deepcopy(self.artifactProto)
+        pass
+        return artiProtoDict
+    def fetchDeetsFromApi(self):
+        print("ml.fetchDeetsFromApi")
+        vldb = VodLibDB()
+        vldb.fetchArtiDeetsFromOmdbapi()
+        return True
+    def getArtifactLackingImdbid(self,majtypeIn):
+        vldb = VodLibDB()
+        retDict = vldb.getArtifactNeedingImdbId(majtypeIn)
+        return retDict
+    def updateArtifactImdbid(self,artiIdIn,imdbidIn):
+        vldb = VodLibDB()
+        vldb.setImdbId(artiIdIn,imdbidIn)
+    def updateArtiDeetsFromOmdb(self,artiIdIn):
+        artiDict = self.getArtifactById(artiIdIn)
+        arbmetaStr = artiDict['arbmeta']
+        print(arbmetaStr)
+        arbMetaDict = None
+        try:
+            arbMetaDict = json.loads(arbmetaStr)
+        except:
+            print('Could not json.loads arbmetaStr. ')
+            return False
+        amdKeysList = list(arbMetaDict.keys())
+        if not ( 'Title' in amdKeysList ):
+            # This artifact does not have a "Title" key
+            # so we're going to skip it.
+            return False
+        pass
+        updateDict = {}
+        # Get "writer" values and put them in a List
+        writerList = arbMetaDict['Writer'].split(',')
+        if len(writerList) > 0:
+            updateDict['writer'] = []
+        pass
+        for writer in writerList:
+            updateDict['writer'].append(writer.strip())
+        pass
+        
+        # Get "Director" values and put them in a List
+        directorList = arbMetaDict['Director'].split(',')
+        if len(directorList) > 0:
+            updateDict['director'] = []
+        for director in directorList:
+            updateDict['director'].append(director.strip())
+        pass
+        
+        # Get "Actor" values and put them in a List
+        actorList = arbMetaDict['Actors'].split(',')
+        if len(actorList) > 0:
+            updateDict['primcast'] = []
+        for actor in actorList:
+            updateDict['primcast'].append(actor.strip())
+        pass
+        
+        # Get the "Plot" value and put it in an artitext
+        plotStr = arbMetaDict['Plot'].replace("'","\\\'")
+        self.createArtitext(artiIdIn,'synopsis',plotStr)
+        
+        # Update the artifact in the DB based on the values 
+        # pulled from OMDBAPI data
+        retval = self.modifyArtifact(artiIdIn,updateDict)
+        
+        return retval
+
+class MLCLI:
+    def __init__(self):
+        self.ml = MediaLibraryDB()
+        
+        self.mainMenuList = []
+        self.mainMenuList.append({'label':'Create new Artifact','detail':'Create new Artifact','func':self.doNewArti})
+        self.mainMenuList.append({'label':'Create new Artifacts from a File List','detail':'Create new Artifacts from a File List','func':self.doNewArtisFromFile})
+        self.mainMenuList.append({'label':'List Available Tags','detail':'List Available Tags','func':self.listTags})
+        self.mainMenuList.append({'label':'Create New Tag','detail':'Create New Tag','func':self.doNewTag})
+        self.mainMenuList.append({'label':"Get Artifacts By Tag",'detail':'Get Artifacts By Tag','func':self.artiByTag})
+        self.mainMenuList.append({'label':"Get Artifacts By Search String",'detail':'Get Artifacts By Search String','func':self.srchArtiByTitle})
+        self.mainMenuList.append({'label':"Get Artifacts Detail By ID",'detail':'Get Artifacts Detail By ID','func':self.srchArtiDetailById})
+        self.mainMenuList.append({'label':'Edit Artifact By ID','detail':'Edit Artifact By ID','func':self.doEditArtiById}) #doEditArtiById
+        self.mainMenuList.append({'label':'Add Tag to Artifact','detail':'Add Tag to Artifact','func':self.doTagToArti})
+        self.mainMenuList.append({'label':'Add Tag to TV Series','detail':'Add Tag to TV Series','func':self.doTagToSeries})
+        self.mainMenuList.append({'label':'Remove Tag from Artifact','detail':'Remove Tag from Artifact','func':self.doTagFromArti})
+        # self.mainMenuList.append({'label':'Emergency Title Fix','detail':'string','func':self.doTitleFix})
+        # self.mainMenuList.append({'label':'Save Library','detail':'Save Library','func':self.doSaveLib})
+        self.mainMenuList.append({'label':'Fetch some Artifact details from API','detail':'string','func':self.doArtiDeetApiFetch})
+        self.mainMenuList.append({'label':'Add missing IIMDB ID','detail':'Add missing IIMDB ID','func':self.doAddMissingImdbid})
+        self.mainMenuList.append({'label':'Update Arti Deets from OMDBAPI data','detail':'Update Arti Deets from OMDBAPI data','func':self.doUpdateArtiFromOmdb})
+        self.mainMenuList.append({'label':'Exit','detail':'','func':self.doExit})
+        # self.mainMenuList.append({'label':'string','detail':'string','func':None})
+        
+        self.libDirty = False
+        pass
+    def __artiEditForm(self,artiDictIn):
+        retDict = copy.deepcopy(artiDictIn)
+        tmpArtiDict = copy.deepcopy(artiDictIn)
+        aProtoKeys = list(tmpArtiDict.keys())
+        del aProtoKeys[aProtoKeys.index('artifactid')]
+        print('-=-=-=-=-=- BEGIN =-=-=-=-=-=\n')
+        for aKey in aProtoKeys:
+            tmpVal = input('Enter ' + aKey + ' for this Artifact\n  (<Enter> to accept default value: ' + str(tmpArtiDict[aKey]) + ')\n  Your value: ')
+            print(tmpVal)
+            if (tmpVal == ''):
+                continue
+            
+            if (type(tmpArtiDict[aKey]) == type('string')):
+                # Do the string thing
+                tmpArtiDict[aKey] = tmpVal.strip()
+                pass
+            else:
+                # Do some other magic for the Prototype's type
+                print('Handle ' + tmpVal + ' as ' + str(type(tmpArtiDict[aKey])))
+                if (type(tmpArtiDict[aKey]) == type(-1)):
+                    tmpArtiDict[aKey] = int(tmpVal)
+                elif (type(tmpArtiDict[aKey]) == type([])):
+                    ### THIS REALLY OUGHT TO HAVE A TRY/EXCEPT ON IT
+                    tmpArtiDict[aKey] = json.loads(tmpVal)  # list(tmpVal)
+                elif (type(tmpArtiDict[aKey]) == type({})):
+                    ### THIS REALLY OUGHT TO HAVE A TRY/EXCEPT ON IT
+                    tmpArtiDict[aKey] = json.loads(tmpVal)  # dict(tmpVal)
+                elif (type(tmpArtiDict[aKey]) == type(False)):
+                    tmpArtiDict[aKey] = bool(tmpVal)
+                elif (type(tmpArtiDict[aKey]) == type(3.14)):
+                    tmpArtiDict[aKey] = float(tmpVal)
+                else:
+                    print('IDK WTF')
+                pass
+            pass
+            print('')
+        pass
+        return tmpArtiDict
+    def mainMenuPreso(self):
+        print('Media Library Main Menu')
+        print('=-=-=-=-=-=-=-=-=-=-=-=')
+        mmIdx = 0
+        mmLen = len(self.mainMenuList)
+        for mmIdx in range(0,mmLen):
+            print(str(mmIdx) + ') ' + self.mainMenuList[mmIdx]['label'])
+        pass
+        print('')
+        retval = input('Select a number from the options above:')
+        return retval
+    def mainMenuSelInterp(self,selectionIn):
+        retval = True
+        noodle = self.mainMenuList[int(selectionIn)]['func']
+        retval = noodle()
+        return retval
+    def mainLoop(self):
+        contYN = True
+        while (contYN == True):
+            userSelection = self.mainMenuPreso()
+            contYN = self.mainMenuSelInterp(userSelection)
+        pass
+        return False
+    def artiByTag(self):
+        tagStr = input("Enter your tag: ")
+        print('\nArtifacts for Tag ' + tagStr + ':')
+        print('-=-=-=-=-=- BEGIN =-=-=-=-=-=\n')
+        pLineList = []
+        try:
+            artiList = self.ml.getArtifactsByTag(tagStr)
+            for arti in artiList:
+                print(arti['title'] + ' (' + arti['artifactid'] + ')')
+                pLineList.append(arti['title'])
+            pass
+        except:
+            print('Operation failed')
+        print('\n-=-=-=-=-=- DONE =-=-=-=-=-=\n')
+        return True
+    def srchArtiByTitle(self):
+        srchStr = input("Enter your Title search string: ")
+        print('\nArtifacts for search string ' + srchStr + ':')
+        print('-=-=-=-=-=- BEGIN =-=-=-=-=-=\n')
+        pLineList = []
+        try:
+            artiList = self.ml.findArtifactsByName(srchStr)
+            for arti in artiList:
+                print(arti['title'] + ' (' + arti['artifactid'] + ')')
+                pLineList.append(arti['title'])
+            pass
+        except:
+            print('Operation failed')
+        print('\n-=-=-=-=-=- DONE =-=-=-=-=-=\n')
+        return True
+        return self.fakeFunc()
+    def srchArtiDetailById(self):
+        artiIdStr = input('Enter the ID: ')
+        
+        aDict = self.ml.getArtifactById(artiIdStr)
+        tList = [] 
+        
+        print('-=-=-=-=-=- BEGIN =-=-=-=-=-=\n')
+        print("Artifact details: " + str(aDict))
+        print("\nTags associated: " + str(tList))
+        print('\n-=-=-=-=-=- DONE =-=-=-=-=-=\n')
+        return self.fakeFunc()
+    def listTags(self):
+        tagList = self.ml.getTagList()
+        print("\nAvailable Tags")
+        print('-=-=-=-=-=- BEGIN =-=-=-=-=-=\n')
+        print(str(tagList))
+        print('\n-=-=-=-=-=- DONE =-=-=-=-=-=\n')
+        return self.fakeFunc()
+    def doTagToArti(self):
+        tagStr = input('Enter the tag: ')
+        titleStr = input('Enter the Title of the Artifact: ')
+        tagOK = self.ml.findTag(tagStr)
+        artiList = self.ml.findArtifactsByName(titleStr)
+        print(str(tagOK))
+        print(str(artiList))
+        if ((tagOK > -1) and (len(artiList) > 0)):
+            # Tag provided is OK and we have artifact(s) to work with
+            taggedList = []
+            for artiDict in artiList:
+                aId = artiDict['artifactid']
+                taRes = self.ml.addTagtoArtifact(tagStr,aId)
+                if (taRes == True):
+                    taggedList.append(artiDict['name'])
+                pass
+            pass
+            print('Tagged ' + str(len(taggedList)) + ' artifacts.')
+            self.libDirty = True
+        else:
+            # Tag provided is poop or there are no artifacts
+            print('Tag provided is poop or there are no artifacts')
+        pass
+        return True
+    def doTagToSeries(self):
+        tagStr = input('Enter the tag: ')
+        serArtiId = input('Enter the Artifact ID of the Series: ')
+        self.ml.addTagToSeries(tagStr,serArtiId)
+        return True
+    def doTagFromArti(self):
+        tagStr = input('Enter the tag: ')
+        titleStr = input('Enter the Title of the Artifact: ')
+        tagOK = self.ml.findTag(tagStr)
+        artiList = self.ml.findArtifactsByName(titleStr)
+        print(str(tagOK))
+        print(str(artiList))
+        if ((tagOK > -1) and (len(artiList) > 0)):
+            # Tag provided is OK and we have artifact(s) to work with
+            taggedList = []
+            for artiDict in artiList:
+                aId = artiDict['artifactid']
+                taRes = self.ml.removeTagFromArtifact(tagStr,aId)
+                if (taRes == True):
+                    taggedList.append(artiDict['name'])
+                pass
+            pass
+            print('Tagged ' + str(len(taggedList)) + ' artifacts.')
+            pass
+            self.libDirty = True
+        else:
+            # Tag provided is poop or there are no artifacts
+            print('Tag provided is poop or there are no artifacts')
+        pass
+        return True
+    def doNewArti(self):
+        tmpArtiDict = self.__artiEditForm(self.ml.getArtifactPrototype())
+        print(str(tmpArtiDict))
+        print(str(self.ml.createArtifact(tmpArtiDict)))
+        self.libDirty = True
+        print('\n-=-=-=-=-=- END =-=-=-=-=-=\n')
+        return True
+    def doNewArtisFromFile(self):
+        
+        # We want to take in:
+         # a FQ path to a file which contains a list of ".m4v" files
+         # a relative file path where the files listed in the list file can be found
+         # an optional "starter tag" to apply to all Artifacts created for the files
+         # an optional "majtype" value to apply to all  all Artifacts created for the files
+        # Load the "file list" file, and iterate over the list:
+         # for each filename:
+          # create a new Artifact, and set its "file" to the value from the "file list" file
+          # set optional "majtype" if given
+          # run through the list of keys for the Artifact
+          # save the artifact to the Library
+          # if an optional "starter tag" was provided, apply it
+          # give an opportunity to apply further tags (<Enter> if none)
+        # Remind the user to save the library.
+        flfFQSpec = None
+        artiFilePath = None
+        
+        stepOK = False
+        while stepOK == False:
+            flfFQSpec = input("Please provide a fully-qualified filespec for the \nList File: ")
+            if os.path.exists(flfFQSpec):
+                stepOK = True
+            else:
+                print(">> File " + flfFQSpec + " not found.  Try again.")
+            pass
+        pass
+        stepOK = False
+        while stepOK == False:
+            artiFilePath = input("Please provide an Artifact \nRelative Path: ")
+            
+            validOK = False
+            # Do some validation
+            if type(artiFilePath) == type("string"):
+                if artiFilePath != "":
+                    validOK = True
+                pass
+            if validOK == True:
+                stepOK = True
+            pass
+        pass
+        stepOK = False
+        while stepOK == False:
+            artiFirstTag = input(">OPTIONAL< Please provide an Artifact \nStarter Tag (or <Enter> to skip): ")
+            if artiFirstTag == "":
+                # SKIP!
+                stepOK = True
+            else:
+                validOK = False
+                # Some validation, maybe?!
+                if type(artiFirstTag) == type("string"):
+                    if artiFirstTag != "":
+                        #We should make sure the tag is valid!
+                        tagOK = self.ml.findTag(artiFirstTag)
+                        if tagOK > -1:
+                            validOK = True
+                        pass
+                    pass
+                if validOK == True:
+                    stepOK = True
+                pass
+            pass
+        pass
+        stepOK = False
+        while stepOK == False:
+            artiMajTyp = input(">OPTIONAL< Please provide an Artifact \nMajor Type (or <Enter> to skip): ")
+            if artiMajTyp == "":
+                # SKIP!
+                stepOK = True
+            else:
+                validOK = False
+                # Some validation, maybe?!
+                if type(artiMajTyp) == type("string"):
+                    if artiMajTyp != "":
+                        validOK = True
+                    pass #                validOK = True
+                if validOK == True:
+                    stepOK = True
+                pass
+            pass
+        pass
+        stepOK = False
+        perArtiDetail = False
+        while stepOK == False:
+            detailResp = input("Enter individual details per-artifact?\n(y/N): ")
+            if detailResp == "y" or detailResp == "Y":
+                # SKIP!
+                perArtiDetail = True
+                stepOK = True
+            else:
+                stepOK = True
+                pass
+            pass
+        pass
+        
+        # Bring in the file list
+        flfContList = []
+        try:
+            fh2 = open(flfFQSpec,'r')
+            for line in fh2:
+                flfContList.append(line.strip())
+            fh2.close()
+        except IOError as error:
+            print('File Sad: ' + str(error))
+        else:
+            pass
+        finally:
+            pass
+        pass        
+        
+        # Iterate over the list of File List Files
+        for flfFileName in flfContList:
+            print("\n====>> BEGIN - File " + flfFileName + "\n")
+            # Create the Artifact and preload known values
+            thisArtiDict = self.ml.getArtifactPrototype()
+            thisArtiDict['file'] = flfFileName
+            thisArtiDict['filepath'] = artiFilePath
+            if (type(artiMajTyp) == type("string")):
+                if (artiMajTyp != ""):
+                    thisArtiDict['majtype'] = artiMajTyp
+                pass
+            pass
+            
+            if perArtiDetail == True:
+                # Run the form
+                tmpArtiDict = self.__artiEditForm(thisArtiDict)
+            else:
+                tmpArtiDict = thisArtiDict
+                thisArtiDict['title'] = flfFileName
+            pass
+            
+            # Store the Artifact
+            thisArtiId = self.ml.createArtifact(tmpArtiDict)
+            
+            # Add Starter Tag
+            if (type(artiFirstTag) == type("string")):
+                if (artiFirstTag != ""):
+                    taRes = self.ml.addTagtoArtifact(artiFirstTag,thisArtiId)
+                pass
+            pass
+            
+            # Opportunity to add more tag(s)
+            # COMING SOON!  WATCH THIS SPACE!
+            pass
+            
+            print("\n====>> END - File " + flfFileName + "\n")
+            
+        pass
+ 
+        print("\n\nOK, that's it!\nPLEASE make sure you save the library to ensure\nall this hard work won't be lost!\n\n")       
+        
+        return self.fakeFunc()
+    def doEditArtiById(self):
+        artiIdStr = input('Enter the ID: ')
+        aDict = self.ml.getArtifactById(artiIdStr)
+        tList = self.ml.getTagList()
+        artiEditedDict = self.__artiEditForm(aDict)
+        print("artiEditedDict: " + str(artiEditedDict))
+        result = self.ml.modifyArtifact(artiIdStr,artiEditedDict)
+        print("self.ml.modifyArtifact result: " + str(result))
+        return self.fakeFunc()
+    def doNewTag(self):
+        newTagStr = input("Enter your new Tag: ")
+        self.libDirty = True
+        return self.ml.createTag(newTagStr)
+    def doSaveLib(self):
+        print("Saving the library...")
+        print(str(self.ml.saveLibraryToFile()))
+        self.libDirty = False
+        return True
+    def doExit(self):
+        if (self.libDirty == True):
+            saveYN = input("Save before exit (y/N)? ")
+            if (saveYN in ['y','Y']):
+                print(str(self.doSaveLib()))
+            pass
+        pass
+        return False
+    def doArtiDeetApiFetch(self):
+        print("cli.doArtiDeetApiFetch")
+        self.ml.fetchDeetsFromApi()
+        return True
+    def doAddMissingImdbid(self):
+        reqDict = self.ml.getArtifactLackingImdbid('movie')
+        imdbidIn = input("Enter IMDB ID value for Artifact " + reqDict['title'] + ": ")
+        self.ml.updateArtifactImdbid(reqDict['artifactid'],imdbidIn)
+        cont1yn = input("Continue with OMDBAPI fetch?\n[ y / N ]: ")
+        if cont1yn in ['y','Y']:
+            self.ml.fetchDeetsFromApi()
+            cont2yn = input("Continue with Artifact details update from OMDBAPI data?\n[ y / N ]: ")
+            if cont2yn in ['y','Y']:
+                self.ml.updateArtiDeetsFromOmdb(reqDict['artifactid'])
+            pass
+        pass
+        return True
+    def doUpdateArtiFromOmdb(self):
+        artiId = input("doUpdateArtiFromOmdb - Input\nArtifact ID: ")
+        self.ml.updateArtiDeetsFromOmdb(artiId)
+        return True
+    def fakeFunc(self):
+        return True
+
+pass
+
+@app.route('/')
+def index():
+    ## THE FOLLOWING HTML SHOULD PROBABLY NOT BE HERE FOR FUTURE USE.
+    ## IT IS INTENDED PRIMARILY FOR DEVELOPMENT AND TESTING OF THE 
+    ## WEB SERVICE FOR RMPC
+    retval = """<html>
+    <head>
+        <style>
+            
+           
+            body {
+                font-family: arial;
+                font-size: small;
+                color: #cccccc;
+                background-color: #222222;
+            }
+            div {
+                margin: 0px;
+                margin-left: 0px;
+                margin-right: 0px;
+                margin-top: 0px;
+                margin-bottom: 0px;
+                padding: 0px;
+                border: 1px solid gray;
+                /* border: 0px; */
+            }            
+            
+            div.artifact-default-disp-cell {
+                display:inline-flex;
+                border-width: 1px;
+                border-color: #000000;
+                border-style: solid;
+                padding:3px;
+            }
+        </style>
+        <script type="text/javascript" src="http://freezer/freezer/js/RMWebAppCoreUtil.js"></script>
+        <script type="text/javascript" src="http://localhost/vodlib/js/vodlibsketch.js"></script>
+    </head>
+    <body onload="switchboard('firstthing','',{})">
+        <div id="vodlibworld" style="width:720px;height:720;overflow:auto;">
+            <div id="titletop"  style="width:700px; height:50px;">
+                <b>RIBBBITVOD</b><br>
+            </div>
+            <div id='big-search-container' style="width:700px; height:400px; display:none;"></div>
+            <div id="div00"  style="width:700px; height:400px;">
+                <div id="playercontainer">a player might go here</div>
+            </div>
+            <div id="div01" style="width:700px;height:250px;overflow:auto;"></div>
+        </div>
+        <!-- text after div01 -->
+    </body>
+</html>
+"""
+    return retval
+
+@app.route('/blob/get',methods=['POST'])
+def blobRead():
+    ml = MediaLibraryDB()
+    ml.loadLibraryFromFile()
+    return ml.extractJsonLibrary()
+    
+@app.route('/titleidlist/get',methods=['POST','GET'])
+def getListTitleId():
+    dictIn = {}
+    diKeysList = []
+    try:
+        dictIn = yaml.safe_load(json.dumps(request.json))
+        diKeysList = list(dictIn.keys())
+        pass
+    except:
+        dictIn = {}
+        diKeysList = []
+    pass
+    ml = MediaLibraryDB()
+    if "title" in diKeysList:
+        # Let's search for artifacts based on a title fragment
+        result = ml.findArtifactsByName(dictIn['title'])
+        pass
+    elif "tag" in diKeysList:
+        # Let's search for artifacts based on a tag
+        result = ml.getArtifactsByTag(dictIn['tag'])
+        pass
+    else:
+        result = ml.findArtifactsByName('')
+        pass
+    return json.dumps(result)
+
+@app.route('/seriestidlist/get',methods=['POST'])
+def getSeriesEpisodesTIDList():
+    dictIn = {}
+    diKeysList = []
+    try:
+        dictIn = yaml.safe_load(json.dumps(request.json))
+        diKeysList = list(dictIn.keys())
+        pass
+    except:
+        dictIn = {}
+        diKeysList = []
+    pass
+    result = []
+    if "artifactid" in diKeysList:
+        ml = MediaLibraryDB()
+        tmpRes = ml.getIdTitleListBySeriesArtiId(dictIn['artifactid'])
+        if (type(tmpRes) == type([1,2])) and (len(tmpRes) > 0):
+            result = tmpRes
+        pass
+    pass
+    return json.dumps(result)
+
+@app.route('/artifact/get',methods=['POST','GET'])
+def getArtifactObj():
+    dictIn = {}
+    diKeysList = []
+    reqJson = request.json
+    try:
+        dictIn = yaml.safe_load(json.dumps(request.json))
+        diKeysList = list(dictIn.keys())
+        assert "artifactid" in diKeysList
+        assert type(dictIn['artifactid']) == type("string")
+        assert 32 < len(dictIn['artifactid']) < 40
+    except:
+        print("What came in: " + request.json)
+        dictIn = {}
+        diKeysList = []
+    pass
+    ml = MediaLibraryDB()
+    artiDict = ml.getArtifactById(dictIn['artifactid'])
+    return json.dumps(artiDict)
+
+@app.route('/nextepisode/get',methods=['POST','GET'])
+def getNxtEpArtifactObj():
+    dictIn = {}
+    diKeysList = []
+    reqJson = request.json
+    try:
+        dictIn = yaml.safe_load(json.dumps(request.json))
+        diKeysList = list(dictIn.keys())
+        assert "artifactid" in diKeysList
+        assert type(dictIn['artifactid']) == type("string")
+        assert 32 < len(dictIn['artifactid']) < 40
+    except:
+        print("What came in: " + request.json)
+        dictIn = {}
+        diKeysList = []
+    pass
+    ml = MediaLibraryDB()
+    artiDict = ml.getNextEpisodeArtifactById(dictIn['artifactid'])
+    return json.dumps(artiDict)
+
+@app.route('/taglist/get',methods=['POST','GET'])
+def getTagList():
+    ml = MediaLibraryDB()
+    return json.dumps(ml.getTagList())
+
+@app.route('/suplist/get',methods=['POST','GET'])
+def getSupportList():
+    
+    dictIn = {}
+    diKeysList = []
+    reqJson = request.json
+    try:
+        dictIn = yaml.safe_load(json.dumps(request.json))
+        diKeysList = list(dictIn.keys())
+        assert "table" in diKeysList
+        assert type(dictIn['table']) == type("string")
+        assert dictIn['table'] in ['persons','companies','tags']
+        #assert len(dictIn['table']) > 3
+    except:
+        print("What came in: " + request.json)
+        dictIn = {}
+        diKeysList = []
+    pass
+    ml = MediaLibraryDB()
+    artiDict = ml.getSupportList(dictIn['table'])
+    return json.dumps(artiDict)
+    
+    # ml = MediaLibraryDB()
+    # return json.dumps(ml.getTagList())
+    pass
+
+
+@app.route('/artifact/update',methods=['POST'])
+def updateArtifact():
+    dictIn = {}
+    diKeysList = []
+    reqJson = request.json
+    try:
+        dictIn = yaml.safe_load(json.dumps(request.json))
+        diKeysList = list(dictIn.keys())
+        assert "artifactid" in diKeysList
+        assert type(dictIn['artifactid']) == type("string")
+        assert 32 < len(dictIn['artifactid']) < 40
+        
+        assert 'values' in diKeysList
+        assert type(dictIn['values']) == type({'key':'value'})
+    except:
+        print("What came in: " + request.json)
+        dictIn = {}
+        diKeysList = []
+    pass
+    ml = MediaLibraryDB()
+    # print('updateArtifact: ' + json.dumps(dictIn))
+    result = ml.modifyArtifact(dictIn['artifactid'],dictIn['values']) # sartifactIdIn,artifactDictIn)
+    # print(result)
+    return json.dumps({'return':result})
+    # artiDict = ml.getArtifactById(dictIn['artifactid'])
+    # return json.dumps(artiDict)
+    pass
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Optional app description')
+    # Switch
+    parser.add_argument('--cli', action='store_true', help='A boolean switch')
+    args = parser.parse_args()
+
+    if (args.cli == True):
+        mlc = MLCLI()
+        mlc.mainLoop()
+    else:
+        app.run(host='0.0.0.0',port=5000)
+    pass
+

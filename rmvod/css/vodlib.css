@@ -1,0 +1,184 @@
+/*
+ * Cascading Style Sheet for for VodLib Static 2 page
+ * 
+ * 
+ *  */
+
+body {
+    background-color:#0c0c0c;
+    font-family:arial;
+    font-size:20px;
+    color:#c0c0c0;
+}
+div {
+    margin: 0px;
+    margin-left: 0px;
+    margin-right: 0px;
+    margin-top: 0px;
+    margin-bottom: 0px;
+    padding: 0px;
+    border: 0px solid gray;                
+}
+div.mastercont {
+    display:block;
+    width:1120px;
+    height:700px;
+    margin-top: 10px;
+    margin-bottom: 0px;
+    margin-left:10px;
+    margin-right:0px;
+    background-color:#101010;
+}
+div.headercont {
+    display:block;
+    width:1118px;
+    height:98px;
+    /* background-color:#00ee00; */
+}
+div.headerflexwrap {
+    display:inline-flex;
+    width:1116px;
+    height:96px;
+    /* background-color:#008800; */
+}
+div.headerflexcell {
+    display:inline-flex;
+    width:250px;
+    height:94px;
+    /* background-color:#ffffff; */
+}
+div.bigbusiness {
+    display:block;
+    width:1118px;
+    height:596px;
+    /* background-color:#ee0000; */
+}
+div.featurecont {
+    display:inline-flex;
+    width:695px;
+    height:592px;
+    /* background-color:#0000ee; */
+}
+div.featureelement {
+    display:block;
+    width:692px;
+    height:590px;
+    /* background-color:#ccffff; */
+}
+div.listcontainer{
+    display:inline-flex;
+    /* width:245px; */
+    width:410px;
+    height:562px;
+    /* background-color:#00eeee; */
+}
+div.listwidget{
+    display:block;
+    width:409px;
+    height:560px;
+    /* background-color:#eeee00; */
+    overflow:auto;
+}
+div.listelcontainer {
+    display:block;
+    width:390px;
+    padding-top:4px;
+    padding-bottom:4px;
+}          
+div.listelconttitlelink {
+    display:block;
+    width:368px;
+    /* background-color:#0d0d0c  <<====  listelseriescollepcont */
+}
+div.listelconttitle {
+    display:inline-flex;
+    width:350px;
+}
+div.listelcontxpbutt {
+    display:inline-flex;
+    width:18px;
+}
+div.listeldetailouter {  
+    display:none;
+    width:336;
+    background-color:#0c180c
+}
+div.listelseriescollep {
+    display:block;
+    width:394px;
+}
+div.listelseriescollepcont {
+    display:block;
+    width:392px;
+    background-color:#18180c  /* <<====  listelseriescollepcont */
+}
+div.listelseriescolleptitlelink {
+    display:block;
+    width:390;
+    padding-top:4px;
+    padding-bottom:4px;
+}   
+div.listelseriescolleptitle {
+    display:inline-flex;
+    padding-left:5px;
+    width:345px;
+}
+div.listelseriescollepdetail {
+    display:none;
+    width:280;
+    background-color:#20200c
+}
+div.artideetcontainer {
+    height: 180px;
+    width: 695px;
+    display: block;
+    overflow: auto;
+}
+span.listtitleunseen {
+    color: #c0c0c0;
+}
+span.listtitleseen {
+    color: #e0b0b0;
+}
+span.fieldvalue {
+    word-wrap: break-word;
+}
+/* Edit Form Elements */
+div.edit-form-outer-container {
+    display: block; 
+    width: 680px;
+    height: 580px;
+    overflow: auto;
+    /* background-color: #ffffdd; */
+}
+div.edit-form-row{
+    display: block; 
+    width:95%;
+}
+div.edit-form-field-label{
+    display: inline-flex;
+    /* background-color: #eeeeee; */
+    justify-content: right;
+    vertical-align: top;
+    width: 30%;
+}
+div.edit-form-field-value-orig{
+    display: inline-flex;
+    /* background-color: #ffffff; */
+    justify-content: left;
+    width: 60%;
+}
+div.edit-form-field-value-delta{
+    display: inline-flex;
+    /* background-color: #ffdddd; */
+    justify-content: left;
+    width: 60%;
+}
+input.edit-simple-text {
+    width: 350px;
+}
+textarea.edit-simple-textarea {
+    height: 100px;
+    width: 350px;
+}
+
