@@ -36,7 +36,8 @@ import requests
 # along with RIBBBITmedia VideoOnDemand (a.k.a. "rmvod"). If not, 
 # see <https://www.gnu.org/licenses/>.
 
-
+fileStr = "vodLibrarydb.py"
+versionStr = "0.1.1"
 
 class VodLibDB:
     def __init__(self):
@@ -112,6 +113,8 @@ class VodLibDB:
             print("_stdDelete: Poop")
             #raise Exception("Insert failed!")
         return retval
+    def getDBVersion(self):
+        return "0.1.0"
     def fetchArtiDeetsFromOmdbapi(self):
         print("vldb.fetchArtiDeetsFromOmdbapi")
         maxRows = 10
@@ -422,6 +425,45 @@ class VodLibDB:
         fetchSql += "FROM artifacts  a "
         fetchSql += "WHERE a.title LIKE '%" + titleFragIn + "%'"
         fetchSql += "ORDER BY a.title"
+        listTuple = self._stdRead(fetchSql)
+        
+        retList = []
+        for itemTuple in listTuple:
+            tmpDict = {}
+            tmpDict['artifactid'] = itemTuple[0]
+            tmpDict['title'] = itemTuple[1]
+            tmpDict['majtype'] = itemTuple[2]
+            retList.append(tmpDict)
+        pass
+        return retList
+    def getArtifactListByPersTitleStr(self,titleFragIn):  ####  NEW NEW NEW  
+        retval = None
+        
+        wrkTitleFrag = str(titleFragIn)
+        print('getArtifactListByPersTitleStr.wrkTitleFrag: ' + wrkTitleFrag)
+        #assert type(titleFragIn) == type("string")
+        
+        
+        fetchSql = 'SELECT p.artifactid AS "artifactid", a.title AS "title", a.majtype AS "majtype" ' 
+        fetchSql += 'FROM p2a p ' 
+        fetchSql += 'JOIN artifacts a ON p.artifactid = a.artifactid '
+        fetchSql += 'WHERE p.personname LIKE "%' + wrkTitleFrag + '%" '
+        
+        fetchSql += 'UNION '
+        
+        fetchSql += 'SELECT a.artifactid AS "artifactid" , a.title AS "title", a.majtype AS "majtype" '  
+        fetchSql += 'FROM artifacts a '
+        fetchSql += 'WHERE a.title LIKE "%' + wrkTitleFrag + '%" '
+        
+        fetchSql += 'ORDER BY 2'
+            
+        print(fetchSql)
+        
+        
+        # fetchSql = "SELECT a.artifactid, a.title, a.majtype "
+        # fetchSql += "FROM artifacts  a "
+        # fetchSql += "WHERE a.title LIKE '%" + titleFragIn + "%'"
+        # fetchSql += "ORDER BY a.title"
         listTuple = self._stdRead(fetchSql)
         
         retList = []
@@ -931,6 +973,9 @@ class MediaLibraryDB:
         istr1 = istr0.strip()
         istr2 = istr1.replace(' ','_')
         return istr2
+    def getDBVersion(self):
+        vldb = VodLibDB()
+        return vldb.getDBVersion()
     def intializeLibDict(self):
         self.libDict = {}
         self.libDict['n2a'] = {}
@@ -1204,7 +1249,7 @@ class MediaLibraryDB:
             print("Well, poop.")
         pass
         return retval
-    def getArtifactsByTag(self,tagStrIn):
+    def getArtifactsByTag(self,tagStrIn):  
         ntag = self.__normalizeTagStr(tagStrIn)
         retobj = []
         try:
@@ -1212,6 +1257,18 @@ class MediaLibraryDB:
             retobj = vldb.getArtifactListByTagList([ntag])
         except:
             print('getArtifactsByTag  BARF')
+            pass
+        pass
+        return retobj
+    def findArtifactsBySrchStr(self,srchStrIn):  ####  NEW NEW NEW  # getArtifactListByPersTitleStr(self,titleFragIn)
+        #ntag = self.__normalizeTagStr(srchStrIn)
+        retobj = []
+        print ('findArtifactsBySrchStr: ' + str(type(srchStrIn)) + str(srchStrIn))
+        try:
+            vldb = VodLibDB()
+            retobj = vldb.getArtifactListByPersTitleStr(str(srchStrIn))
+        except:
+            print('findArtifactsBysrchStr  BARF')
             pass
         pass
         return retobj
@@ -1763,7 +1820,13 @@ def blobRead():
     ml = MediaLibraryDB()
     ml.loadLibraryFromFile()
     return ml.extractJsonLibrary()
-    
+
+@app.route('/apiversion/get',methods = ['POST','GET'])
+def apiVersion():
+    ml = MediaLibraryDB()
+    tmpRetObj = {'api_version':versionStr,'api_file':fileStr,'db_version':ml.getDBVersion()}
+    return json.dumps(tmpRetObj)
+
 @app.route('/titleidlist/get',methods=['POST','GET'])
 def getListTitleId():
     dictIn = {}
@@ -1911,6 +1974,38 @@ def updateArtifact():
     # artiDict = ml.getArtifactById(dictIn['artifactid'])
     # return json.dumps(artiDict)
     pass
+
+@app.route('/simpletxtsrch/get',methods=['POST','GET'])   ####  NEW NEW NEW  
+def simpleTextSearch():
+    print('BEGIN simpleTextSearch ====>>')
+    dictIn = {}
+    diKeysList = []
+    reqJson = request.json
+    srchStr = ""
+    print(reqJson)
+    try:
+        dictIn = yaml.safe_load(json.dumps(request.json))
+        diKeysList = list(dictIn.keys())
+        assert "srchstr" in diKeysList
+        assert type(dictIn['srchstr']) == type("string")
+        assert 1 < len(dictIn['srchstr']) < 100
+        print("simpleTextSearch GOT THROUGH THE ASSERTS!!")
+        
+        # assert 'values' in diKeysList
+        # assert type(dictIn['values']) == type({'key':'value'})
+    except:
+        print("What came in: " + str(request.json))
+        dictIn = {}
+        diKeysList = []
+        return json.dumps([])
+    pass
+    srchStr = str(dictIn['srchstr'])
+    print(srchStr)
+    
+    #  getArtifactListByPersTitleStr
+    ml = MediaLibraryDB()
+    result = ml.findArtifactsBySrchStr(srchStr)
+    return json.dumps(result)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Optional app description')

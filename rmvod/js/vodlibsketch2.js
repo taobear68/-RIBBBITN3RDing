@@ -157,10 +157,44 @@ class RMVodWebApp {
         this.sse.ssOKWrite('localcfg','apibaseuri','/freezer/api/');       // API Base URI
         this.sse.ssOKWrite('localcfg','apiepblobget','blob/get');    // API Endpoint - Single Object Fetch
         
-        
         this.apiFetchPersonsList();
         this.apiFetchCompaniesList();
         this.apiFetchTagsList();
+        
+        // These version bits will eventually need to involve polling 
+        // the API and DB for their versions
+        this.apiFetchRemoteVersions();
+        this.postCSSVer("0.2.0");
+        this.postJSVer("0.2.0");
+        
+    }
+    postCSSVer(verStrIn){
+        console.log("postCSSVer: " + verStrIn);
+        document.getElementById("version_css").innerText = "css version: " + verStrIn;
+    }
+    postJSVer(verStrIn){
+        console.log("postJSVer: " + verStrIn);
+        document.getElementById("version_js").innerText = "js version: " + verStrIn;
+    }
+    postDBVer(verStrIn){
+        // "version_db"
+        console.log("postDBVer: " + verStrIn);
+        document.getElementById("version_db").innerText = "db version: " + verStrIn;
+    }
+    postAPIVer(verStrIn){
+        console.log("postAPIVer: " + verStrIn);
+        document.getElementById("version_api").innerText = "api version: " + verStrIn;
+    }
+    apiFetchRemoteVersions(){
+        console.log("This is where we get API and DB versions");
+        var cbFunc = function (objIn) {
+            var wa = new RMVodWebApp();
+            wa.postDBVer(objIn['db_version']);
+            wa.postAPIVer(objIn['api_version']);
+        }
+        const payloadObj = {};
+        const endpoint = '/rmvid/api/apiversion/get';
+        var result = this.genericApiCall(payloadObj,endpoint,cbFunc);
         
     }
     apiFetchPersonsList(){
@@ -508,6 +542,7 @@ class RMVodWebApp {
             var sse = new RMSSSEnhanced();
             var tagList = sse.ssRead('blob')['tags']
             var tmpHtml = '';
+            // Tag Search Select Box
             tmpHtml += '<select style="font-family:arial;font-size:18px;" id="tag-search-select" name="tag-search-select" onchange="switchboard(\'execTagSearch\',\'tag-search-select\',{})">';
             tmpHtml += '<option value="">' + 'None' +  '</option>';
             for (var idx=0; idx<tagList.length; idx++ ){
@@ -515,6 +550,10 @@ class RMVodWebApp {
             }
             tmpHtml += '</select>';
             tmpHtml += '<br>';
+            // Simple Text Field
+            tmpHtml += 'Text Srch:&nbsp;';
+            tmpHtml += '<input id="txt-srch-str" type="text" size="15" onchange="switchboard(\'execTxtSrch\',\'txt-srch-str\',{})"><br>';
+            // Advanced Search Button
             tmpHtml += ' <span onclick="switchboard(\'toggleDivViz\',\'big-search-container\',{})"><b><u>AdvSrch</u></b></span>'
             var srchDiv = document.createElement('div');
             srchDiv.innerHTML = tmpHtml;
@@ -953,6 +992,23 @@ class RMVodWebApp {
             tmpDiv.appendChild(this.renderArtifactInitial(artiIdListIn[idx]));
         }
         return tmpDiv;
+    }
+    renderArtifactBlocksBySrchTxtApi(SrchStrIn){
+        var cbFunc = function (objIn){
+            var wa = new RMVodWebApp();
+            var artiTitleIdList = wa.sse.ssRead('titleidlist');
+            if (objIn.length > 0) {
+                var tmpDiv = wa.renderSALByIdList(objIn);
+                document.getElementById('sideartilistwidget').innerHTML = '';
+                document.getElementById('sideartilistwidget').appendChild(tmpDiv);
+            }
+        }
+        var payloadObj = {};
+        if (SrchStrIn.length > 0){
+            payloadObj = {'srchstr':SrchStrIn};
+        }
+        var endpoint = "/rmvid/api/simpletxtsrch/get";
+        this.genericApiCall(payloadObj,endpoint,cbFunc);
     }
     renderArtifactBlocksByTagApi(tagStrIn){
         var cbFunc = function (objIn){
@@ -1782,7 +1838,14 @@ function switchboard(actionIn,objIdIn,argObjIn) {
         case 'execTagSearch' :
             tagVal = document.getElementById(objIdIn).value;
             ml.renderArtifactBlocksByTagApi(tagVal);
-            break;    
+            break;   
+            
+        case 'execTxtSrch' :
+            console.log("Trying to execTxtSrch: " + objIdIn);
+            console.log("execTxtSrch for " + document.getElementById(objIdIn).value);
+            ml.renderArtifactBlocksBySrchTxtApi(document.getElementById(objIdIn).value);
+            break;
+        
         case 'execAdvSrch' :
             ml.execAdvancedSearch();
             break;
