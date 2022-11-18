@@ -37,7 +37,7 @@ import requests
 # see <https://www.gnu.org/licenses/>.
 
 fileStr = "vodLibrarydb.py"
-versionStr = "0.1.1"
+versionStr = "0.1.2"
 
 class VodLibDB:
     def __init__(self):
@@ -499,7 +499,8 @@ class VodLibDB:
         pass
         lastEpIdx = idList.index(sEpiIdIn)
         retList = []
-        if lastEpIdx < (len(idList) - 2) :
+        # if lastEpIdx < (len(idList) - 2) :
+        if lastEpIdx < (len(idList) - 1) :
             nextEpId = idList[lastEpIdx+1]
             retList = self.getArtifactById(nextEpId,False)
         pass
@@ -1173,6 +1174,7 @@ class MediaLibraryDB:
         return aId
     def modifyArtifact(self,artifactIdIn,artifactDictIn):
         retval = False
+        # artifactDictIn = self.titleLibTweak(artifactDictIn)
         try:
             vldb = VodLibDB()
             foo = vldb.updateArtifactByIdAndDict(artifactIdIn,artifactDictIn)
@@ -1205,6 +1207,7 @@ class MediaLibraryDB:
         try:
             vldb = VodLibDB()
             retval = vldb.getArtifactById(artiIdIn,False)[0]
+            retval = self.titleLibTweak(retval)
         except:
             print("getArtifactById for " + artiIdIn + " FAILED")
         pass
@@ -1357,6 +1360,25 @@ class MediaLibraryDB:
         retval = self.modifyArtifact(artiIdIn,updateDict)
         
         return retval
+    def librarifyTitle(self,titleIn):
+        titleOut = titleIn
+        if titleIn[0:4] == "The ":
+            titleOut = titleIn[4:] + ", The"
+        elif titleIn[0:2] == "A ":
+            titleOut = titleIn[2:] + ", A"
+        return titleOut
+    def titleLibTweak(self,artiObjIn):
+        arbmetaDict = {}
+        try:
+            arbmetaDict = json.loads(artiObjIn['arbmeta'])
+        except:
+            print('titleLibTweak - json.loads failed on arbmeta for ' + artiObjIn['title']);
+        straightTitle = artiObjIn['title']
+        libTitle = self.librarifyTitle(straightTitle)
+        arbmetaDict['titleorig'] = straightTitle
+        arbmetaDict['titlelibrary'] = libTitle
+        artiObjIn['arbmeta'] = json.dumps(arbmetaDict)
+        return artiObjIn
 
 class MLCLI:
     def __init__(self):
