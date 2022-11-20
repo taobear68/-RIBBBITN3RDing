@@ -1008,6 +1008,33 @@ class MediaLibraryDB:
         self.artifactProto['arbmeta'] = {'string':'string'}
         
         pass
+    def readCssFile(self,cssFilPathIn):
+        verNmbrStr = "Undetermined";
+        srchStr = "vodlib.css version"
+        # /* vodlib.css version 0.2.1 */
+        try:
+            fh2 = open(cssFilPathIn,'rt')
+            foundIt = False
+            while foundIt == False:
+                lineStr = fh2.readline()
+                if (lineStr == ""):
+                    print(srchStr + ' not found in ' + cssFilPathIn)
+                    break
+                if ("vodlib.css version" in lineStr):
+                    foundIt = True
+                    partList = lineStr.split(" ")
+                    verNmbrStr = partList[3]
+                pass
+            pass
+            fh2.close()
+        except IOError as error:
+            print('File Sad: ' + str(error))
+        else:
+            pass
+        finally:
+            pass
+        pass
+        return verNmbrStr
     def loadJsonLibrary(self,jsonStrIn):
         retval = False
         try:
@@ -1846,7 +1873,8 @@ def blobRead():
 @app.route('/apiversion/get',methods = ['POST','GET'])
 def apiVersion():
     ml = MediaLibraryDB()
-    tmpRetObj = {'api_version':versionStr,'api_file':fileStr,'db_version':ml.getDBVersion()}
+    cssVerStr = ml.readCssFile('../css/vodlib.css')
+    tmpRetObj = {'api_version':versionStr,'api_file':fileStr,'db_version':ml.getDBVersion(),'css_version':cssVerStr}
     return json.dumps(tmpRetObj)
 
 @app.route('/titleidlist/get',methods=['POST','GET'])

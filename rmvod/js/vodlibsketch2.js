@@ -165,10 +165,15 @@ class RMVodWebApp {
         // the API and DB for their versions
         this.apiFetchRemoteVersions();
         this.postCSSVer("0.2.0");
-        this.postJSVer("0.2.0");
+        this.postJSVer("0.2.1");
         
     }
     postCSSVer(verStrIn){
+        
+        // CSS file should contain a line like this:
+        // /* vodlib.css version 0.2.0 */
+        // which we should parse for just the "0.2.0" portion
+        
         console.log("postCSSVer: " + verStrIn);
         document.getElementById("version_css").innerText = "css version: " + verStrIn;
     }
@@ -191,6 +196,7 @@ class RMVodWebApp {
             var wa = new RMVodWebApp();
             wa.postDBVer(objIn['db_version']);
             wa.postAPIVer(objIn['api_version']);
+            wa.postCSSVer(objIn['css_version']);
         }
         const payloadObj = {};
         const endpoint = '/rmvid/api/apiversion/get';
@@ -1842,8 +1848,10 @@ function switchboard(actionIn,objIdIn,argObjIn) {
             
         case 'execTxtSrch' :
             console.log("Trying to execTxtSrch: " + objIdIn);
-            console.log("execTxtSrch for " + document.getElementById(objIdIn).value);
-            ml.renderArtifactBlocksBySrchTxtApi(document.getElementById(objIdIn).value);
+            var srchBoxDE = document.getElementById(objIdIn);
+            console.log("execTxtSrch for " + srchBoxDE.value);
+            ml.renderArtifactBlocksBySrchTxtApi(srchBoxDE.value);
+            srchBoxDE.value = "";
             break;
         
         case 'execAdvSrch' :
