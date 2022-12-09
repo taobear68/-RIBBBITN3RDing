@@ -165,7 +165,7 @@ class RMVodWebApp {
         // the API and DB for their versions
         this.apiFetchRemoteVersions();
         this.postCSSVer("0.2.0");
-        this.postJSVer("0.2.1");
+        this.postJSVer("0.3.2");
         
     }
     postCSSVer(verStrIn){
@@ -491,15 +491,17 @@ class RMVodWebApp {
             var artiDir = artiObj['filepath'];
             var artiFil = artiObj['file'];
             var playerAR = 1.7778;
-            var playerHeight = 350;
+            var playerHeight = 500;
             var playerWidth = parseInt(playerHeight * playerAR);
             
             var srcURI = '/rmvid/vidsrc/' + artiDir + '/' + artiFil ;
             
             
             var playerHTML = '';
-            playerHTML += '<div style="width:660px;height:360px;vertical-align:center;horizontal-align:center;margin:20px;">';
-            playerHTML += '<video id="actualvideoplayer" width=' + playerWidth.toString() + ' height=' + playerHeight.toString() + ' style="vertical-align:top;horizontal-align:center;" autoplay=true controls=true>';
+            //playerHTML += '<div style="width:660px;height:360px;vertical-align:center;horizontal-align:center;margin:20px;">';
+            playerHTML += '<div style="width:1100px;height:500px;vertical-align:top;horizontal-align:center;">';
+            //playerHTML += '<video id="actualvideoplayer" width=' + playerWidth.toString() + ' height=' + playerHeight.toString() + ' style="vertical-align:top;horizontal-align:center;" autoplay=true controls=true>';
+            playerHTML += '<video id="actualvideoplayer" width=1100 height=500 style="vertical-align:top;horizontal-align:center;" autoplay=true controls=true>';
             // playerHTML += '<source src="/rmvid/vidsrc/' + artiDir + '/' + artiFil + '" type="video/mp4">' ;
             playerHTML += '<source src="' + srcURI + '" type="video/mp4">' ;
             playerHTML += 'Your browser does not support the video tag';
@@ -517,7 +519,14 @@ class RMVodWebApp {
             // wa.cc.setCookie('artifact_source_uri',document.getElementById('actualvideoplayer').currentSrc,5);
             wa.cc.setCookie('artifact_source_uri',currSrc,5);
             
+            document.getElementById('tabspan0').click();
+            
+            //  HEY HEY HEY  >>>>
+            // THIS NEEDS TO BE REWORKED FOR THE NEW "CINEMATIC VIEW" THING
             var newContentDiv = wa.renderArtifactDetailApi(artiIdIn);
+            //  HEY HEY HEY  ^^^^^^^^
+            
+            
             //console.log('vodPlayTitleApi2.cbFunc - artifact_source_uri: ' + wa.cc.getCookie('artifact_source_uri'));
             
             try {
@@ -554,7 +563,45 @@ class RMVodWebApp {
         const endpoint = '/rmvid/api/nextepisode/get';
         this.genericApiCall(payloadObj,endpoint,cbFunc);
     }
-    
+    srchSpan(strIn) {
+        // Takes a simple string in, and wraps it in a span with onclick
+        // set to do execDirectStringSrch in the switchboard
+        var retStr = '';
+        retStr += '<span onclick="switchboard(\'execDirectStringSrch\',\'\',{\'srchstr\':\'';
+        retStr += strIn;
+        retStr += '\'})" style="text-decoration:underline;">';
+        retStr += strIn;
+        retStr += '</span>'
+        return retStr;
+    }
+    l2s(arrayIn){
+        // This just turns an Array object into a String list with 
+        // commas between the elements.
+        var listStr = '';
+        var aLen = arrayIn.length;
+        for (var i = 0; i < aLen; i++) {
+            listStr += arrayIn[i];
+            //listStr += srchSpan(arrayIn[i]);
+            if (i < (aLen - 1)) {
+                listStr += ', ';
+            }
+        }
+        return listStr
+    }
+    l2sSrch(arrayIn){
+        // This just turns an Array object into a String list with 
+        // commas between the elements.
+        var listStr = '';
+        var aLen = arrayIn.length;
+        for (var i = 0; i < aLen; i++) {
+            //listStr += arrayIn[i];
+            listStr += this.srchSpan(arrayIn[i]);
+            if (i < (aLen - 1)) {
+                listStr += ', ';
+            }
+        }
+        return listStr
+    }
     onloadOptions(){
         // serplaynext
         // resumeplay
@@ -834,7 +881,7 @@ class RMVodWebApp {
         masterCont.appendChild(headerOuterDiv);
         masterCont.appendChild(bigBizDiv);
         
-        this.clockSet();
+        //this.clockSet();
     }
     
     contCookieOnLoad() {
@@ -1144,15 +1191,28 @@ class RMVodWebApp {
         this.apiFetchTagsList();
                 
         const cbFunc = function (objIn) {
-            // console.log(JSON.stringify(objIn));
-            
-            // console.log('populateArtifactDetails - Received: ' + JSON.stringify(objIn))
-            //const colList = ['title','majtype','runmins','season','episode','synopsis','file','filepath','director','writer','primcast','relorg','relyear','eidrid','imdbid','arbmeta','artifactid','tags'];
+            var wa = new RMVodWebApp();
             const colList = ['title','majtype','relyear','tags','synopsis','runmins','director','writer','primcast','relorg','season','episode','file','filepath','eidrid','imdbid','arbmeta','artifactid'];
             var dValStr = "" ;
             for ( var idx=0; idx<colList.length; idx++ ) {
-                //artifactid
-                dValStr += '<b>' + colList[idx] + ": </b>" + objIn[colList[idx]] + '<br>';
+                dValStr += '<b>' + colList[idx] + ": </b>"; // + objIn[colList[idx]] + '<br>';
+                switch (colList[idx]) {
+                    case 'director':
+                    case 'writer':
+                    case 'primcast':
+                        dValStr += wa.l2sSrch(objIn[colList[idx]]) + '<br>';
+                        break;
+                    case "imdbid":
+                        if ((objIn[colList[idx]] != 'none') && (objIn[colList[idx]] != 'string')) {
+                            dValStr += '<a target="_blank" href="https://www.imdb.com/title/' + objIn[colList[idx]] + '">' + objIn[colList[idx]] + '</a><br>';
+                        } else {
+                            dValStr += objIn[colList[idx]] + '<br>';
+                        }
+                        break;
+                    default:
+                        dValStr +=  objIn[colList[idx]]  + '<br>';
+                        break;
+                }
             }
             
             var innerHtml = '<span class="" id="" style="" >';
@@ -1172,14 +1232,12 @@ class RMVodWebApp {
         const payloadObj = {'artifactid':artiIdIn};
         this.genericApiCall(payloadObj,endpoint,cbFunc);
     }
-    
     tvsDetailShowButton(artiIdIn) {
-        //console.log("tvsDetailShowButton - START: " + artiIdIn);
+        // "Show Details" button for a TV Series Artifact
         var innerHtml = '';
         innerHtml += '<span class="" id="" style="font-size:10px;"';
         innerHtml += 'onclick="switchboard(\'xpopslseriesdetail\',\'' + artiIdIn + '\',{})" ';
-        
-        innerHtml += '>'; // initiateArtiEdit
+        innerHtml += '>';
         innerHtml += '<u>Show Series Details</u>';
         innerHtml += '</span>';
         
@@ -1310,7 +1368,7 @@ class RMVodWebApp {
         divOutermost.appendChild(divEditContainer);
         return divOutermost;
     }
-    renderArtifactDetailApi(artiIdIn){
+    renderArtifactDetailApi_OLDE(artiIdIn){
         var cbFunc = function (objIn) {
             var wa = new RMVodWebApp();
             // renderArtifactDetailBox
@@ -1321,154 +1379,23 @@ class RMVodWebApp {
         const payload = {'artifactid':artiIdIn};
         this.genericApiCall(payload,endpoint,cbFunc);
     }
+
+    renderArtifactDetailApi(artiIdIn){
+        var cbFunc = function (objIn) {
+            var wa = new RMVodWebApp();
+            console.log('renderArtifactDetailApi.cbFunc');
+            wa.renderArtifactDetailHeader(objIn);
+        }
+        const endpoint = '/rmvid/api/artifact/get';
+        const payload = {'artifactid':artiIdIn};
+        this.genericApiCall(payload,endpoint,cbFunc);
+    }
     renderArtifactDetail(artIdIn){
-        
-        //  ml.vodlibartiobjget(artiID);
-        
-        
-        ////console.log(artIdIn);
-        //var theBlob = this.sse.ssRead('blob');
-        ////console.log(JSON.stringify(theBlob));
-        //var artiObj = theBlob['artifacts'][artIdIn];
-        ////console.log(JSON.stringify(artiObj));
-        //var keysList = Object.keys(artiObj);
-        ////console.log(JSON.stringify(keysList));
-        
-        //// Create "Detail Display Block" div
-        //var divInitialDisplay = document.createElement('div');
-        //divInitialDisplay.className = "artifact-default-disp-row";
-        ////divInitialDisplay.style = "display:inline-flex;";    
-        //divInitialDisplay.style = "display:block;";    
-        
-        //var tmpRow = document.createElement('div');
-        //tmpRow.style = "display:block;";   
-        //var divRow1 = document.createElement('div');
-        //divRow1.className = "artifact-default-disp-row";
-        //divRow1.style = "display:inline-flex;";   
-        //var divRow1C1 = document.createElement('div');
-        //divRow1C1.className = "artifact-default-disp-cell";
-        //divRow1C1.style = "display:inline-flex;"; 
-        //divRow1C1.innerHTML = "<b>Director(s):</b>";
-        //divRow1.appendChild(divRow1C1);
-        //var divRow1C2 = document.createElement('div');
-        //divRow1C2.className = "artifact-default-disp-cell";
-        //divRow1C2.style = "display:block;"; 
-        //divRow1C2.innerText = JSON.stringify(artiObj['director']);
-        //divRow1.appendChild(divRow1C2);
-        //tmpRow.appendChild(divRow1);
-        ////divInitialDisplay.appendChild(divRow1);
-        //divInitialDisplay.appendChild(tmpRow);
- 
-        //var tmpRow = document.createElement('div');
-        //tmpRow.style = "display:block;";   
-        //var divRow2 = document.createElement('div');
-        //divRow2.className = "artifact-default-disp-row";
-        //divRow2.style = "display:inline-flex;";   
-        //var divRow2C1 = document.createElement('div');
-        //divRow2C1.className = "artifact-default-disp-cell";
-        //divRow2C1.style = "display:inline-flex;"; 
-        //divRow2C1.innerHTML = "<b>Writer(s):</b>";
-        //divRow2.appendChild(divRow2C1);
-        //var divRow2C2 = document.createElement('div');
-        //divRow2C2.className = "artifact-default-disp-cell";
-        //divRow2C2.style = "display:block;"; 
-        //divRow2C2.innerText = JSON.stringify(artiObj['writer']);
-        //divRow2.appendChild(divRow2C2);
-        //tmpRow.appendChild(divRow2);
-        ////divInitialDisplay.appendChild(divRow2);
-        //divInitialDisplay.appendChild(tmpRow);
-
-        //var tmpRow = document.createElement('div');
-        //tmpRow.style = "display:block;";   
-        //var divRow3 = document.createElement('div');
-        //divRow3.className = "artifact-default-disp-row";
-        //divRow3.style = "display:inline-flex;";   
-        //var divRow3C1 = document.createElement('div');
-        //divRow3C1.className = "artifact-default-disp-cell";
-        //divRow3C1.style = "display:inline-flex;"; 
-        //divRow3C1.innerHTML = "<b>Cast:</b>";
-        //divRow3.appendChild(divRow3C1);
-        //var divRow3C2 = document.createElement('div');
-        //divRow3C2.className = "artifact-default-disp-cell";
-        //divRow3C2.style = "display:block;"; 
-        //divRow3C2.innerText = JSON.stringify(artiObj['primcast']);
-        //divRow3.appendChild(divRow3C2);
-        //tmpRow.appendChild(divRow3);
-        ////divInitialDisplay.appendChild(divRow3);
-        //divInitialDisplay.appendChild(tmpRow);
-
-
-        //var tmpRow = document.createElement('div');
-        //tmpRow.style = "display:block;";   
-        //var divRow4 = document.createElement('div');
-        //divRow4.className = "artifact-default-disp-row";
-        //divRow4.style = "display:inline-flex;";   
-        //var divRow4C1 = document.createElement('div');
-        //divRow4C1.className = "artifact-default-disp-cell";
-        //divRow4C1.style = "display:inline-flex;"; 
-        //divRow4C1.innerHTML = "<b>Tags:</b>";
-        //divRow4.appendChild(divRow4C1);
-        //var divRow4C2 = document.createElement('div');
-        //divRow4C2.className = "artifact-default-disp-cell";
-        //divRow4C2.style = "display:block;"; 
-        ////divRow4C2.innerText = JSON.stringify(artiObj['primcast']);
-        //divRow4C2.innerText = JSON.stringify(theBlob['a2t'][artIdIn]);
-        //divRow4.appendChild(divRow4C2);
-        //tmpRow.appendChild(divRow4);
-        ////divInitialDisplay.appendChild(divRow3);
-        //divInitialDisplay.appendChild(tmpRow);
-
-
-
-        //var tmpRow = document.createElement('div');
-        //tmpRow.style = "display:block;";   
-        //var divRow5 = document.createElement('div');
-        //divRow5.className = "artifact-default-disp-row";
-        //divRow5.style = "display:inline-flex;";   
-        //var divRow5C1 = document.createElement('div');
-        //divRow5C1.className = "artifact-default-disp-cell";
-        //divRow5C1.style = "display:inline-flex;"; 
-        ////divRow5C1.innerHTML = "<b>Tags:</b>";
-        //divRow5C1.innerText = "Artifact JSON:\n" + JSON.stringify(theBlob['artifacts'][artIdIn]);
-        //divRow5.appendChild(divRow5C1);
-        ////var divRow4C2 = document.createElement('div');
-        ////divRow4C2.className = "artifact-default-disp-cell";
-        ////divRow4C2.style = "display:block;"; 
-        //////divRow4C2.innerText = JSON.stringify(artiObj['primcast']);
-        ////divRow4C2.innerText = JSON.stringify(theBlob['a2t'][artIdIn]);
-        ////divRow4.appendChild(divRow4C2);
-        //tmpRow.appendChild(divRow5);
-        ////divInitialDisplay.appendChild(divRow3);
-        //divInitialDisplay.appendChild(tmpRow);
-
-
         var newContentDiv = this.renderArtifactDetailNEW(artIdIn,'ro')
         
         var outerDiv = document.getElementById(artIdIn+ '-reveal-container');
         outerDiv.innerHTML = '';
-        //outerDiv.appendChild(divInitialDisplay);
         outerDiv.appendChild(newContentDiv);
-
-//{"artifactid":"e5f439d8-ff70-45df-b2eb-2cd475ebfbe5","title":"War Games","majtype":"movie","runmins":114,"season":-1,"episode":-1,"file":"WarGames.m4v","filepath":"drama","director":["John Badham"],"writer":["Lawrence Lasker","Walter F. Parkes"],"primcast":["Matthew Broderick","Dabney Coleman","John Wood","Ally Sheedy"],"relorg":["MGM/UA Entertainment Company"],"relyear":1983,"eidrid":"string","imdbid":"tt0086567","arbmeta":{"string":"string"}}
-        
-//    # <tr style="background-color:#dddddd">
-//        # <td colspan="6">Director List</td>
-//    # </tr>
-//    # <tr style="background-color:#dddddd">
-//        # <td colspan="6">Writer List</td>
-//    # </tr>
-//    # <tr style="background-color:#dddddd">
-//        # <td colspan="6">Cast List</td>
-//    # </tr>
-//    # <tr style="background-color:#dddddd">
-//        # <td colspan="5">Tags List</td>
-//        # <td colspan="1">Tag Edit button</td>
-//    # </tr>
-//    # <tr style="background-color:#dddddd">
-//        # <td colspan="5">%nbsp;</td>
-//        # <td colspan="1">Edit Artifact button</td>                
-    
-    
     }
     renderArtifactDetailBox(artiObj){
         //var artiObj = this.sse.ssRead('blob')['artifacts'][artiIdIn];
@@ -1545,6 +1472,31 @@ class RMVodWebApp {
         theDiv.className = 'artideetcontainer';
         theDiv.innerHTML = innerHtmlStr;
         return theDiv;
+    }
+    renderArtifactDetailHeader(artiObj){
+        //console.log('renderArtifactDetailHeader');
+        var prodStr = '';
+        prodStr += 'Writer(s): ' + this.l2sSrch(artiObj['writer']) + ' | ';
+        prodStr += 'Director(s) ' + this.l2sSrch(artiObj['director']) + ' | ';
+        prodStr += 'Runtime: ' + artiObj['runmins'] + ' | ';
+        prodStr += 'Release Yr.: ' + artiObj['relyear'] + ' | ';
+        //console.log(prodStr);
+        
+        var castStr = '';
+        castStr += 'Cast: ' + this.l2sSrch(artiObj['primcast']);
+        //console.log(castStr);
+        
+        var synoStr = '';
+        synoStr += 'Synopsis: ';
+        if (artiObj['majtype'] == "tvepisode") {
+            synoStr += '(Season ' + artiObj['season'] + ' Episode: ' + artiObj['episode'] + ') ';
+        }
+        synoStr += artiObj['synopsis'];
+        
+        document.getElementById('header-title').innerText = 'Now Playing: ' + artiObj['title'];
+        document.getElementById('header-synopsis').innerText = synoStr;
+        document.getElementById('header-production').innerHTML = 'Production: ' + prodStr;
+        document.getElementById('header-cast').innerHTML = 'Cast: ' + castStr;
     }
     renderArtifactDetailNEW(artiIdIn,modeIn){
         var artiObj = this.sse.ssRead('blob')['artifacts'][artiIdIn];
@@ -1951,9 +1903,16 @@ function switchboard(actionIn,objIdIn,argObjIn) {
         case "firstthing":
             //var ml = new RMVodWebApp();
             
+            // Commenting out "base page layout", because we're doing 
+            // a new layout, and working with the static HTML again 
+            // for now
+            
             // Let's try using "basePageLayout01" to help reduce what 
             // we're depending on in the static HTML page
-            ml.basePageLayout01();
+            //ml.basePageLayout01();
+            
+            ml.clockSet();
+
             
             ml.initStorage();
             var cbFunc = function () {
@@ -2054,6 +2013,14 @@ function switchboard(actionIn,objIdIn,argObjIn) {
             ml.renderArtifactBlocksBySrchTxtApi(srchBoxDE.value);
             srchBoxDE.value = "";
             break;
+            
+        case 'execDirectStringSrch' :
+            //console.log("Trying to execTxtSrch: " + objIdIn);
+            //var srchBoxDE = document.getElementById(objIdIn);
+            //console.log("execTxtSrch for " + srchBoxDE.value);
+            ml.renderArtifactBlocksBySrchTxtApi(argObjIn['srchstr']);
+            //srchBoxDE.value = "";
+            break;
         
         case 'execAdvSrch' :
             ml.execAdvancedSearch();
@@ -2061,6 +2028,9 @@ function switchboard(actionIn,objIdIn,argObjIn) {
             
         case 'initiateArtiEdit':
             ml.renderArtifactEdit(objIdIn);
+            
+            document.getElementById('tabspan2').click();
+            
             break;
             
         case 'exposePlayer':
@@ -2105,6 +2075,43 @@ function switchboard(actionIn,objIdIn,argObjIn) {
             ml.cc.setCookie(cookieNm,cookieVal,365);
             //console.log('Verify cookie value for ' + cookieNm + ': ' + ml.cc.getCookie(cookieNm));
             break;
+            
+        case "tabPick":
+            var lu = {};
+            lu['tabspan0'] = 'structfeatureplayer';
+            lu['tabspan1'] = 'structfeaturesearch';
+            lu['tabspan2'] = 'structfeatureedit';
+            lu['tabspan3'] = 'structfeaturesettings';
+            
+            var selTabSpan = document.getElementById(objIdIn);
+            var selTab = selTabSpan.parentElement;
+            var selStruct = document.getElementById(lu[objIdIn]);
+            var parChildren = selTab.parentElement.children;
+            for (var i=0; i < parChildren.length; i++) { 
+                var tab = parChildren[i];
+                if (tab.id == selTab.id) {
+                    // SHOW
+                    tab.className = "tab-sel";
+                    var tabChildren = tab.children;
+                    for (var j = 0 ; j < tabChildren.length; j++ ) { 
+                        var tabChild = tabChildren[j];
+                        tabChild.className = "tab-sel";
+                    }
+                    document.getElementById(lu[objIdIn]).style.display = "block";
+                } else {
+                    // HIDE
+                    tab.className = "tab-unsel";
+                    var tabChildren = tab.children;
+                    for (var j = 0 ; j < tabChildren.length; j++ ) { 
+                        var tabChild = tabChildren[j];
+                        tabChild.className = "tab-unsel";
+                    }
+                    var structId = lu[tabChildren[0].id]
+                    document.getElementById(structId).style.display = "none";
+                }
+            }
+            break;
+            
             
             
             
