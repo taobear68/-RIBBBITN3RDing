@@ -164,8 +164,8 @@ class RMVodWebApp {
         // These version bits will eventually need to involve polling 
         // the API and DB for their versions
         this.apiFetchRemoteVersions();
-        this.postCSSVer("0.2.0");
-        this.postJSVer("0.3.2");
+        //this.postCSSVer("0.2.0");
+        this.postJSVer("0.3.3");
         
     }
     postCSSVer(verStrIn){
@@ -321,7 +321,8 @@ class RMVodWebApp {
             console.log('titletop not available yet. ' + e);
         }
         
-        this.renderSimpleSearchWidget();
+        //this.renderSimpleSearchWidget();
+        this.renderStaticModernSearchWidget();
     }
     genericApiCall(payloadObjIn,endpointIn,cbFuncIn){
         /*
@@ -591,11 +592,17 @@ class RMVodWebApp {
     l2sSrch(arrayIn){
         // This just turns an Array object into a String list with 
         // commas between the elements.
+        
+        var plainValList = ['string','none',''];
         var listStr = '';
         var aLen = arrayIn.length;
         for (var i = 0; i < aLen; i++) {
             //listStr += arrayIn[i];
-            listStr += this.srchSpan(arrayIn[i]);
+            if (plainValList.indexOf(arrayIn[i]) == -1) {
+                listStr += this.srchSpan(arrayIn[i]);
+            } else {
+                listStr += arrayIn[i];
+            }
             if (i < (aLen - 1)) {
                 listStr += ', ';
             }
@@ -634,7 +641,166 @@ class RMVodWebApp {
         }
     }
     
-    renderSimpleSearchWidget(){
+    renderStaticModernSearchWidget(){
+        // Search Modes: Simple (Single Factor - exec. on change), Complex (Multiple Factor - exec. on button click)
+        //
+        // Factors:
+        //   Search By Tag (select list)
+        //   Search by String (title, persons)
+        //   Search by Release Year range
+        //   Search with arbitrary SQL WHERE Clause
+        
+        var factorDivWidth = "470px";
+        var factorDivMargin = "10px";
+        var factorTitleDivWidth = "150px";
+        
+        var newSrchWidget = document.createElement('div');
+        newSrchWidget.style.margin = "8px";
+        
+        var mfPicker = document.createElement('div');
+        mfPicker.innerHTML = 'Multi-Factor Search:&nbsp;<input name="mfsearchyn"  id="mfsearchyn" type="checkbox">';
+        
+        newSrchWidget.appendChild(mfPicker);
+
+        var lastContainer = document.createElement('div');
+        lastContainer.innerHTML = 'Search Factors:<br>';
+
+        //   Search By Tag (select list)
+        var sfdTag = document.createElement('div');
+        sfdTag.style.margin = factorDivMargin;
+        sfdTag.style.width = factorDivWidth;
+        var dTitle = document.createElement('div');
+        dTitle.innerHTML = "Tag:";
+        dTitle.style.display = "inline-flex";
+        dTitle.style.width = factorTitleDivWidth;
+        var dCont = document.createElement('div');
+        dCont.style.display= "inline-flex";
+        dCont.innerHTML = '<select style="font-family:arial;font-size:18px;" id="tag-search-select" name="tag-search-select" onchange="switchboard(\'execTagSearch\',\'tag-search-select\',{})"><option value="">None</option></select>';
+        sfdTag.appendChild(dTitle);
+        sfdTag.appendChild(dCont);
+        
+        lastContainer.appendChild(sfdTag);
+        
+        
+        // Search by string
+        var sfdString = document.createElement('div');
+        sfdString.style.margin = factorDivMargin;
+        sfdString.style.width = factorDivWidth;
+        var dTitle = document.createElement('div');
+        dTitle.innerHTML = "String:";
+        dTitle.style.display = "inline-flex";
+        dTitle.style.width = factorTitleDivWidth;
+        var dCont = document.createElement('div');
+        dCont.style.display= "inline-flex";
+        dCont.innerHTML = '<input id="txt-srch-str" type="text" size="15" onchange="switchboard(\'execTxtSrch\',\'txt-srch-str\',{})">';
+        sfdString.appendChild(dTitle);
+        sfdString.appendChild(dCont);
+        
+        lastContainer.appendChild(sfdString);
+        
+
+        //   Search By MajType (select list)
+        var sfdTag = document.createElement('div');
+        sfdTag.style.margin = factorDivMargin;
+        sfdTag.style.width = factorDivWidth;
+        var dTitle = document.createElement('div');
+        dTitle.innerHTML = "Major Type:";
+        dTitle.style.display = "inline-flex";
+        dTitle.style.width = factorTitleDivWidth;
+        var dCont = document.createElement('div');
+        dCont.style.display= "inline-flex";
+        // var tmpHtml = '<select style="font-family:arial;font-size:18px;" id="majtype-search-select" name="majtype-search-select" onchange="switchboard(\'execMajTypSearch\',\'majtype-search-select\',{})">';
+        var tmpHtml = '<select style="font-family:arial;font-size:18px;" id="majtype-search-select" name="majtype-search-select" onchange="switchboard(\'execMajTypSearch\',this.id,{})">';
+        tmpHtml += '<option value="">All</option>';
+        tmpHtml += '<option value="movie">Movies</option>';
+        tmpHtml += '<option value="tvseries">TV Series</option>';
+        tmpHtml += '</select>';
+        
+        dCont.innerHTML = tmpHtml;
+        sfdTag.appendChild(dTitle);
+        sfdTag.appendChild(dCont);
+        
+        lastContainer.appendChild(sfdTag);
+        
+        
+        // Search by release year range
+        var sfdRelYr = document.createElement('div');
+        sfdRelYr.style.margin = factorDivMargin;
+        sfdRelYr.style.width = factorDivWidth;
+        var dTitle = document.createElement('div');
+        dTitle.innerHTML = "Release Year Range:";
+        dTitle.style.display = "inline-flex";
+        dTitle.style.width = factorTitleDivWidth;
+        var dCont = document.createElement('div');
+        dCont.style.display= "inline-flex";
+        var tmpHtml = 'Start:&nbsp;<input id="relyear-srch-start" type="text" size="5" onchange="switchboard(\'\',this.id,{})">';
+        tmpHtml += '&nbsp;-&nbsp;';
+        tmpHtml += 'End:&nbsp;<input id="relyear-srch-end" type="text" size="5" onchange="switchboard(\'\',this.id,{})">';
+        dCont.innerHTML = tmpHtml;
+        sfdRelYr.appendChild(dTitle);
+        sfdRelYr.appendChild(dCont);
+        
+        lastContainer.appendChild(sfdRelYr);
+        
+        
+        // Search by SQL WHERE Clause
+        var sfdSqlWhere = document.createElement('div');
+        sfdSqlWhere.style.margin = factorDivMargin;
+        sfdSqlWhere.style.width = factorDivWidth;
+        var dTitle = document.createElement('div');
+        dTitle.innerHTML = "SQL WHERE Clause:";
+        dTitle.style.display = "inline-flex";
+        dTitle.style.width = factorTitleDivWidth;
+        var dCont = document.createElement('div');
+        dCont.style.display= "inline-flex";
+        var tmpHtml = '<textarea id="sql-where-srch" name="sql-where-srch" rows="5" cols="30" onchange="switchboard(\'artifact-search-by-where-clause\',this.id,{})"></textarea>';
+        dCont.innerHTML = tmpHtml;
+        sfdSqlWhere.appendChild(dTitle);
+        sfdSqlWhere.appendChild(dCont);
+        
+        lastContainer.appendChild(sfdSqlWhere);
+        
+        
+        newSrchWidget.appendChild(lastContainer);
+        
+        var targDiv = document.getElementById('headerblock2');
+        targDiv.innerHTML = '';
+        targDiv.appendChild(newSrchWidget);
+        
+        this.tagSelListRefresh();
+    }
+    
+    tagSelListRefresh(){
+        var tsl = document.getElementById('tag-search-select');
+        // Clear the current list of options
+        while (tsl.length > 0) {
+            tsl.remove(0);
+        }
+        // Add "None" option back
+        var noneOpt = document.createElement('option');
+        noneOpt.value = '';
+        noneOpt.innerHTML = 'None';
+        tsl.appendChild(noneOpt);
+        // Fetch Tags from API and repopulate
+        
+        var cbFunc = function (objIn) {
+            var tsl = document.getElementById('tag-search-select');
+            var lLen = objIn.length;
+            if ( lLen > 0 ) {
+                for (var i = 0; i < lLen; i++ ){
+                    var opt = document.createElement('option');
+                    opt.value = objIn[i];
+                    opt.innerHTML = objIn[i];
+                    tsl.appendChild(opt);
+                }
+            }
+        }
+        const endpoint = '/rmvid/api/taglist/get';
+        const payload = {};
+        this.genericApiCall(payload,endpoint,cbFunc);
+    }
+    
+    renderSimpleSearchWidget(){  // DEPRECATED
         var cbFunc = function(){
             var sse = new RMSSSEnhanced();
             var tagList = sse.ssRead('blob')['tags']
@@ -1043,7 +1209,7 @@ class RMVodWebApp {
         var tdTitle = artiTIDobjIn['title'];
         var titleDiv = document.createElement('div');
         titleDiv.className = "listelconttitle";
-        var trunclength = 32;
+        var trunclength = 42;
         if (tdTitle.length > trunclength) {
             titleDiv.innerHTML = '<span id="' + spanId + '" class="' + tdSpanClass + '" onclick="' + tdSpanOnclick + '"><b><u>' + tdTitle.substring(0,(trunclength-3)) + '...</u></b></span>';
         } else {
@@ -1085,7 +1251,7 @@ class RMVodWebApp {
         var titleDiv = document.createElement('div');
         titleDiv.className = "listelconttitle";
         
-        var trunclength = 27;
+        var trunclength = 38;
         if (tdTitle.length >= trunclength) {
             titleDiv.innerHTML = '<span class="' + tdSpanClass + '" onclick="' + tdSpanOnclick + '"><b><u>' + tdTitle.substring(0,(trunclength-3)) + '...(series)</u></b></span>';
         } else {
@@ -1135,7 +1301,7 @@ class RMVodWebApp {
         var titleDiv = document.createElement('div');
         titleDiv.className = "listelseriescolleptitle";
         
-        var trunclength = 29;
+        var trunclength = 35;
         if (tdTitle.length >= trunclength) {
             titleDiv.innerHTML = '<span id="' + spanId + '" class="' + tdSpanClass + '" onclick="' + tdSpanOnclick + '"><b><u>' + tdTitle.substring(0,(trunclength-3)) + '...</u></b></span>'; //...(series)
         } else {
@@ -1477,13 +1643,13 @@ class RMVodWebApp {
         //console.log('renderArtifactDetailHeader');
         var prodStr = '';
         prodStr += 'Writer(s): ' + this.l2sSrch(artiObj['writer']) + ' | ';
-        prodStr += 'Director(s) ' + this.l2sSrch(artiObj['director']) + ' | ';
+        prodStr += 'Director(s): ' + this.l2sSrch(artiObj['director']) + ' | ';
         prodStr += 'Runtime: ' + artiObj['runmins'] + ' | ';
         prodStr += 'Release Yr.: ' + artiObj['relyear'] + ' | ';
         //console.log(prodStr);
         
         var castStr = '';
-        castStr += 'Cast: ' + this.l2sSrch(artiObj['primcast']);
+        castStr +=  this.l2sSrch(artiObj['primcast']);
         //console.log(castStr);
         
         var synoStr = '';
@@ -1869,7 +2035,8 @@ class RMVodWebApp {
             case 'arbmeta' :
                 console.log('postArtifactFieldEdit - ' + wrkFieldName + ': simpleTextareaField');
                 var strValue = document.getElementById(deidIn).value;
-                updateObj[wrkFieldName] = strValue;
+                // updateObj[wrkFieldName] = strValue;
+                updateObj[wrkFieldName] = strValue.replace(/'/g,"\'");
                 console.log(JSON.stringify(updateObj));
                 break;
             case 'majtype' :
@@ -1918,7 +2085,8 @@ function switchboard(actionIn,objIdIn,argObjIn) {
             var cbFunc = function () {
                 var ml = new RMVodWebApp();
                 ml.renderArtifactBlocksByTagApi('');
-                ml.renderSimpleSearchWidget();
+                //ml.renderSimpleSearchWidget();
+                ml.renderStaticModernSearchWidget
             };
             ml.vodlibartilistget(cbFunc);
             ml.renderTitleDiv();
@@ -2120,7 +2288,11 @@ function switchboard(actionIn,objIdIn,argObjIn) {
          * Oh no... we should never get here!
          * */
         default:
-            throw 'Action ' + actionIn + ' is not recognized!';        
+            var xcStr = 'Action ' + actionIn + ' is not recognized!  ';
+            xcStr += 'Received objIdIn = ' + objIdIn + '  and ';
+            xcStr += 'argObjIn = ' + JSON.stringify(argObjIn) + '.';
+            // throw 'Action ' + actionIn + ' is not recognized!';       
+            throw xcStr; 
     }
 }
 

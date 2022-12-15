@@ -95,7 +95,8 @@ div.listcontainer{
 }
 div.listwidget{
     display:block;
-    width:409px;
+    width:408px;
+    /* width:550px; */
     height:560px;
     /* background-color:#eeee00; */
     overflow:auto;

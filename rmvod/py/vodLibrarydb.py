@@ -508,6 +508,7 @@ class VodLibDB:
     def getEpisodeTIMListBySeriesId(self,sEpiIdIn):
         epiArtiIdList = self.getEpisodeListBySeriesId(sEpiIdIn)
         if len(epiArtiIdList) == 0:
+            print('getEpisodeTIMListBySeriesId: getEpisodeListBySeriesId(' + sEpiIdIn + ') returned no rows')
             return []
         pass
         fetchSql = "SELECT a.artifactid, a.title, a.majtype "
@@ -515,6 +516,7 @@ class VodLibDB:
         fetchSql += "WHERE a.artifactid IN ("
         
         for artiId in epiArtiIdList:
+            #print(artiId)
             fetchSql += "'" + artiId + "'"
             if (epiArtiIdList.index(artiId)) < (len(epiArtiIdList) -1 ):
                 fetchSql += ", "
@@ -522,16 +524,22 @@ class VodLibDB:
                 fetchSql += ') '
             pass
         
-        fetchSql += "ORDER BY a.title"
+        try:
+            fetchSql += "ORDER BY a.title"
         
-        resTuple = self._stdRead(fetchSql)
-        retList = []
-        for itemTuple in resTuple:
-            tmpDict = {}
-            tmpDict['artifactid'] = itemTuple[0]
-            tmpDict['title'] = itemTuple[1]
-            tmpDict['majtype'] = itemTuple[2]
-            retList.append(tmpDict)
+            resTuple = self._stdRead(fetchSql)
+            retList = []
+            for itemTuple in resTuple:
+                tmpDict = {}
+                tmpDict['artifactid'] = itemTuple[0]
+                tmpDict['title'] = itemTuple[1]
+                tmpDict['majtype'] = itemTuple[2]
+                retList.append(tmpDict)
+            pass
+        except:
+            print("getEpisodeTIMListBySeriesId - Secondary query failed!")
+            print("getEpisodeTIMListBySeriesId - epiArtiIdList: " + str(len(epiArtiIdList)))
+            print ("getEpisodeTIMListBySeriesId - fetchSql: \n" + fetchSql)
         pass
         return retList
     def getTagList(self):
@@ -779,9 +787,12 @@ class VodLibDB:
                 # print('workingArtiSql: ' + workingArtiSql)
                 wakValTyp = type(wakVal)
                 # print('wakValTyp: ' + str(wakValTyp))
+                
+                # Handle different value types
                 if wakValTyp == type('string'):
                     # print(daWKey + ' STRING!')
-                    workingArtiSql += '"' + wakVal + '"'
+                    # workingArtiSql += "'" + wakVal + "'"
+                    workingArtiSql += "'" + wakVal.replace("'","\\\'") + "'"
                 elif wakValTyp == type(-1):
                     # print(daWKey + ' INTEGER!')
                     workingArtiSql +=  str(wakVal) 
