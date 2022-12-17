@@ -37,7 +37,7 @@ import requests
 # see <https://www.gnu.org/licenses/>.
 
 fileStr = "vodLibrarydb.py"
-versionStr = "0.1.2"
+versionStr = "0.1.4"
 
 class VodLibDB:
     def __init__(self):
@@ -417,6 +417,92 @@ class VodLibDB:
             tmpDict['majtype'] = itemTuple[2]
             retList.append(tmpDict)
         
+        return retList
+    def getArtifactListByMajtype(self,majtypeStrIn):
+        # print("getArtifactListByMajtype - majtypeStrIn: " + majtypeStrIn)
+        assert type(majtypeStrIn) == type('thing')
+        if len(majtypeStrIn) > 0:
+            fetchSql = '';
+            fetchSql += "SELECT artifactid, title, majtype "
+            fetchSql += "FROM artifacts "
+            fetchSql += "WHERE majtype = '" + majtypeStrIn + "' "
+        else:
+            fetchSql = "SELECT artifactid, title, majtype "
+            fetchSql += "FROM artifacts  "
+        pass
+        fetchSql += "ORDER BY title"
+        # print("getArtifactListByMajtype - fetchSql: " + fetchSql)
+        listTuple = self._stdRead(fetchSql)
+        retList = []
+        for itemTuple in listTuple:
+            tmpDict = {}
+            tmpDict['artifactid'] = itemTuple[0]
+            tmpDict['title'] = itemTuple[1]
+            tmpDict['majtype'] = itemTuple[2]
+            retList.append(tmpDict)
+        pass
+        return retList
+    def getArtifactListByArbWhereClause(self,whereClauseStrIn):
+        assert type(whereClauseStrIn) == type('thing')
+        if len(whereClauseStrIn) > 0:
+            fetchSql = '';
+            fetchSql += "SELECT artifactid, title, majtype "
+            fetchSql += " FROM artifacts "
+            fetchSql += " WHERE " + whereClauseStrIn + " "
+        else:
+            fetchSql = "SELECT artifactid, title, majtype "
+            fetchSql += "FROM artifacts  "
+        pass
+        fetchSql += " ORDER BY title"
+        print("getArtifactListByArbWhereClause - fetchSql: " + fetchSql)
+        listTuple = self._stdRead(fetchSql)
+        retList = []
+        for itemTuple in listTuple:
+            tmpDict = {}
+            tmpDict['artifactid'] = itemTuple[0]
+            tmpDict['title'] = itemTuple[1]
+            tmpDict['majtype'] = itemTuple[2]
+            retList.append(tmpDict)
+        pass
+        return retList
+    def getArtifactListByRelyear(self,relyear1In, relyear2In):
+        # print("getArtifactListByRelyear - relyear1In type: " + str(type(relyear1In)) + ", relyear2In type: " + str(type(relyear2In)) )
+        # print("getArtifactListByRelyear - relyear1In: " + str(relyear1In) + ", relyear2In: " + str(relyear2In) )
+        fetchSql = "SELECT artifactid, title, majtype "
+        fetchSql += "FROM artifacts  "
+        fetchSql += "ORDER BY title"
+        try:
+            if (relyear1In == '') and  (int(relyear2In) > 1900):
+                # We're just doing one year, so we're counting on relyear2In
+                pass
+                fetchSql = "SELECT artifactid, title, majtype "
+                fetchSql += " FROM artifacts  "
+                fetchSql += " WHERE relyear = " + str(relyear2In) + " "
+                fetchSql += " ORDER BY title"
+            elif (int(relyear1In) > 1900) and  (int(relyear2In) > 1900) and (int(relyear2In) > int(relyear1In)): 
+                # We're working with both years
+                pass
+                fetchSql = "SELECT artifactid, title, majtype "
+                fetchSql += " FROM artifacts  "
+                fetchSql += " WHERE relyear >= " + str(relyear1In) + " AND relyear <= " + str(relyear2In) + " "
+                fetchSql += " ORDER BY title"
+            pass
+        except:
+            print ("getArtifactListByRelyear - Something is broken with the year values provided: " + str(relyear1In) + " and " + str(relyear2In) + ".")
+            pass
+        pass
+        
+        # print("getArtifactListByMajtype - fetchSql: " + fetchSql)
+        
+        listTuple = self._stdRead(fetchSql)
+        retList = []
+        for itemTuple in listTuple:
+            tmpDict = {}
+            tmpDict['artifactid'] = itemTuple[0]
+            tmpDict['title'] = itemTuple[1]
+            tmpDict['majtype'] = itemTuple[2]
+            retList.append(tmpDict)
+        pass
         return retList
     def getArtifactListByTitleFrag(self,titleFragIn):
         retval = None
@@ -1301,6 +1387,28 @@ class MediaLibraryDB:
             pass
         pass
         return retobj
+    def getArtifactsByMajtype(self,majtypeStrIn):
+        retobj = [];
+        try:
+            vldb = VodLibDB()
+            retobj = vldb.getArtifactListByMajtype(majtypeStrIn)
+            pass
+        except:
+            print('getArtifactsByMajtype  BARF')
+            pass
+        pass
+        return retobj
+    def getArtifactsByRelyear(self,relyear1In,relyear2In):
+        retobj = [];
+        try:
+            vldb = VodLibDB()
+            retobj = vldb.getArtifactListByRelyear(relyear1In,relyear2In)
+            pass
+        except:
+            print('getArtifactsByRelyear  BARF')
+            pass
+        pass
+        return retobj  
     def findArtifactsBySrchStr(self,srchStrIn):  ####  NEW NEW NEW  # getArtifactListByPersTitleStr(self,titleFragIn)
         #ntag = self.__normalizeTagStr(srchStrIn)
         retobj = []
@@ -1310,6 +1418,19 @@ class MediaLibraryDB:
             retobj = vldb.getArtifactListByPersTitleStr(str(srchStrIn))
         except:
             print('findArtifactsBysrchStr  BARF')
+            pass
+        pass
+        return retobj
+    def getArtifactsByArbWhereClause(self,whereClauseStrIn):
+         # getArtifactListByArbWhereClause
+        retobj = []
+        print ('MediaLibraryDB.getArtifactsByArbWhereClause: ' + whereClauseStrIn)
+        try:
+            vldb = VodLibDB()
+            retobj = vldb.getArtifactListByArbWhereClause(whereClauseStrIn)
+            print("WHEE!")
+        except:
+            print('getArtifactsByArbWhereClause  BARF')
             pass
         pass
         return retobj
@@ -1908,6 +2029,19 @@ def getListTitleId():
     elif "tag" in diKeysList:
         # Let's search for artifacts based on a tag
         result = ml.getArtifactsByTag(dictIn['tag'])
+        pass
+    elif "majtype" in diKeysList:
+        # Let's search for artifacts based on a majtype
+        result = ml.getArtifactsByMajtype(dictIn['majtype'])
+        pass
+    elif "relyear2" in diKeysList:
+        # Let's search for artifacts based on a release year
+        result = ml.getArtifactsByRelyear(dictIn['relyear1'],dictIn['relyear2'])
+        pass
+    elif "whereclause" in diKeysList:
+        print("WHERE clause: " + dictIn['whereclause'])
+        # Just a placeholder
+        result = ml.getArtifactsByArbWhereClause(dictIn['whereclause'])
         pass
     else:
         result = ml.findArtifactsByName('')

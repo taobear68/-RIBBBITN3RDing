@@ -1,5 +1,5 @@
 
-//vodlibsketch2.js  Copyright 2022 Paul Tourville
+//vodlibsketch3.js  Copyright 2022 Paul Tourville
 
 //This file is part of RIBBBITmedia VideoOnDemand (a.k.a. "rmvod").
 
@@ -165,7 +165,7 @@ class RMVodWebApp {
         // the API and DB for their versions
         this.apiFetchRemoteVersions();
         //this.postCSSVer("0.2.0");
-        this.postJSVer("0.3.3");
+        this.postJSVer("0.3.6");
         
     }
     postCSSVer(verStrIn){
@@ -710,7 +710,7 @@ class RMVodWebApp {
         var dCont = document.createElement('div');
         dCont.style.display= "inline-flex";
         // var tmpHtml = '<select style="font-family:arial;font-size:18px;" id="majtype-search-select" name="majtype-search-select" onchange="switchboard(\'execMajTypSearch\',\'majtype-search-select\',{})">';
-        var tmpHtml = '<select style="font-family:arial;font-size:18px;" id="majtype-search-select" name="majtype-search-select" onchange="switchboard(\'execMajTypSearch\',this.id,{})">';
+        var tmpHtml = '<select style="font-family:arial;font-size:18px;" id="majtype-search-select" name="majtype-search-select" onchange="switchboard(\'execMajTypSrch\',this.id,{})">';
         tmpHtml += '<option value="">All</option>';
         tmpHtml += '<option value="movie">Movies</option>';
         tmpHtml += '<option value="tvseries">TV Series</option>';
@@ -724,6 +724,7 @@ class RMVodWebApp {
         
         
         // Search by release year range
+
         var sfdRelYr = document.createElement('div');
         sfdRelYr.style.margin = factorDivMargin;
         sfdRelYr.style.width = factorDivWidth;
@@ -733,9 +734,10 @@ class RMVodWebApp {
         dTitle.style.width = factorTitleDivWidth;
         var dCont = document.createElement('div');
         dCont.style.display= "inline-flex";
-        var tmpHtml = 'Start:&nbsp;<input id="relyear-srch-start" type="text" size="5" onchange="switchboard(\'\',this.id,{})">';
+        // var tmpHtml = 'Start:&nbsp;<input id="relyear-srch-start" type="text" size="5" onchange="switchboard(\'\',this.id,{})">';
+        var tmpHtml = 'Start:&nbsp;<input id="relyear-srch-start" type="text" size="5" >'; // onchange="switchboard(\'\',this.id,{})"
         tmpHtml += '&nbsp;-&nbsp;';
-        tmpHtml += 'End:&nbsp;<input id="relyear-srch-end" type="text" size="5" onchange="switchboard(\'\',this.id,{})">';
+        tmpHtml += 'End:&nbsp;<input id="relyear-srch-end" type="text" size="5" onchange="switchboard(\'execRelyearSrch\',this.id,{})">';
         dCont.innerHTML = tmpHtml;
         sfdRelYr.appendChild(dTitle);
         sfdRelYr.appendChild(dCont);
@@ -753,7 +755,7 @@ class RMVodWebApp {
         dTitle.style.width = factorTitleDivWidth;
         var dCont = document.createElement('div');
         dCont.style.display= "inline-flex";
-        var tmpHtml = '<textarea id="sql-where-srch" name="sql-where-srch" rows="5" cols="30" onchange="switchboard(\'artifact-search-by-where-clause\',this.id,{})"></textarea>';
+        var tmpHtml = '<textarea id="sql-where-srch" name="sql-where-srch" rows="5" cols="30" onchange="switchboard(\'execWhereClauseSrch\',this.id,{})"></textarea>';
         dCont.innerHTML = tmpHtml;
         sfdSqlWhere.appendChild(dTitle);
         sfdSqlWhere.appendChild(dCont);
@@ -1253,9 +1255,11 @@ class RMVodWebApp {
         
         var trunclength = 38;
         if (tdTitle.length >= trunclength) {
-            titleDiv.innerHTML = '<span class="' + tdSpanClass + '" onclick="' + tdSpanOnclick + '"><b><u>' + tdTitle.substring(0,(trunclength-3)) + '...(series)</u></b></span>';
+            //titleDiv.innerHTML = '<span class="' + tdSpanClass + '" onclick="' + tdSpanOnclick + '"><b><u>' + tdTitle.substring(0,(trunclength-3)) + '...(series)</u></b></span>';
+            titleDiv.innerHTML = '<span class="' + tdSpanClass + '" onclick="' + tdSpanOnclick + '"><b><u>' + tdTitle.substring(0,(trunclength-3)) + '...<span style="color:#c0c080">(series)</span></u></b></span>';
         } else {
-            titleDiv.innerHTML = '<span class="' + tdSpanClass + '" onclick="' + tdSpanOnclick + '"><b><u>' + tdTitle + '(series)</u></b></span>';
+            //titleDiv.innerHTML = '<span class="' + tdSpanClass + '" onclick="' + tdSpanOnclick + '"><b><u>' + tdTitle + '(series)</u></b></span>';
+            titleDiv.innerHTML = '<span class="' + tdSpanClass + '" onclick="' + tdSpanOnclick + '"><b><u>' + tdTitle + '<span style="color:#c0c080">(series)</u></b></span>';
         }
         
         // Container for Title and Button
@@ -1451,7 +1455,80 @@ class RMVodWebApp {
         var endpoint = "/rmvid/api/titleidlist/get";
         this.genericApiCall(payloadObj,endpoint,cbFunc);
     }
-    renderArtifactBlocksByTag(tagStrIn){
+    renderArtifactBlocksByMajTypeApi(majtypeStrIn){
+        console.log("renderArtifactBlocksByMajTypeApi: " + majtypeStrIn);
+        var cbFunc = function (objIn){
+            var wa = new RMVodWebApp();
+            var artiTitleIdList = wa.sse.ssRead('titleidlist');
+            var tmpDiv = wa.renderSALByIdList(objIn);
+            document.getElementById('sideartilistwidget').innerHTML = '';
+            document.getElementById('sideartilistwidget').appendChild(tmpDiv);
+        }
+        var payloadObj = {};
+        if (majtypeStrIn.length > 0){
+            payloadObj = {'majtype':majtypeStrIn};
+        }
+        var endpoint = "/rmvid/api/titleidlist/get";
+        this.genericApiCall(payloadObj,endpoint,cbFunc);
+    }
+    renderArtifactBlocksByRelyearApi(relyear1In,relyear2In){
+        console.log("renderArtifactBlocksByRelyearApi: " + relyear1In, relyear2In);
+        var cbFunc = function (objIn){
+            var wa = new RMVodWebApp();
+            var artiTitleIdList = wa.sse.ssRead('titleidlist');
+            var tmpDiv = wa.renderSALByIdList(objIn);
+            document.getElementById('sideartilistwidget').innerHTML = '';
+            document.getElementById('sideartilistwidget').appendChild(tmpDiv);
+        }
+        var payloadObj = {};
+        if (relyear2In > 1900){
+            payloadObj = {'relyear1':relyear1In,'relyear2':relyear2In};
+        }
+        var endpoint = "/rmvid/api/titleidlist/get";
+        this.genericApiCall(payloadObj,endpoint,cbFunc);
+    }
+    execSearchSingleFactor(factorStrIn,srchValObjIn) {
+        switch (factorStrIn) {
+            case "tag":
+                //thing
+                this.renderArtifactBlocksByTagApi(srchValObjIn['tag']);
+                break;
+            case "text":
+                //thing
+                this.renderArtifactBlocksBySrchTxtApi(srchValObjIn['text']);
+                break;
+            case "majtype":
+                //thing
+                this.renderArtifactBlocksByMajTypeApi(srchValObjIn['majtype']);
+                break;
+            case "relyear":
+                //thing
+                this.renderArtifactBlocksByRelyearApi(srchValObjIn['relyear1'],srchValObjIn['relyear2']);
+                break;
+            case "whereclause":
+                console.log("execSearchSingleFactor: " + factorStrIn + ": " + srchValObjIn[factorStrIn]);
+                
+                var cbFunc = function (objIn){
+                    var wa = new RMVodWebApp();
+                    var artiTitleIdList = wa.sse.ssRead('titleidlist');
+                    if (objIn.length > 0) {
+                        var tmpDiv = wa.renderSALByIdList(objIn);
+                        document.getElementById('sideartilistwidget').innerHTML = '';
+                        document.getElementById('sideartilistwidget').appendChild(tmpDiv);
+                    }
+                }
+                var payloadObj = {};
+                if (srchValObjIn[factorStrIn].length > 0){
+                    payloadObj = {'whereclause':srchValObjIn[factorStrIn]};
+                }
+                var endpoint = "/rmvid/api/titleidlist/get";
+                this.genericApiCall(payloadObj,endpoint,cbFunc);
+                break;
+            default:
+                console.log("execSearchSingleFactor fell through: ", factorStrIn, JSON.stringify(srchValObjIn));
+        }
+    }
+    renderArtifactBlocksByTag(tagStrIn){ // <<======DEPRECATED (?)?
         var artiIdList = [];
         var theBlob = this.sse.ssRead('blob');
         if ((tagStrIn == undefined) || (tagStrIn == '')) {
@@ -2035,8 +2112,8 @@ class RMVodWebApp {
             case 'arbmeta' :
                 console.log('postArtifactFieldEdit - ' + wrkFieldName + ': simpleTextareaField');
                 var strValue = document.getElementById(deidIn).value;
-                // updateObj[wrkFieldName] = strValue;
-                updateObj[wrkFieldName] = strValue.replace(/'/g,"\'");
+                updateObj[wrkFieldName] = strValue;
+                // updateObj[wrkFieldName] = strValue.replace(/'/g,"\'");
                 console.log(JSON.stringify(updateObj));
                 break;
             case 'majtype' :
@@ -2171,23 +2248,44 @@ function switchboard(actionIn,objIdIn,argObjIn) {
         
         case 'execTagSearch' :
             tagVal = document.getElementById(objIdIn).value;
-            ml.renderArtifactBlocksByTagApi(tagVal);
+            ml.execSearchSingleFactor('tag',{'tag':tagVal});
             break;   
             
         case 'execTxtSrch' :
             console.log("Trying to execTxtSrch: " + objIdIn);
             var srchBoxDE = document.getElementById(objIdIn);
             console.log("execTxtSrch for " + srchBoxDE.value);
-            ml.renderArtifactBlocksBySrchTxtApi(srchBoxDE.value);
+            ml.execSearchSingleFactor('text',{'text':srchBoxDE.value});
             srchBoxDE.value = "";
             break;
             
+        case 'execMajTypSrch':
+            console.log("Trying to " + actionIn + ": " + objIdIn, JSON.stringify(argObjIn)); 
+            var mtVal = document.getElementById(objIdIn).value;
+            console.log(objIdIn + " has value " + mtVal);
+            ml.execSearchSingleFactor('majtype',{'majtype':mtVal});
+            break;
+        case 'execRelyearSrch':
+            console.log("Trying to " + actionIn + ": " + objIdIn, JSON.stringify(argObjIn)); 
+            var ryVal2 = document.getElementById(objIdIn).value;
+            document.getElementById(objIdIn).value = "";
+            var ryVal1 = document.getElementById('relyear-srch-start').value;
+            document.getElementById('relyear-srch-start').value = "";
+            console.log('Dates captured: ', ryVal1, ryVal2); //objIdIn + " has value " + mtVal);
+            ml.execSearchSingleFactor('relyear',{'relyear1':ryVal1,'relyear2':ryVal2});
+            break;
+            
+        case 'execWhereClauseSrch':
+            //thing
+            console.log("Trying to " + actionIn + ": " + objIdIn, JSON.stringify(argObjIn)); 
+            const re = /'/g;
+            var rawWCStr = document.getElementById(objIdIn).value.replace(re,"\'");
+            //console.log("Value: " + rawWCStr);
+            ml.execSearchSingleFactor('whereclause',{'whereclause':rawWCStr});
+            break;
+            
         case 'execDirectStringSrch' :
-            //console.log("Trying to execTxtSrch: " + objIdIn);
-            //var srchBoxDE = document.getElementById(objIdIn);
-            //console.log("execTxtSrch for " + srchBoxDE.value);
-            ml.renderArtifactBlocksBySrchTxtApi(argObjIn['srchstr']);
-            //srchBoxDE.value = "";
+            ml.execSearchSingleFactor('text',{'text':argObjIn['srchstr']});
             break;
         
         case 'execAdvSrch' :
