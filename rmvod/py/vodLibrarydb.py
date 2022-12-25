@@ -1131,6 +1131,33 @@ class MediaLibraryDB:
         finally:
             pass
         pass
+        return verNmbrStr  
+    def readHtmlFile(self,htmlFilPathIn):
+         # <!-- vodlib_static_3.html version 
+        verNmbrStr = "Undetermined";
+        srchStr = "<!-- vodlib_static_3.html version "
+        try:
+            fh2 = open(htmlFilPathIn,'rt')
+            foundIt = False
+            while foundIt == False:
+                lineStr = fh2.readline()
+                if (lineStr == ""):
+                    print(srchStr + ' not found in ' + cssFilPathIn)
+                    break
+                if (srchStr in lineStr):
+                    foundIt = True
+                    partList = lineStr.split(" ")
+                    verNmbrStr = partList[3]
+                pass
+            pass
+            fh2.close()
+        except IOError as error:
+            print('File Sad: ' + str(error))
+        else:
+            pass
+        finally:
+            pass
+        pass
         return verNmbrStr
     def loadJsonLibrary(self,jsonStrIn):
         retval = False
@@ -2006,7 +2033,8 @@ def blobRead():
 def apiVersion():
     ml = MediaLibraryDB()
     cssVerStr = ml.readCssFile('../css/vodlib.css')
-    tmpRetObj = {'api_version':versionStr,'api_file':fileStr,'db_version':ml.getDBVersion(),'css_version':cssVerStr}
+    htmlVerStr = ml.readHtmlFile('../vodlib_static_3.html')
+    tmpRetObj = {'api_version':versionStr,'api_file':fileStr,'db_version':ml.getDBVersion(),'css_version':cssVerStr,'html_version':htmlVerStr}
     return json.dumps(tmpRetObj)
 
 @app.route('/titleidlist/get',methods=['POST','GET'])

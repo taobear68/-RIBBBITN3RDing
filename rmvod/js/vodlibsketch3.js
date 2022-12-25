@@ -165,7 +165,14 @@ class RMVodWebApp {
         // the API and DB for their versions
         this.apiFetchRemoteVersions();
         //this.postCSSVer("0.2.0");
-        this.postJSVer("0.3.6");
+        this.postJSVer("0.3.8");
+        //this.env = {};
+        //this.env.versions. = {};
+        //this.env.versions.api = "undetermined";
+        //this.env.versions.db = "undetermined";
+        //this.env.versions.html = "undetermined";
+        //this.env.versions.css = "undetermined";
+        //this.env.versions.js = "0.3.7";
         
     }
     postCSSVer(verStrIn){
@@ -189,6 +196,10 @@ class RMVodWebApp {
     postAPIVer(verStrIn){
         console.log("postAPIVer: " + verStrIn);
         document.getElementById("version_api").innerText = "api version: " + verStrIn;
+    }
+    postHTMLVer(verStrIn){
+        console.log("postHTMLVer: " + verStrIn);
+        document.getElementById("version_html").innerText = "html version: " + verStrIn;
     }
     clockSet() {
         
@@ -233,11 +244,12 @@ class RMVodWebApp {
         console.log("Interval: " + intv);
         
     }
-    
     apiFetchRemoteVersions(){
         console.log("This is where we get API and DB versions");
         var cbFunc = function (objIn) {
+            console.log('apiFetchRemoteVersions: ' + JSON.stringify(objIn));
             var wa = new RMVodWebApp();
+            wa.postHTMLVer(objIn['html_version']);
             wa.postDBVer(objIn['db_version']);
             wa.postAPIVer(objIn['api_version']);
             wa.postCSSVer(objIn['css_version']);
@@ -245,6 +257,28 @@ class RMVodWebApp {
         const payloadObj = {};
         const endpoint = '/rmvid/api/apiversion/get';
         var result = this.genericApiCall(payloadObj,endpoint,cbFunc);
+        
+    }
+    apiFetchRemoteVersions2(){  //someday
+        //console.log("This is where we get API and DB versions");
+        //var cbFunc = function (objIn) {
+            //console.log('apiFetchRemoteVersions: ' + JSON.stringify(objIn));
+            //var wa = new RMVodWebApp();
+            
+            //wa.env.versions.api = objIn['api_version'];
+            //wa.env.versions.db = objIn['db_version'];
+            //wa.env.versions.html = objIn['html_version'];
+            //wa.env.versions.css = objIn['css_version'];
+            
+            
+            //wa.postHTMLVer(objIn['html_version']);
+            //wa.postDBVer(objIn['db_version']);
+            //wa.postAPIVer(objIn['api_version']);
+            //wa.postCSSVer(objIn['css_version']);
+        //}
+        //const payloadObj = {};
+        //const endpoint = '/rmvid/api/apiversion/get';
+        //var result = this.genericApiCall(payloadObj,endpoint,cbFunc);
         
     }
     apiFetchPersonsList(){
@@ -640,7 +674,6 @@ class RMVodWebApp {
             
         }
     }
-    
     renderStaticModernSearchWidget(){
         // Search Modes: Simple (Single Factor - exec. on change), Complex (Multiple Factor - exec. on button click)
         //
@@ -771,7 +804,6 @@ class RMVodWebApp {
         
         this.tagSelListRefresh();
     }
-    
     tagSelListRefresh(){
         var tsl = document.getElementById('tag-search-select');
         // Clear the current list of options
@@ -800,39 +832,6 @@ class RMVodWebApp {
         const endpoint = '/rmvid/api/taglist/get';
         const payload = {};
         this.genericApiCall(payload,endpoint,cbFunc);
-    }
-    
-    renderSimpleSearchWidget(){  // DEPRECATED
-        var cbFunc = function(){
-            var sse = new RMSSSEnhanced();
-            var tagList = sse.ssRead('blob')['tags']
-            var tmpHtml = '';
-            // Tag Search Select Box
-            tmpHtml += '<select style="font-family:arial;font-size:18px;" id="tag-search-select" name="tag-search-select" onchange="switchboard(\'execTagSearch\',\'tag-search-select\',{})">';
-            tmpHtml += '<option value="">' + 'None' +  '</option>';
-            for (var idx=0; idx<tagList.length; idx++ ){
-                tmpHtml += '<option value="' + tagList[idx] + '">' + tagList[idx] +  '</option>';
-            }
-            tmpHtml += '</select>';
-            tmpHtml += '<br>';
-            // Simple Text Field
-            tmpHtml += 'Text Srch:&nbsp;';
-            tmpHtml += '<input id="txt-srch-str" type="text" size="15" onchange="switchboard(\'execTxtSrch\',\'txt-srch-str\',{})"><br>';
-            // Advanced Search Button
-            tmpHtml += ' <span onclick="switchboard(\'toggleDivViz\',\'big-search-container\',{})"><b><u>AdvSrch</u></b></span>'
-            var srchDiv = document.createElement('div');
-            srchDiv.innerHTML = tmpHtml;
-            try {
-                //  headerblock2
-                //document.getElementById('simple-search-div').innerHTML = '';
-                //document.getElementById('simple-search-div').appendChild(srchDiv);
-                document.getElementById('headerblock2').innerHTML = '';
-                document.getElementById('headerblock2').appendChild(srchDiv);
-            } catch (e) {
-                console.log('headerblock2 not available yet. ' + e);
-            }
-        }
-        this.vodlibtaglistget(cbFunc);
     }
     execAdvancedSearch(){
         var titleFrag = document.getElementById('advsrchtitlefrag').value
@@ -898,9 +897,8 @@ class RMVodWebApp {
         document.getElementById('big-search-container').innerHTML = tmpHtml;
         // Put it in this div:  big-search-container
     }
-
     // Major Page Parts
-    docElRenderHeaderFourCell(){
+    docElRenderHeaderFourCell(){  // <<=== DEPRECATED
         // Header
         var headerOuterDiv = document.createElement('div');
         headerOuterDiv.className = "headercont";
@@ -982,6 +980,159 @@ class RMVodWebApp {
         
         return headerOuterDiv;
     }
+    docElRenderHeaderThreeCell(){
+        var hContDiv = document.createElement('div');
+        hContDiv.id = 'headercont';
+        hContDiv.className = 'headercont';
+        hContDiv.style.width = '1200px';
+        hContDiv.style.height = '101px';
+        hContDiv.style.display = 'inline-flex';
+        //hContDiv.style.width = '1200px';
+        
+        var cell1Div = document.createElement('div');
+        cell1Div.style.width = "100px";
+        cell1Div.style.height = "100px";
+        var tmpHtml = '';
+        tmpHtml += '<a href="./vodlib_static_3.html">';
+        tmpHtml += '<img src="./img/rmvod_badge_center.png" height="75" width="75" style="height:75px;width:75px;">';
+        tmpHtml += '</a>';
+        cell1Div.innerHTML = tmpHtml;
+        
+        var cell2Div = document.createElement('div');
+        cell2Div.style.width = "890px";
+        cell2Div.style.height = "100px";
+        //cell2Div.style.overflow = "auto";
+        var tmpHtml = '';
+        tmpHtml += '<span id="header-title" style="font-weight:bold;font-size:large;">&nbsp;</span><br>';
+        tmpHtml += '<div id="header-artifact-details" style="width:870px;height:60px;overflow:auto;">';
+        tmpHtml += '<span id="header-synopsis" style="">&nbsp;</span><br>';
+        tmpHtml += '<span id="header-production" style="">&nbsp;</span><br>';
+        tmpHtml += '<span id="header-cast" style="">&nbsp;</span><br>';
+        tmpHtml += '<span id="" style="">&nbsp;</span><br>';
+        tmpHtml += '</div>';
+        cell2Div.innerHTML = tmpHtml;
+        
+        var cell3Div = document.createElement('div');
+        cell3Div.style.width = "890px";
+        cell3Div.style.height = "100px";
+        cell3Div.id = "headerblock3";
+        var tmpHtml = '';
+        tmpHtml += "<b>0000-11-22 11:22</b>"
+        cell3Div.innerHTML = tmpHtml;
+        
+        hContDiv.appendChild(cell1Div);
+        hContDiv.appendChild(cell2Div);
+        hContDiv.appendChild(cell3Div);
+        
+        return hContDiv;
+    }
+    docElTabContainer() {
+        
+        var renderTabTabDiv = function(tabNmbrIn,tabLabelIn,selBoolIn) {
+            var tabTabDiv = document.createElement('div');
+            tabTabDiv.className = "tab-unsel";
+            tabTabDiv.id = "tab" + tabNmbrIn.toString();
+            var tmpHtml = "";
+            var className = "tab-unsel";
+            console.log("className: " + className);
+            if (selBoolIn == true) {
+                className = "tab-sel";
+                console.log("className: " + className);
+            }
+            tmpHtml += '<span class="' + className + '" id="tabspan' + tabNmbrIn.toString() + '" onclick="switchboard(\'tabPick\',this.id,{})">';
+            tmpHtml += tabLabelIn;
+            tmpHtml += '</span>';
+            tabTabDiv.innerHTML = tmpHtml;
+            tabTabDiv.className = className;
+            return tabTabDiv;
+        }
+        
+        var renderTabContDiv = function(idStrIn,dispBoolIn,contHtmlStrIn) {
+            var tabContDiv = document.createElement('div');
+            tabContDiv.className = "featureelement0";
+            tabContDiv.id = idStrIn;
+            tabContDiv.style.display = "none";
+            if (dispBoolIn == true) {
+                tabContDiv.style.display = "block";
+            }
+            tabContDiv.style.overflow = "auto";
+            tabContDiv.innerHTML = contHtmlStrIn;
+            return tabContDiv;
+        }
+        
+        var tabCtrlDiv = document.createElement('div');
+        tabCtrlDiv.style.width = "1200px";
+        tabCtrlDiv.style.height = "40px";
+        tabCtrlDiv.style.display = "inline-flex";
+        
+        tabCtrlDiv.appendChild(renderTabTabDiv(0,'Player',false));
+        tabCtrlDiv.appendChild(renderTabTabDiv(1,'List/Search',true));
+        tabCtrlDiv.appendChild(renderTabTabDiv(2,'Edit',false));
+        tabCtrlDiv.appendChild(renderTabTabDiv(3,'Settings',false));
+        
+        
+        var tabContOuterDiv = document.createElement('div');
+        tabContOuterDiv.className = "featurecont0";
+        tabContOuterDiv.id = "featurecont";
+        tabContOuterDiv.style.dicplay = "block";
+        //tabContOuterDiv.style.width = "1200px";
+        //tabContOuterDiv.style.height = "550px";
+        
+        var tmpHtml = '';
+        //tmpHtml += '<div style="width:1150px;height:550px;vertical-align:center;horizontal-align:center;margin:20px;">';
+        tmpHtml += '<div style="width:1100px;height:500px;vertical-align:center;horizontal-align:center;margin:20px;">';
+        tmpHtml += '<div style="margin-left:200px; margin-right:80px;">';
+        tmpHtml += '&nbsp;<br>';
+        tmpHtml += '<img src="./img/rmvod_badge_center.png" height=450 width=450>';
+        tmpHtml += '</div>';
+        tmpHtml += '</div>';
+        
+        tabContOuterDiv.appendChild(renderTabContDiv('structfeatureplayer',false,tmpHtml));
+        
+        
+        var tmpHtml = '';
+        tmpHtml += '<div style="display:inline-flex;">';
+        //tmpHtml += '<div style="width:580px;height:550px;">';
+        tmpHtml += '<div style="width:580px;height:518px;">';
+        tmpHtml += '<div id="headerblock2">';
+        tmpHtml += '<div style="margin:8px;">';
+        tmpHtml += '&nbsp;';
+        tmpHtml += '</div></div></div>';
+        //tmpHtml += '<div style="width:580px;height:550px;">';
+        tmpHtml += '<div style="width:580px;height:518px;">';
+        tmpHtml += '<div class="listwidget" id="sideartilistwidget" style="">';
+        tmpHtml += '<div>&nbsp;</div>';
+        tmpHtml += '</div></div>';
+        
+        tabContOuterDiv.appendChild(renderTabContDiv('structfeaturesearch',true,tmpHtml));
+        
+        
+        tmpHtml = '';
+        tmpHtml += '<div style="margin-left:375px; margin-right:80px;">';
+        tmpHtml += '&nbsp;<br>';
+        tmpHtml += '<img src="./img/rmvod_badge_center.png" height=450 width=450>';
+        tmpHtml += '</div>';
+        
+        tabContOuterDiv.appendChild(renderTabContDiv('structfeatureedit',false,tmpHtml));
+        
+        
+        tmpHtml = '';
+        tmpHtml += '<div class="headerflexcell" id="headerblock4">';
+        tmpHtml += '<div class="" id="" style="display:block">';
+        tmpHtml += '<div><b>Settings</b></div>';
+        tmpHtml += '<div><b>Play next in series: </b><input name="serplaynext" id="serplaynext" type="checkbox"></div>';
+        tmpHtml += '<div><b>Resume play: </b><input name="resumeplay" id="resumeplay" type="checkbox"></div>';
+        tmpHtml += '</div>';
+        tmpHtml += '</div>';
+        
+        tabContOuterDiv.appendChild(renderTabContDiv('structfeaturesettings',false,tmpHtml));
+        
+                    
+        var outerDiv = document.createElement('div');
+        outerDiv.appendChild(tabCtrlDiv);
+        outerDiv.appendChild(tabContOuterDiv);
+        return outerDiv;
+    }
     docElRenderFeature(){
         var featureDiv = document.createElement('div');
         featureDiv.id = 'featurecont';
@@ -1030,8 +1181,52 @@ class RMVodWebApp {
         listContDiv.innerHTML = listHtmlStr;
         return listContDiv;
     }
+    docElFooter(){
+        
+        var footerOuterDiv = document.createElement('div');
+        footerOuterDiv.innerText = "Footer";
+        
+        var versionsContainerDiv = document.createElement('div');
+        var tmpHtml = "";
+        tmpHtml += '<span id="version_html" style="font-family:courier;font-size:small;color:#888888;">html version: 0.3.1</span>';
+        tmpHtml += '&nbsp;&nbsp;';
+        tmpHtml += '<span id="version_js" style="font-family:courier;font-size:small;color:#888888;">js version: 0.2.1</span>';
+        tmpHtml += '&nbsp;&nbsp;';
+        tmpHtml += '<span id="version_db" style="font-family:courier;font-size:small;color:#888888;">db version: 0.1.0</span>';
+        tmpHtml += '&nbsp;&nbsp;';
+        tmpHtml += '<span id="version_api" style="font-family:courier;font-size:small;color:#888888;">api version: 0.1.2</span>';
+        tmpHtml += '&nbsp;&nbsp;';
+        tmpHtml += '<span id="version_css" style="font-family:courier;font-size:small;color:#888888;">css version: 0.2.1</span>';
+        tmpHtml += '&nbsp;&nbsp;';
+        versionsContainerDiv.innerHTML = tmpHtml;
+        
+        footerOuterDiv.appendChild(versionsContainerDiv);
+        
+        return footerOuterDiv;
+        
+        
+        
+            //<div><!-- Footer -->Footer<br>
+                //<div>
+                    //<span id="version_html" style="font-family:courier;font-size:small;color:#888888;">html version: 0.3.1</span>
+                    //&nbsp;&nbsp;
+                    //<span id="version_js" style="font-family:courier;font-size:small;color:#888888;">js version: 0.2.1</span>
+                    //&nbsp;&nbsp;
+                    //<span id="version_db" style="font-family:courier;font-size:small;color:#888888;">db version: 0.1.0</span>
+                    //&nbsp;&nbsp;
+                    //<span id="version_api" style="font-family:courier;font-size:small;color:#888888;">api version: 0.1.2</span>
+                    //&nbsp;&nbsp;
+                    //<span id="version_css" style="font-family:courier;font-size:small;color:#888888;">css version: 0.2.1</span>
+                    //&nbsp;&nbsp;
+                //</div>            
+            //</div>
+        
+        
+        
+        
+    }
     // Render Page Layouts
-    basePageLayout01(){
+    basePageLayout01(){  //  BASE PAGE LAYOUT FOR vodlib_static_2.html
         var headerOuterDiv = this.docElRenderHeaderFourCell();
         var featureDiv = this.docElRenderFeature();
         var listContDiv = this.docElRenderList();
@@ -1051,7 +1246,18 @@ class RMVodWebApp {
         
         //this.clockSet();
     }
-    
+    basePageLayout02(){  //  BASE PAGE LAYOUT FOR vodlib_static_3.html
+        var headerOuterDiv = this.docElRenderHeaderThreeCell();
+        var featureDiv = this.docElTabContainer();
+        var footerDiv = this.docElFooter();
+        
+        var masterCont = document.getElementById('mastercont');
+        masterCont.innerHTML = '';
+        masterCont.appendChild(headerOuterDiv);
+        masterCont.appendChild(featureDiv);
+        masterCont.appendChild(footerDiv);
+        
+    }
     contCookieOnLoad() {
         // OnLoad, if "Resume Playback" is checked, check to see if 3 
         // "Continue" cookies are set.  If so, get the values of the 
@@ -1159,7 +1365,6 @@ class RMVodWebApp {
         this.cc.clearCookie('cont_play_sample_int_handle');
         this.cc.clearCookie('play_aid');
     }
-    
     // NEW SIDE LIST HANDLING
     renderSALByIdList(artiIdListIn){
         // Whole List -- No details or episodes
@@ -1528,18 +1733,6 @@ class RMVodWebApp {
                 console.log("execSearchSingleFactor fell through: ", factorStrIn, JSON.stringify(srchValObjIn));
         }
     }
-    renderArtifactBlocksByTag(tagStrIn){ // <<======DEPRECATED (?)?
-        var artiIdList = [];
-        var theBlob = this.sse.ssRead('blob');
-        if ((tagStrIn == undefined) || (tagStrIn == '')) {
-            var tmpArtiObj = theBlob['artifacts'];
-            artiIdList = Object.keys(tmpArtiObj);
-        } else {
-            artiIdList = theBlob['t2a'][tagStrIn]; 
-        }
-        var tmpDiv = this.renderArtifactBlocksByIdList(artiIdList);
-        return tmpDiv;
-    }
     renderArtifactInitial (artiIdIn) {
         var blob = this.sse.ssRead('blob');
         var artiData = blob['artifacts'][artiIdIn];
@@ -1611,18 +1804,6 @@ class RMVodWebApp {
         divOutermost.appendChild(divEditContainer);
         return divOutermost;
     }
-    renderArtifactDetailApi_OLDE(artiIdIn){
-        var cbFunc = function (objIn) {
-            var wa = new RMVodWebApp();
-            // renderArtifactDetailBox
-            var newContentDiv = wa.renderArtifactDetailBox(objIn);
-            document.getElementById("structfeatureplayer").appendChild(newContentDiv);
-        }
-        const endpoint = '/rmvid/api/artifact/get';
-        const payload = {'artifactid':artiIdIn};
-        this.genericApiCall(payload,endpoint,cbFunc);
-    }
-
     renderArtifactDetailApi(artiIdIn){
         var cbFunc = function (objIn) {
             var wa = new RMVodWebApp();
@@ -1632,89 +1813,6 @@ class RMVodWebApp {
         const endpoint = '/rmvid/api/artifact/get';
         const payload = {'artifactid':artiIdIn};
         this.genericApiCall(payload,endpoint,cbFunc);
-    }
-    renderArtifactDetail(artIdIn){
-        var newContentDiv = this.renderArtifactDetailNEW(artIdIn,'ro')
-        
-        var outerDiv = document.getElementById(artIdIn+ '-reveal-container');
-        outerDiv.innerHTML = '';
-        outerDiv.appendChild(newContentDiv);
-    }
-    renderArtifactDetailBox(artiObj){
-        //var artiObj = this.sse.ssRead('blob')['artifacts'][artiIdIn];
-        //console.log("renderArtifactDetailBox - " + JSON.stringify(artiObj));
-        
-        
-        function row_1s3 (labelListIn,valueListIn) {
-            var tmpStr = '<tr><td class="common" height="13" alight="left"><span class="fieldlabel">' + labelListIn[0]+ ':</span></td>';
-            //tmpStr += '<td class="common" height="13" alight="left" colspan=3><span class="fieldvalue">'; //  style="word-wrap: break-word; word-break: break-all;"
-            tmpStr += '<td class="common" height="13" alight="left" colspan=3><div style="width: 525px;"><span class="fieldvalue">'; //  style="word-wrap: break-word; word-break: break-all;"
-            //rowStr += artiObj['title'];
-            tmpStr += valueListIn[0];
-            //tmpStr += '</span></td></tr>';
-            tmpStr += '</span></div></td></tr>';
-            return tmpStr;
-        }
-        
-        function row_1111 (labelListIn,valueListIn) {
-            var tmpStr = '<tr><td class="common" height="13" alight="left"><span class="fieldlabel">' + labelListIn[0] + '</span></td>';
-            tmpStr += '<td class="common" height="13" alight="left"><span class="fieldvalue">';
-            tmpStr += valueListIn[0];
-            tmpStr += '</td><td class="common" align="left"><span class="fieldlabel">' + labelListIn[1] + '</span></td>';
-            tmpStr += '<td class="common" height="13" alight="left"><span class="fieldvalue">';
-            tmpStr += valueListIn[1];
-            tmpStr += '</td></tr>';
-            return tmpStr;
-        }
-        
-        var rowStrList = [];
-        var rowStr = '';
-        // Row 1 HTML -- Title
-        rowStr = '<tr><td class="common" colspan=4 height="13" alight="left"><span class="artideettitle" style="font-size:16px;"><b>';
-        rowStr += artiObj['title'];
-        rowStr += '</b></span></td></tr>';
-        rowStrList.push(rowStr);
-        if (artiObj['majtype'] == 'tvepisode') {
-            // Row 2 HTML - TV Series Title (optional)
-            rowStrList.push(row_1s3(['TV Series'],['Series Title']));
-            // Row 3 HTML - TV Series Season & Episode
-            rowStrList.push(row_1111(['Season','Episode'],[artiObj['season'],artiObj['episode']]));
-        }
-        // Row 3.5 HTML - Synopsis
-        rowStrList.push(row_1s3(['Synopsis'],[artiObj['synopsis']]));
-        // Row 5 HTML - Writer list
-        rowStrList.push(row_1s3(['Writer(s)'],[JSON.stringify(artiObj['writer'])]));
-        // Row 6 HTML - Director list
-        rowStrList.push(row_1s3(['Director(s)'],[JSON.stringify(artiObj['director'])]));
-        // Row 7 HTML - Primary Cast list
-        rowStrList.push(row_1s3(['Pimary Cast'],[JSON.stringify(artiObj['primcast'])]));
-        // Row 8 HTML - Runtime & Release Year
-        rowStrList.push(row_1111(['Runtime(m)','Release Yr.'],[artiObj['runmins'],artiObj['relyear']]));
-        // Row 9 HTML - Reference Site IDs
-        rowStrList.push(row_1111(['eidrid','imdbid'],[artiObj['eidrid'],artiObj['imdbid']]));
-        // Row 10 HTML - Tags
-        rowStrList.push(row_1s3(['Tags'],artiObj['tags']));
-        // Row 4 HTML - File params
-        rowStrList.push(row_1111(['Filepath','Filename'],[artiObj['filepath'],artiObj['file']]));
-        // Row 11 HTML - Arbitrary Metadata
-        rowStrList.push(row_1s3(['Metadata'],[JSON.stringify(artiObj['arbmeta'])]));
-        // Row 12 HTML - Artifact ID
-        rowStrList.push(row_1s3(['Artifact ID'],[JSON.stringify(artiObj['artifactid'])]));
-        
-        var innerHtmlStr = '<table cellspacing="0" border="0" width="688"><colgroup span="4" width="170"></colgroup>';
-        
-        for (var idx=0; idx<rowStrList.length; idx++) {
-            innerHtmlStr += rowStrList[idx];
-        }
-        
-        innerHtmlStr += '</table>';
-        
-        //console.log(innerHtmlStr);
-        //console.log(innerHtmlStr);
-        var theDiv = document.createElement('div');
-        theDiv.className = 'artideetcontainer';
-        theDiv.innerHTML = innerHtmlStr;
-        return theDiv;
     }
     renderArtifactDetailHeader(artiObj){
         //console.log('renderArtifactDetailHeader');
@@ -1740,71 +1838,6 @@ class RMVodWebApp {
         document.getElementById('header-synopsis').innerText = synoStr;
         document.getElementById('header-production').innerHTML = 'Production: ' + prodStr;
         document.getElementById('header-cast').innerHTML = 'Cast: ' + castStr;
-    }
-    renderArtifactDetailNEW(artiIdIn,modeIn){
-        var artiObj = this.sse.ssRead('blob')['artifacts'][artiIdIn];
-        
-        function row_1s3 (labelListIn,valueListIn) {
-            var tmpStr = '<tr><td class="common" height="13" alight="left"><span class="fieldlabel">' + labelListIn[0]+ ':</span></td>';
-            tmpStr += '<td class="common" height="13" alight="left" colspan=3><span class="fieldvalue">';
-            tmpStr += valueListIn[0];
-            tmpStr += '</span></td></tr>';
-            return tmpStr;
-        }
-        
-        function row_1111 (labelListIn,valueListIn) {
-            var tmpStr = '<tr><td class="common" height="13" alight="left"><span class="fieldlabel">' + labelListIn[0] + '</span></td>';
-            tmpStr += '<td class="common" height="13" alight="left"><span class="fieldvalue">';
-            tmpStr += valueListIn[0];
-            tmpStr += '</td><td class="common" align="left"><span class="fieldlabel">' + labelListIn[1] + '</span></td>';
-            tmpStr += '<td class="common" height="13" alight="left"><span class="fieldvalue">';
-            tmpStr += valueListIn[1];
-            tmpStr += '</td></tr>';
-            return tmpStr;
-        }
-        
-        var rowStrList = [];
-        var rowStr = '';
-        // Row 1 HTML -- Title
-        rowStr = '<tr><td class="common" colspan=4 height="13" alight="left"><span class="artideettitle">';
-        rowStr += artiObj['title'];
-        rowStr += '</span></td></tr>';
-        rowStrList.push(rowStr);
-        // Row 2 HTML - TV Series Title (optional)
-        rowStrList.push(row_1s3(['TV Series'],['Series Title']));
-        // Row 3 HTML - TV Series Season & Episode
-        rowStrList.push(row_1111(['Season','Episode'],[artiObj['season'],artiObj['episode']]));
-        // Row 4 HTML - File params
-        rowStrList.push(row_1111(['Filepath','Filename'],[artiObj['filepath'],artiObj['file']]));
-        // Row 5 HTML - Writer list
-        rowStrList.push(row_1s3(['Writer(s)'],[JSON.stringify(artiObj['writer'])]));
-        // Row 6 HTML - Director list
-        rowStrList.push(row_1s3(['Director(s)'],[JSON.stringify(artiObj['director'])]));
-        // Row 7 HTML - Primary Cast list
-       rowStrList.push(row_1s3(['Pimary Cast'],[JSON.stringify(artiObj['primcast'])]));
-        // Row 8 HTML - Runtime & Release Year
-        rowStrList.push(row_1111(['Runtime(m)','Release Yr.'],[artiObj['runmins'],artiObj['relyear']]));
-        // Row 9 HTML - Reference Site IDs
-        rowStrList.push(row_1111(['eidrid','imdbid'],[artiObj['eidrid'],artiObj['imdbid']]));
-        // Row 10 HTML - Tags
-        rowStrList.push(row_1s3(['Tags'],['Tags would go here']));
-        // Row 11 HTML - Arbitrary Metadata
-        rowStrList.push(row_1s3(['Metadata'],[JSON.stringify(artiObj['arbmeta'])]));
-        // Row 12 HTML - Artifact ID
-        rowStrList.push(row_1s3(['Artifact ID'],[JSON.stringify(artiObj['artifactid'])]));
-        
-        var innerHtmlStr = '<table cellspacing="0" border="0"><colgroup span="4" width="170"></colgroup>';
-        
-        for (var idx=0; idx<rowStrList.length; idx++) {
-            innerHtmlStr += rowStrList[idx];
-        }
-        
-        innerHtmlStr += '</table>';
-        
-        var theDiv = document.createElement('div');
-        theDiv.className = 'artideetcontainer';
-        theDiv.innerHTML = innerHtmlStr;
-        return theDiv;
     }
     renderArtifactEdit(artiIdIn){
         console.log('renderArtifactEdit: ' + artiIdIn);
@@ -2154,6 +2187,7 @@ function switchboard(actionIn,objIdIn,argObjIn) {
             // Let's try using "basePageLayout01" to help reduce what 
             // we're depending on in the static HTML page
             //ml.basePageLayout01();
+            ml.basePageLayout02();
             
             ml.clockSet();
 

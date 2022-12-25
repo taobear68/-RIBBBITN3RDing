@@ -23,7 +23,7 @@
  * 
  *  */
 
-/* vodlib.css version 0.2.1 */
+/* vodlib.css version 0.2.2 */
 
 body {
     background-color:#0c0c0c;
@@ -80,49 +80,51 @@ div.featurecont {
     height:592px;
     /* background-color:#0000ee; */
 }
-div.featureelement {
+/* div.featureelement {
     display:block;
     width:692px;
     height:590px;
+} */
+div.featureelement0 {
+    display:block;
+    width:1190px;
+    height:540px;
+    overflow:auto;
     /* background-color:#ccffff; */
 }
+
 div.listcontainer{
     display:inline-flex;
-    /* width:245px; */
-    width:410px;
-    height:562px;
-    /* background-color:#00eeee; */
+    width:552px;
+    height:516px;
 }
 div.listwidget{
     display:block;
-    width:408px;
-    /* width:550px; */
-    height:560px;
-    /* background-color:#eeee00; */
+    width:550px;
+    height:514px;
     overflow:auto;
 }
 div.listelcontainer {
     display:block;
-    width:390px;
+    width:530px;
     padding-top:4px;
     padding-bottom:4px;
 }          
 div.listelconttitlelink {
     display:block;
-    width:368px;
-    /* background-color:#0d0d0c  <<====  listelseriescollepcont */
+    width:520px;
 }
 div.listelconttitle {
     display:inline-flex;
-    width:350px;
+    width:470px;
 }
 div.listelcontxpbutt {
     display:inline-flex;
-    width:18px;
+    width:50px;
 }
 div.listeldetailouter {  
     display:none;
-    width:336;
+    width:450;
     background-color:#0c180c
 }
 div.listelseriescollep {
@@ -131,25 +133,27 @@ div.listelseriescollep {
 }
 div.listelseriescollepcont {
     display:block;
-    width:392px;
-    background-color:#18180c  /* <<====  listelseriescollepcont */
+    width:460px;
+    background-color:#18180c 
 }
 div.listelseriescolleptitlelink {
     display:block;
-    width:390;
+    width:450;
     padding-top:4px;
     padding-bottom:4px;
 }   
 div.listelseriescolleptitle {
     display:inline-flex;
     padding-left:5px;
-    width:345px;
+    width:380px;
 }
 div.listelseriescollepdetail {
     display:none;
-    width:280;
+    width:350;
     background-color:#20200c
 }
+
+
 div.artideetcontainer {
     height: 180px;
     width: 695px;
@@ -169,10 +173,11 @@ span.fieldvalue {
 div.edit-form-outer-container {
     display: block; 
     width: 680px;
-    height: 580px;
+    height: 520px;
     overflow: auto;
     /* background-color: #ffffdd; */
 }
+
 div.edit-form-row{
     display: block; 
     width:95%;
@@ -202,5 +207,40 @@ input.edit-simple-text {
 textarea.edit-simple-textarea {
     height: 100px;
     width: 350px;
+}
+
+/* Tab-related elements */
+div.tab-unsel{
+    width:150px;
+    height:20px;
+    border:2px;
+    margin:2px;
+    padding:5px;
+    border-top-style:solid;
+    border-bottom-style:solid;
+    border-left-style:solid;
+    border-right-style:solid;
+    border-color:#cccccc;
+    background-color:#444444;
+    
+}
+span.tab-unsel{
+    font-weight:normal;
+}
+div.tab-sel{
+    width:150px;
+    height:20px;
+    border:3px;
+    margin:2px;
+    padding:5px;
+    border-top-style:solid;
+    border-bottom-style:none;
+    border-left-style:solid;
+    border-right-style:solid;
+    border-color:#cccccc;
+    background-color:#444444;
+}
+span.tab-sel{
+    font-weight:bold;
 }
 

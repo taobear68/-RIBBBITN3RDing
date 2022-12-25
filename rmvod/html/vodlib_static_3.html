@@ -1,225 +1,39 @@
+<!DOCTYPE html>
+
+<!-- vodlib_static_3.html version 0.4.1  -->
+
+<!--
+vodlib_static_3.html  Copyright 2022 Paul Tourville
+
+This file is part of RIBBBITmedia VideoOnDemand (a.k.a. "rmvod").
+
+RIBBBITmedia VideoOnDemand (a.k.a. "rmvod") is free software: you 
+can redistribute it and/or modify it under the terms of the GNU 
+General Public License as published by the Free Software 
+Foundation, either version 3 of the License, or (at your option) 
+any later version.
+
+RIBBBITmedia VideoOnDemand (a.k.a. "rmvod") is distributed in the 
+hope that it will be useful, but WITHOUT ANY WARRANTY; without 
+even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+PARTICULAR PURPOSE. See the GNU General Public License for more 
+details.
+
+You should have received a copy of the GNU General Public License 
+along with RIBBBITmedia VideoOnDemand (a.k.a. "rmvod"). If not, 
+see <https://www.gnu.org/licenses/>.
+-->
 
 <html>
     <head>
         <link rel="stylesheet" href="/rmvid/css/vodlib.css">
-        <!-- <link rel="stylesheet" href="../css/vodlib.css"> -->
         <style>
-            div.tab-unsel{
-                width:150px;
-                height:20px;
-                border:2px;
-                margin:2px;
-                padding:5px;
-                border-top-style:solid;
-                border-bottom-style:solid;
-                border-left-style:solid;
-                border-right-style:solid;
-                border-color:#cccccc;
-                background-color:#444444;
-                
-            }
-            span.tab-unsel{
-                font-weight:normal;
-            }
-            div.tab-sel{
-                width:150px;
-                height:20px;
-                border:3px;
-                margin:2px;
-                padding:5px;
-                border-top-style:solid;
-                border-bottom-style:none;
-                border-left-style:solid;
-                border-right-style:solid;
-                border-color:#cccccc;
-                background-color:#444444;
-            }
-            span.tab-sel{
-                font-weight:bold;
-            }
-            
-            featureelement0{
-                display:block;
-                width:1190px;
-                height:540px;
-                overflow:auto;
-                /* background-color:#ccffff; */
-            }
-
-            div.edit-form-outer-container {
-                display: block; 
-                width: 680px;
-                height: 520px;
-                overflow: auto;
-                /* background-color: #ffffdd; */
-            }
-
-
-
-
-
-
-
-div.listcontainer{
-    display:inline-flex;
-    width:410px;
-    height:548px;
-}
-div.listwidget{
-    display:block;
-    width:550px;
-    height:546px;
-    overflow:auto;
-}
-div.listelcontainer {
-    display:block;
-    width:530px;
-    padding-top:4px;
-    padding-bottom:4px;
-}          
-div.listelconttitlelink {
-    display:block;
-    width:520px;
-}
-div.listelconttitle {
-    display:inline-flex;
-    width:470px;
-}
-div.listelcontxpbutt {
-    display:inline-flex;
-    width:50px;
-}
-div.listeldetailouter {  
-    display:none;
-    width:450;
-    background-color:#0c180c
-}
-div.listelseriescollep {
-    display:block;
-    width:394px;
-}
-div.listelseriescollepcont {
-    display:block;
-    width:460px;
-    background-color:#18180c 
-}
-div.listelseriescolleptitlelink {
-    display:block;
-    width:450;
-    padding-top:4px;
-    padding-bottom:4px;
-}   
-div.listelseriescolleptitle {
-    display:inline-flex;
-    padding-left:5px;
-    width:380px;
-}
-div.listelseriescollepdetail {
-    display:none;
-    width:350;
-    background-color:#20200c
-}
-
-
         </style>
-        
         <script type="text/javascript" src="/rmvid/js/RMWebAppCoreUtil.js"></script> 
         <script type="text/javascript" src="/rmvid/js/vodlibsketch3.js"></script> 
-        
     </head>
     <body onload="switchboard('firstthing','',{})">
-        <div class="mastercont" id="mastercont" style="width:1210px;height:710px;">
-            <div  class="headercont" id="headercont" style="width:1200px;height:102px;display:inline-flex;"><!-- Top Header -->
-                <div style="width:100px;height:100px">
-                    <a href="./vodlib_static_3.html">
-                        <img src="http://rmvid/rmvid/img/rmvod_badge_center.png" height="75" width="75" style="height:75px;width:75px;">
-                    </a>
-                </div>
-                <div style="width:890px;height:100px">
-                    <span id="header-title" style="font-weight:bold;font-size:large;">&nbsp;</span><br>
-                    <div id="header-artifact-details" style="width:870;height:60;overflow:auto;">
-                        <span id="header-synopsis" style="">&nbsp;</span><br>
-                        <span id="header-production" style="">&nbsp;</span><br>
-                        <span id="header-cast" style="">&nbsp;</span><br>
-                        <span id="" style="">&nbsp;</span><br>
-                    </div>                    
-                </div>
-                <div id="headerblock3" style="width:200px;height:100px">
-                    <b>0000-11-22 11:22</b>
-                </div>
-            </div>
-            <div style="width:1200px;height:40px;display:inline-flex;"><!-- Tab Control -->
-                <div class="tab-unsel" id="tab0">
-                    <span class="tab-sel" id="tabspan0" onclick="switchboard('tabPick',this.id,{})">Player</span>
-                </div>
-                <div class="tab-sel" id="tab1">
-                    <span class="tab-sel" id="tabspan1" onclick="switchboard('tabPick',this.id,{})">List/Search</span>
-                </div>
-                <div class="tab-unsel" id="tab2">
-                    <span class="tab-unsel" id="tabspan2" onclick="switchboard('tabPick',this.id,{})">Edit</span>
-                </div>
-                <div class="tab-unsel" id="tab3">
-                    <span class="tab-unsel" id="tabspan3" onclick="switchboard('tabPick',this.id,{})">Settings</span>
-                </div>
-            </div>
-            <div class="featurecont0" id="featurecont" style="display:block;width:1200px;height:550px;">
-                <div class="featureelement0" id="structfeatureplayer" style="display:none;"><!-- Player --><br>
-                    <div style="width:1150px;height:550px;vertical-align:center;horizontal-align:center;margin:20px;">
-                        
-                        <div style="margin-left:375px; margin-right:80px;">
-                            &nbsp;<br>
-                            <img src="./img/rmvod_badge_center.png" height=450 width=450>
-                        </div>
-                    </div>
-                </div>
-                <div class="featureelement0" id="structfeaturesearch" style="display:block;"><!-- List/Search -->
-                    <div style="display:inline-flex;">
-                        <div style="width:580px;height:550px;"><!-- SEARCH DIV -->
-                            <div id="headerblock2">
-                                <div style="margin:8px;">
-                                    &nbsp;
-                                </div>
-                            </div>
-                        </div> 
-                        <div style="width:580px;height:550px;"><!-- LIST DIV -->
-                            <div class="listwidget" id="sideartilistwidget" style="">
-                                <div>
-                                    &nbsp;
-                                </div>
-                            </div>
-                        </div> 
-                    </div>
-                </div>
-                <div class="featureelement0" id="structfeatureedit" style="display:none;overflow:auto;"><!-- Edit --><!-- Edit -->
-                    <div style="margin-left:375px; margin-right:80px;">
-                        &nbsp;<br>
-                        <img src="./img/rmvod_badge_center.png" height=450 width=450>
-                    </div>
-                </div>
-                <div class="featureelement0" id="structfeaturesettings" style="display:none;"><!-- Settings --><!-- Settings -->
-                    <div class="headerflexcell" id="headerblock4">
-                        <div class="" id="" style="display:block">
-                            <div><b>Settings</b></div>
-                            <div><b>Play next in series: </b><input name="serplaynext" id="serplaynext" type="checkbox"></div>
-                            <div><b>Resume play: </b><input name="resumeplay" id="resumeplay" type="checkbox"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div><!-- Footer -->Footer<br>
-                <div>
-                    <span id="version_html" style="font-family:courier;font-size:small;color:#888888;">html version: 0.3.1</span>
-                    &nbsp;&nbsp;
-                    <span id="version_js" style="font-family:courier;font-size:small;color:#888888;">js version: 0.2.1</span>
-                    &nbsp;&nbsp;
-                    <span id="version_db" style="font-family:courier;font-size:small;color:#888888;">db version: 0.1.0</span>
-                    &nbsp;&nbsp;
-                    <span id="version_api" style="font-family:courier;font-size:small;color:#888888;">api version: 0.1.2</span>
-                    &nbsp;&nbsp;
-                    <span id="version_css" style="font-family:courier;font-size:small;color:#888888;">css version: 0.2.1</span>
-                    &nbsp;&nbsp;
-                </div>            
-            </div>
+        <div class="mastercont" id="mastercont" style="width:1210px;height:760px;"> <!-- 710px; -->
         </div>
     </body>
 </html>
