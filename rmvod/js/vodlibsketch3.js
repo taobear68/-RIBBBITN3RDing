@@ -118,6 +118,370 @@ class CookieCrisp {
     }
 }
 
+class RMVWAHtmlGenerator {
+    constructor(){
+    }
+    renderDEThreeCellHeader(){
+        var hContDiv = document.createElement('div');
+        hContDiv.id = 'headercont';
+        hContDiv.className = 'headercont';
+        hContDiv.style.width = '1200px';
+        hContDiv.style.height = '101px';
+        hContDiv.style.display = 'inline-flex';
+        //hContDiv.style.width = '1200px';
+        
+        var cell1Div = document.createElement('div');
+        cell1Div.style.width = "100px";
+        cell1Div.style.height = "100px";
+        var tmpHtml = '';
+        tmpHtml += '<a href="./vodlib_static_3.html">';
+        tmpHtml += '<img src="./img/rmvod_badge_center.png" height="75" width="75" style="height:75px;width:75px;">';
+        tmpHtml += '</a>';
+        cell1Div.innerHTML = tmpHtml;
+        
+        var cell2Div = document.createElement('div');
+        cell2Div.style.width = "890px";
+        cell2Div.style.height = "100px";
+        //cell2Div.style.overflow = "auto";
+        var tmpHtml = '';
+        tmpHtml += '<span id="header-title" style="font-weight:bold;font-size:large;">&nbsp;</span><br>';
+        tmpHtml += '<div id="header-artifact-details" style="width:870px;height:60px;overflow:auto;">';
+        tmpHtml += '<span id="header-synopsis" style="">&nbsp;</span><br>';
+        tmpHtml += '<span id="header-production" style="">&nbsp;</span><br>';
+        tmpHtml += '<span id="header-cast" style="">&nbsp;</span><br>';
+        tmpHtml += '<span id="" style="">&nbsp;</span><br>';
+        tmpHtml += '</div>';
+        cell2Div.innerHTML = tmpHtml;
+        
+        var cell3Div = document.createElement('div');
+        cell3Div.style.width = "890px";
+        cell3Div.style.height = "100px";
+        cell3Div.id = "headerblock3";
+        var tmpHtml = '';
+        tmpHtml += "<b>0000-11-22 11:22</b>"
+        cell3Div.innerHTML = tmpHtml;
+        
+        hContDiv.appendChild(cell1Div);
+        hContDiv.appendChild(cell2Div);
+        hContDiv.appendChild(cell3Div);
+        
+        return hContDiv;
+    }
+    renderDETabContainer(){
+        
+        var renderTabTabDiv = function(tabNmbrIn,tabLabelIn,selBoolIn) {
+            var tabTabDiv = document.createElement('div');
+            tabTabDiv.className = "tab-unsel";
+            tabTabDiv.id = "tab" + tabNmbrIn.toString();
+            var tmpHtml = "";
+            var className = "tab-unsel";
+            // console.log("className: " + className);
+            if (selBoolIn == true) {
+                className = "tab-sel";
+                // console.log("className: " + className);
+            }
+            tmpHtml += '<span class="' + className + '" id="tabspan' + tabNmbrIn.toString() + '" onclick="switchboard(\'tabPick\',this.id,{})">';
+            tmpHtml += tabLabelIn;
+            tmpHtml += '</span>';
+            tabTabDiv.innerHTML = tmpHtml;
+            tabTabDiv.className = className;
+            return tabTabDiv;
+        }
+        
+        var renderTabContDiv = function(idStrIn,dispBoolIn,contHtmlStrIn) {
+            var tabContDiv = document.createElement('div');
+            tabContDiv.className = "featureelement0";
+            tabContDiv.id = idStrIn;
+            tabContDiv.style.display = "none";
+            if (dispBoolIn == true) {
+                tabContDiv.style.display = "block";
+            }
+            tabContDiv.style.overflow = "auto";
+            tabContDiv.innerHTML = contHtmlStrIn;
+            return tabContDiv;
+        }
+        
+        var tabCtrlDiv = document.createElement('div');
+        tabCtrlDiv.style.width = "1200px";
+        tabCtrlDiv.style.height = "40px";
+        tabCtrlDiv.style.display = "inline-flex";
+        
+        tabCtrlDiv.appendChild(renderTabTabDiv(0,'Player',false));
+        tabCtrlDiv.appendChild(renderTabTabDiv(1,'List/Search',true));
+        tabCtrlDiv.appendChild(renderTabTabDiv(2,'Edit',false));
+        tabCtrlDiv.appendChild(renderTabTabDiv(3,'Settings',false));
+        
+        
+        var tabContOuterDiv = document.createElement('div');
+        tabContOuterDiv.className = "featurecont0";
+        tabContOuterDiv.id = "featurecont";
+        tabContOuterDiv.style.dicplay = "block";
+        //tabContOuterDiv.style.width = "1200px";
+        //tabContOuterDiv.style.height = "550px";
+        
+        var tmpHtml = '';
+        //tmpHtml += '<div style="width:1150px;height:550px;vertical-align:center;horizontal-align:center;margin:20px;">';
+        tmpHtml += '<div style="width:1100px;height:500px;vertical-align:center;horizontal-align:center;margin:20px;">';
+        tmpHtml += '<div style="margin-left:200px; margin-right:80px;">';
+        tmpHtml += '&nbsp;<br>';
+        tmpHtml += '<img src="./img/rmvod_badge_center.png" height=450 width=450>';
+        tmpHtml += '</div>';
+        tmpHtml += '</div>';
+        
+        tabContOuterDiv.appendChild(renderTabContDiv('structfeatureplayer',false,tmpHtml));
+        
+        
+        var tmpHtml = '';
+        tmpHtml += '<div style="display:inline-flex;">';
+        //tmpHtml += '<div style="width:580px;height:550px;">';
+        tmpHtml += '<div style="width:580px;height:518px;">';
+        tmpHtml += '<div id="headerblock2">';
+        tmpHtml += '<div style="margin:8px;">';
+        tmpHtml += '&nbsp;';
+        tmpHtml += '</div></div></div>';
+        //tmpHtml += '<div style="width:580px;height:550px;">';
+        tmpHtml += '<div style="width:580px;height:518px;">';
+        tmpHtml += '<div class="listwidget" id="sideartilistwidget" style="">';
+        tmpHtml += '<div>&nbsp;</div>';
+        tmpHtml += '</div></div>';
+        
+        tabContOuterDiv.appendChild(renderTabContDiv('structfeaturesearch',true,tmpHtml));
+        
+        
+        tmpHtml = '';
+        tmpHtml += '<div style="margin-left:375px; margin-right:80px;">';
+        tmpHtml += '&nbsp;<br>';
+        tmpHtml += '<img src="./img/rmvod_badge_center.png" height=450 width=450>';
+        tmpHtml += '</div>';
+        
+        tabContOuterDiv.appendChild(renderTabContDiv('structfeatureedit',false,tmpHtml));
+        
+        
+        tmpHtml = '';
+        tmpHtml += '<div class="headerflexcell" id="headerblock4">';
+        tmpHtml += '<div class="" id="" style="display:block">';
+        tmpHtml += '<div><b>Settings</b></div>';
+        tmpHtml += '<div><b>Play next in series: </b><input name="serplaynext" id="serplaynext" type="checkbox"></div>';
+        tmpHtml += '<div><b>Resume play: </b><input name="resumeplay" id="resumeplay" type="checkbox"></div>';
+        tmpHtml += '</div>';
+        tmpHtml += '</div>';
+        
+        tabContOuterDiv.appendChild(renderTabContDiv('structfeaturesettings',false,tmpHtml));
+        
+                    
+        var outerDiv = document.createElement('div');
+        outerDiv.appendChild(tabCtrlDiv);
+        outerDiv.appendChild(tabContOuterDiv);
+        return outerDiv;
+    }
+    renderDEFeatureContainer(){
+        var featureDiv = document.createElement('div');
+        featureDiv.id = 'featurecont';
+        featureDiv.className = 'featurecont';
+        
+        var playContStr = '';
+        playContStr += '<div class="featureelement" id="structfeatureplayer" style="display:block;"><!-- Player Container -->';
+        playContStr += '<div style="margin-left:80px; margin-right:80px;">';
+        playContStr += '&nbsp;Player Container<br>';
+        playContStr += '<img src="./img/rmvod_badge_center.png" height=500 width=500>';
+        playContStr += '</div>';
+        playContStr += '</div>';
+        
+        var srchContStr = '';
+        srchContStr += '<div class="featureelement" id="structfeaturesearch" style="display:none;"><!-- Search Container -->';
+        srchContStr += '&nbsp;Search Container';
+        srchContStr += '</div>';
+        
+        var editContStr = '';
+        editContStr += '<div class="featureelement" id="structfeatureedit" style="display:none;"><!-- ArtiEdit Container -->';
+        editContStr += '&nbsp;ArtiEdit Container';
+        editContStr += '</div>';
+        
+        var tmpIntDiv = document.createElement('div');
+        tmpIntDiv.style.display = "block";
+        tmpIntDiv.innerHTML = playContStr + srchContStr + editContStr;
+        
+        featureDiv.innerHTML = "";
+        featureDiv.appendChild(tmpIntDiv);
+        
+        return featureDiv;
+    }
+    renderDEListContainer(){
+        var listContDiv = document.createElement('div');
+        listContDiv.id = 'listcontainer';
+        listContDiv.className = 'listcontainer';
+        
+        var listHtmlStr = '';
+        listHtmlStr += '<div>';
+        listHtmlStr += '<div style="display:block;"><span onclick="switchboard(\'exposePlayer\',\'\',{})"><b><u>Show Player</u></b></span></div>';
+        listHtmlStr += '<div class="listwidget" id="sideartilistwidget" style=""><!-- List Widget -->';
+        listHtmlStr += '&nbsp;<!-- Artifact List Widget goes here. --> <br>';
+        listHtmlStr += '</div>';
+        listHtmlStr += '</div>';
+        
+        listContDiv.innerHTML = listHtmlStr;
+        return listContDiv;
+    }
+    renderDEFooterContainer(){
+
+        var footerOuterDiv = document.createElement('div');
+        footerOuterDiv.innerText = "Footer";
+        
+        var versionsContainerDiv = document.createElement('div');
+        var tmpHtml = "";
+        tmpHtml += '<span id="version_html" style="font-family:courier;font-size:small;color:#888888;">html version: 0.3.1</span>';
+        tmpHtml += '&nbsp;&nbsp;';
+        tmpHtml += '<span id="version_js" style="font-family:courier;font-size:small;color:#888888;">js version: 0.2.1</span>';
+        tmpHtml += '&nbsp;&nbsp;';
+        tmpHtml += '<span id="version_db" style="font-family:courier;font-size:small;color:#888888;">db version: 0.1.0</span>';
+        tmpHtml += '&nbsp;&nbsp;';
+        tmpHtml += '<span id="version_api" style="font-family:courier;font-size:small;color:#888888;">api version: 0.1.2</span>';
+        tmpHtml += '&nbsp;&nbsp;';
+        tmpHtml += '<span id="version_css" style="font-family:courier;font-size:small;color:#888888;">css version: 0.2.1</span>';
+        tmpHtml += '&nbsp;&nbsp;';
+        versionsContainerDiv.innerHTML = tmpHtml;
+        
+        footerOuterDiv.appendChild(versionsContainerDiv);
+        
+        return footerOuterDiv;
+    }
+    renderDESearchWidgetContainer(){
+        // Search Modes: Simple (Single Factor - exec. on change), Complex (Multiple Factor - exec. on button click)
+        //
+        // Factors:
+        //   Search By Tag (select list)
+        //   Search by String (title, persons)
+        //   Search by Release Year range
+        //   Search with arbitrary SQL WHERE Clause
+        
+        var factorDivWidth = "470px";
+        var factorDivMargin = "10px";
+        var factorTitleDivWidth = "150px";
+        
+        var newSrchWidget = document.createElement('div');
+        newSrchWidget.style.margin = "8px";
+        
+        var mfPicker = document.createElement('div');
+        mfPicker.innerHTML = 'Multi-Factor Search:&nbsp;<input name="mfsearchyn"  id="mfsearchyn" type="checkbox">';
+        
+        newSrchWidget.appendChild(mfPicker);
+
+        var lastContainer = document.createElement('div');
+        lastContainer.innerHTML = 'Search Factors:<br>';
+
+        //   Search By Tag (select list)
+        var sfdTag = document.createElement('div');
+        sfdTag.style.margin = factorDivMargin;
+        sfdTag.style.width = factorDivWidth;
+        var dTitle = document.createElement('div');
+        dTitle.innerHTML = "Tag:";
+        dTitle.style.display = "inline-flex";
+        dTitle.style.width = factorTitleDivWidth;
+        var dCont = document.createElement('div');
+        dCont.style.display= "inline-flex";
+        dCont.innerHTML = '<select style="font-family:arial;font-size:18px;" id="tag-search-select" name="tag-search-select" onchange="switchboard(\'execTagSearch\',\'tag-search-select\',{})"><option value="">None</option></select>';
+        sfdTag.appendChild(dTitle);
+        sfdTag.appendChild(dCont);
+        
+        lastContainer.appendChild(sfdTag);
+        
+        
+        // Search by string
+        var sfdString = document.createElement('div');
+        sfdString.style.margin = factorDivMargin;
+        sfdString.style.width = factorDivWidth;
+        var dTitle = document.createElement('div');
+        dTitle.innerHTML = "String:";
+        dTitle.style.display = "inline-flex";
+        dTitle.style.width = factorTitleDivWidth;
+        var dCont = document.createElement('div');
+        dCont.style.display= "inline-flex";
+        dCont.innerHTML = '<input id="txt-srch-str" type="text" size="15" onchange="switchboard(\'execTxtSrch\',\'txt-srch-str\',{})">';
+        sfdString.appendChild(dTitle);
+        sfdString.appendChild(dCont);
+        
+        lastContainer.appendChild(sfdString);
+        
+
+        //   Search By MajType (select list)
+        var sfdTag = document.createElement('div');
+        sfdTag.style.margin = factorDivMargin;
+        sfdTag.style.width = factorDivWidth;
+        var dTitle = document.createElement('div');
+        dTitle.innerHTML = "Major Type:";
+        dTitle.style.display = "inline-flex";
+        dTitle.style.width = factorTitleDivWidth;
+        var dCont = document.createElement('div');
+        dCont.style.display= "inline-flex";
+        // var tmpHtml = '<select style="font-family:arial;font-size:18px;" id="majtype-search-select" name="majtype-search-select" onchange="switchboard(\'execMajTypSearch\',\'majtype-search-select\',{})">';
+        var tmpHtml = '<select style="font-family:arial;font-size:18px;" id="majtype-search-select" name="majtype-search-select" onchange="switchboard(\'execMajTypSrch\',this.id,{})">';
+        tmpHtml += '<option value="">All</option>';
+        tmpHtml += '<option value="movie">Movies</option>';
+        tmpHtml += '<option value="tvseries">TV Series</option>';
+        tmpHtml += '</select>';
+        
+        dCont.innerHTML = tmpHtml;
+        sfdTag.appendChild(dTitle);
+        sfdTag.appendChild(dCont);
+        
+        lastContainer.appendChild(sfdTag);
+        
+        
+        // Search by release year range
+
+        var sfdRelYr = document.createElement('div');
+        sfdRelYr.style.margin = factorDivMargin;
+        sfdRelYr.style.width = factorDivWidth;
+        var dTitle = document.createElement('div');
+        dTitle.innerHTML = "Release Year Range:";
+        dTitle.style.display = "inline-flex";
+        dTitle.style.width = factorTitleDivWidth;
+        var dCont = document.createElement('div');
+        dCont.style.display= "inline-flex";
+        // var tmpHtml = 'Start:&nbsp;<input id="relyear-srch-start" type="text" size="5" onchange="switchboard(\'\',this.id,{})">';
+        var tmpHtml = 'Start:&nbsp;<input id="relyear-srch-start" type="text" size="5" >'; // onchange="switchboard(\'\',this.id,{})"
+        tmpHtml += '&nbsp;-&nbsp;';
+        tmpHtml += 'End:&nbsp;<input id="relyear-srch-end" type="text" size="5" onchange="switchboard(\'execRelyearSrch\',this.id,{})">';
+        dCont.innerHTML = tmpHtml;
+        sfdRelYr.appendChild(dTitle);
+        sfdRelYr.appendChild(dCont);
+        
+        lastContainer.appendChild(sfdRelYr);
+        
+        
+        // Search by SQL WHERE Clause
+        var sfdSqlWhere = document.createElement('div');
+        sfdSqlWhere.style.margin = factorDivMargin;
+        sfdSqlWhere.style.width = factorDivWidth;
+        var dTitle = document.createElement('div');
+        dTitle.innerHTML = "SQL WHERE Clause:";
+        dTitle.style.display = "inline-flex";
+        dTitle.style.width = factorTitleDivWidth;
+        var dCont = document.createElement('div');
+        dCont.style.display= "inline-flex";
+        var tmpHtml = '<textarea id="sql-where-srch" name="sql-where-srch" rows="5" cols="30" onchange="switchboard(\'execWhereClauseSrch\',this.id,{})"></textarea>';
+        dCont.innerHTML = tmpHtml;
+        sfdSqlWhere.appendChild(dTitle);
+        sfdSqlWhere.appendChild(dCont);
+        
+        lastContainer.appendChild(sfdSqlWhere);
+        
+        
+        newSrchWidget.appendChild(lastContainer);
+        return newSrchWidget;
+    }
+    renderHTMLVideoPlayer(urlStrIn){
+        var playerHTML = '';
+        playerHTML += '<div style="width:1100px;height:500px;vertical-align:top;horizontal-align:center;">';
+        playerHTML += '<video id="actualvideoplayer" width=1100 height=500 style="vertical-align:top;horizontal-align:center;" autoplay=true controls=true>';
+        playerHTML += '<source src="' + urlStrIn + '" type="video/mp4">' ;
+        playerHTML += 'Your browser does not support the video tag';
+        playerHTML += '</video>';
+        playerHTML += "</div>";
+        return playerHTML;
+    }
+}
+
 class RMVodWebApp {
     constructor(){
         this.logUtil = new RMLogUtil('RMPCWebApp',3);
@@ -367,15 +731,8 @@ class RMVodWebApp {
             var artiDir = dataObjIn['filepath'];
             var artiFil = dataObjIn['file'];
             var srcURI = '/rmvid/vidsrc/' + artiDir + '/' + artiFil ;
-            var playerHTML = '';
-            playerHTML += '<div style="width:1100px;height:500px;vertical-align:top;horizontal-align:center;">';
-            playerHTML += '<video id="actualvideoplayer" width=1100 height=500 style="vertical-align:top;horizontal-align:center;" autoplay=true controls=true>';
-            playerHTML += '<source src="' + srcURI + '" type="video/mp4">' ;
-            playerHTML += 'Your browser does not support the video tag';
-            playerHTML += '</video>';
-            playerHTML += "</div>";
-            // Stuff that HTML in the appropriate DIV
-            document.getElementById('structfeatureplayer').innerHTML = playerHTML;
+            var hr = new RMVWAHtmlGenerator();
+            document.getElementById('structfeatureplayer').innerHTML = hr.renderHTMLVideoPlayer(srcURI);
             var avpDE = document.getElementById('actualvideoplayer');
             // Set a "playback ended" event for the player
             avpDE.addEventListener('ended', (event) => {pbEnded(artiIdIn)});
@@ -450,8 +807,8 @@ class RMVodWebApp {
         return listStr
     }
     l2sSrch(arrayIn){
-        // This just turns an Array object into a String list with 
-        // commas between the elements.
+        // This just turns an Array object into a HTML list of 
+        // "searchable" elements with commas between the elements.
         
         var plainValList = ['string','none',''];
         var listStr = '';
@@ -501,128 +858,8 @@ class RMVodWebApp {
         }
     }
     renderStaticModernSearchWidget(){
-        // Search Modes: Simple (Single Factor - exec. on change), Complex (Multiple Factor - exec. on button click)
-        //
-        // Factors:
-        //   Search By Tag (select list)
-        //   Search by String (title, persons)
-        //   Search by Release Year range
-        //   Search with arbitrary SQL WHERE Clause
-        
-        var factorDivWidth = "470px";
-        var factorDivMargin = "10px";
-        var factorTitleDivWidth = "150px";
-        
-        var newSrchWidget = document.createElement('div');
-        newSrchWidget.style.margin = "8px";
-        
-        var mfPicker = document.createElement('div');
-        mfPicker.innerHTML = 'Multi-Factor Search:&nbsp;<input name="mfsearchyn"  id="mfsearchyn" type="checkbox">';
-        
-        newSrchWidget.appendChild(mfPicker);
-
-        var lastContainer = document.createElement('div');
-        lastContainer.innerHTML = 'Search Factors:<br>';
-
-        //   Search By Tag (select list)
-        var sfdTag = document.createElement('div');
-        sfdTag.style.margin = factorDivMargin;
-        sfdTag.style.width = factorDivWidth;
-        var dTitle = document.createElement('div');
-        dTitle.innerHTML = "Tag:";
-        dTitle.style.display = "inline-flex";
-        dTitle.style.width = factorTitleDivWidth;
-        var dCont = document.createElement('div');
-        dCont.style.display= "inline-flex";
-        dCont.innerHTML = '<select style="font-family:arial;font-size:18px;" id="tag-search-select" name="tag-search-select" onchange="switchboard(\'execTagSearch\',\'tag-search-select\',{})"><option value="">None</option></select>';
-        sfdTag.appendChild(dTitle);
-        sfdTag.appendChild(dCont);
-        
-        lastContainer.appendChild(sfdTag);
-        
-        
-        // Search by string
-        var sfdString = document.createElement('div');
-        sfdString.style.margin = factorDivMargin;
-        sfdString.style.width = factorDivWidth;
-        var dTitle = document.createElement('div');
-        dTitle.innerHTML = "String:";
-        dTitle.style.display = "inline-flex";
-        dTitle.style.width = factorTitleDivWidth;
-        var dCont = document.createElement('div');
-        dCont.style.display= "inline-flex";
-        dCont.innerHTML = '<input id="txt-srch-str" type="text" size="15" onchange="switchboard(\'execTxtSrch\',\'txt-srch-str\',{})">';
-        sfdString.appendChild(dTitle);
-        sfdString.appendChild(dCont);
-        
-        lastContainer.appendChild(sfdString);
-        
-
-        //   Search By MajType (select list)
-        var sfdTag = document.createElement('div');
-        sfdTag.style.margin = factorDivMargin;
-        sfdTag.style.width = factorDivWidth;
-        var dTitle = document.createElement('div');
-        dTitle.innerHTML = "Major Type:";
-        dTitle.style.display = "inline-flex";
-        dTitle.style.width = factorTitleDivWidth;
-        var dCont = document.createElement('div');
-        dCont.style.display= "inline-flex";
-        // var tmpHtml = '<select style="font-family:arial;font-size:18px;" id="majtype-search-select" name="majtype-search-select" onchange="switchboard(\'execMajTypSearch\',\'majtype-search-select\',{})">';
-        var tmpHtml = '<select style="font-family:arial;font-size:18px;" id="majtype-search-select" name="majtype-search-select" onchange="switchboard(\'execMajTypSrch\',this.id,{})">';
-        tmpHtml += '<option value="">All</option>';
-        tmpHtml += '<option value="movie">Movies</option>';
-        tmpHtml += '<option value="tvseries">TV Series</option>';
-        tmpHtml += '</select>';
-        
-        dCont.innerHTML = tmpHtml;
-        sfdTag.appendChild(dTitle);
-        sfdTag.appendChild(dCont);
-        
-        lastContainer.appendChild(sfdTag);
-        
-        
-        // Search by release year range
-
-        var sfdRelYr = document.createElement('div');
-        sfdRelYr.style.margin = factorDivMargin;
-        sfdRelYr.style.width = factorDivWidth;
-        var dTitle = document.createElement('div');
-        dTitle.innerHTML = "Release Year Range:";
-        dTitle.style.display = "inline-flex";
-        dTitle.style.width = factorTitleDivWidth;
-        var dCont = document.createElement('div');
-        dCont.style.display= "inline-flex";
-        // var tmpHtml = 'Start:&nbsp;<input id="relyear-srch-start" type="text" size="5" onchange="switchboard(\'\',this.id,{})">';
-        var tmpHtml = 'Start:&nbsp;<input id="relyear-srch-start" type="text" size="5" >'; // onchange="switchboard(\'\',this.id,{})"
-        tmpHtml += '&nbsp;-&nbsp;';
-        tmpHtml += 'End:&nbsp;<input id="relyear-srch-end" type="text" size="5" onchange="switchboard(\'execRelyearSrch\',this.id,{})">';
-        dCont.innerHTML = tmpHtml;
-        sfdRelYr.appendChild(dTitle);
-        sfdRelYr.appendChild(dCont);
-        
-        lastContainer.appendChild(sfdRelYr);
-        
-        
-        // Search by SQL WHERE Clause
-        var sfdSqlWhere = document.createElement('div');
-        sfdSqlWhere.style.margin = factorDivMargin;
-        sfdSqlWhere.style.width = factorDivWidth;
-        var dTitle = document.createElement('div');
-        dTitle.innerHTML = "SQL WHERE Clause:";
-        dTitle.style.display = "inline-flex";
-        dTitle.style.width = factorTitleDivWidth;
-        var dCont = document.createElement('div');
-        dCont.style.display= "inline-flex";
-        var tmpHtml = '<textarea id="sql-where-srch" name="sql-where-srch" rows="5" cols="30" onchange="switchboard(\'execWhereClauseSrch\',this.id,{})"></textarea>';
-        dCont.innerHTML = tmpHtml;
-        sfdSqlWhere.appendChild(dTitle);
-        sfdSqlWhere.appendChild(dCont);
-        
-        lastContainer.appendChild(sfdSqlWhere);
-        
-        
-        newSrchWidget.appendChild(lastContainer);
+        var hr = new RMVWAHtmlGenerator();
+        var newSrchWidget = hr.renderDESearchWidgetContainer();
         
         var targDiv = document.getElementById('headerblock2');
         targDiv.innerHTML = '';
@@ -659,328 +896,46 @@ class RMVodWebApp {
         const payload = {};
         this.genericApiCall(payload,endpoint,cbFunc);
     }
-    execAdvancedSearch(){
-        var titleFrag = document.getElementById('advsrchtitlefrag').value
-        console.log('execAdvancedSearch: ' + titleFrag);
-        
-        document.getElementById('div01').innerHTML = '';
-
-        var theBlob = this.sse.ssRead('blob');
-        var artiIdList = [];
-        var srcArtiIdList = Object.keys(theBlob['artifacts']);
-        for (var idx=0; idx<srcArtiIdList.length; idx++ ) {
-            var thisArtiTitle = theBlob['artifacts'][srcArtiIdList[idx]]['title'].toLowerCase();
-            var thisTitleCmp = thisArtiTitle.toLowerCase();
-            var titleFragCmp = titleFrag.toLowerCase();
-            if (thisTitleCmp.includes(titleFragCmp)) {
-                artiIdList.push(srcArtiIdList[idx]);
-            }
-        }
-        
-        console.log(JSON.stringify(artiIdList));
-        
-        var listDiv = this.renderArtifactBlocksByIdList(artiIdList);
-        document.getElementById('div01').appendChild(listDiv);
-        
-        //Clear and hide Advanced Search block
-        document.getElementById('big-search-container').innerHTML = '';
-        document.getElementById('big-search-container').style.display = 'none';
+    execAdvancedSearch(){  // <<==== DEPRECATED
+        const methNm = 'execAdvancedSearch';
+        console.log("DO NOT CALL " + methNm + " -- IT IS DEPRECATED!");
+        throw methNm + " <<====DEPRECATED";
     }
-    renderAdvSearch(){
-        console.log('renderAdvSearch');
-        var tmpHtml = `
-<div>
-  <div style="display:block;"> <!-- row 1 -->
-    <div style="display:inline-flex;">
-      <div style="display:inline-flex;width:100px;">Title</div>
-      <div style="display:inline-flex;width:300px;"><input type="text" name="advsrchtitlefrag" id="advsrchtitlefrag"></div>
-    </div>
-  </div>
-  
-  <div style="display:block;"> <!-- row 2 -->
-    <div style="display:inline-flex;">
-      <div style="display:inline-flex;width:100px;">label</div>
-      <div style="display:inline-flex;width:300px;">field</div>
-    </div>
-  </div>
-  <div style="display:block;"> <!-- row 3 -->
-    <div style="display:inline-flex;">
-      <div style="display:inline-flex;width:100px;">label</div>
-      <div style="display:inline-flex;width:300px;">field</div>
-    </div>
-  </div>
-  
-  <div style="display:block;"> <!-- last row  -->
-    <div style="display:inline-flex;">
-      <div style="display:inline-flex;width:300px;">&nbsp;</div>
-      <div style="display:inline-flex;width:100px;">
-        <span onclick="switchboard(\'execAdvSrch\',\'\',{})"><b><u>Search</u></b></span>
-      </div>
-    </div>
-  </div>
-</div>
-`
-        document.getElementById('big-search-container').innerHTML = tmpHtml;
-        // Put it in this div:  big-search-container
+    renderAdvSearch(){ // <<==== DEPRECATED
+        const methNm = 'renderAdvSearch';
+        console.log("DO NOT CALL " + methNm + " -- IT IS DEPRECATED!");
+        throw methNm + " <<====DEPRECATED";
+        
     }
     // Major Page Parts
     docElRenderHeaderThreeCell(){
-        var hContDiv = document.createElement('div');
-        hContDiv.id = 'headercont';
-        hContDiv.className = 'headercont';
-        hContDiv.style.width = '1200px';
-        hContDiv.style.height = '101px';
-        hContDiv.style.display = 'inline-flex';
-        //hContDiv.style.width = '1200px';
-        
-        var cell1Div = document.createElement('div');
-        cell1Div.style.width = "100px";
-        cell1Div.style.height = "100px";
-        var tmpHtml = '';
-        tmpHtml += '<a href="./vodlib_static_3.html">';
-        tmpHtml += '<img src="./img/rmvod_badge_center.png" height="75" width="75" style="height:75px;width:75px;">';
-        tmpHtml += '</a>';
-        cell1Div.innerHTML = tmpHtml;
-        
-        var cell2Div = document.createElement('div');
-        cell2Div.style.width = "890px";
-        cell2Div.style.height = "100px";
-        //cell2Div.style.overflow = "auto";
-        var tmpHtml = '';
-        tmpHtml += '<span id="header-title" style="font-weight:bold;font-size:large;">&nbsp;</span><br>';
-        tmpHtml += '<div id="header-artifact-details" style="width:870px;height:60px;overflow:auto;">';
-        tmpHtml += '<span id="header-synopsis" style="">&nbsp;</span><br>';
-        tmpHtml += '<span id="header-production" style="">&nbsp;</span><br>';
-        tmpHtml += '<span id="header-cast" style="">&nbsp;</span><br>';
-        tmpHtml += '<span id="" style="">&nbsp;</span><br>';
-        tmpHtml += '</div>';
-        cell2Div.innerHTML = tmpHtml;
-        
-        var cell3Div = document.createElement('div');
-        cell3Div.style.width = "890px";
-        cell3Div.style.height = "100px";
-        cell3Div.id = "headerblock3";
-        var tmpHtml = '';
-        tmpHtml += "<b>0000-11-22 11:22</b>"
-        cell3Div.innerHTML = tmpHtml;
-        
-        hContDiv.appendChild(cell1Div);
-        hContDiv.appendChild(cell2Div);
-        hContDiv.appendChild(cell3Div);
-        
-        return hContDiv;
+        var hr = new RMVWAHtmlGenerator();
+        return hr.renderDEThreeCellHeader();
     }
     docElTabContainer() {
-        
-        var renderTabTabDiv = function(tabNmbrIn,tabLabelIn,selBoolIn) {
-            var tabTabDiv = document.createElement('div');
-            tabTabDiv.className = "tab-unsel";
-            tabTabDiv.id = "tab" + tabNmbrIn.toString();
-            var tmpHtml = "";
-            var className = "tab-unsel";
-            // console.log("className: " + className);
-            if (selBoolIn == true) {
-                className = "tab-sel";
-                // console.log("className: " + className);
-            }
-            tmpHtml += '<span class="' + className + '" id="tabspan' + tabNmbrIn.toString() + '" onclick="switchboard(\'tabPick\',this.id,{})">';
-            tmpHtml += tabLabelIn;
-            tmpHtml += '</span>';
-            tabTabDiv.innerHTML = tmpHtml;
-            tabTabDiv.className = className;
-            return tabTabDiv;
-        }
-        
-        var renderTabContDiv = function(idStrIn,dispBoolIn,contHtmlStrIn) {
-            var tabContDiv = document.createElement('div');
-            tabContDiv.className = "featureelement0";
-            tabContDiv.id = idStrIn;
-            tabContDiv.style.display = "none";
-            if (dispBoolIn == true) {
-                tabContDiv.style.display = "block";
-            }
-            tabContDiv.style.overflow = "auto";
-            tabContDiv.innerHTML = contHtmlStrIn;
-            return tabContDiv;
-        }
-        
-        var tabCtrlDiv = document.createElement('div');
-        tabCtrlDiv.style.width = "1200px";
-        tabCtrlDiv.style.height = "40px";
-        tabCtrlDiv.style.display = "inline-flex";
-        
-        tabCtrlDiv.appendChild(renderTabTabDiv(0,'Player',false));
-        tabCtrlDiv.appendChild(renderTabTabDiv(1,'List/Search',true));
-        tabCtrlDiv.appendChild(renderTabTabDiv(2,'Edit',false));
-        tabCtrlDiv.appendChild(renderTabTabDiv(3,'Settings',false));
-        
-        
-        var tabContOuterDiv = document.createElement('div');
-        tabContOuterDiv.className = "featurecont0";
-        tabContOuterDiv.id = "featurecont";
-        tabContOuterDiv.style.dicplay = "block";
-        //tabContOuterDiv.style.width = "1200px";
-        //tabContOuterDiv.style.height = "550px";
-        
-        var tmpHtml = '';
-        //tmpHtml += '<div style="width:1150px;height:550px;vertical-align:center;horizontal-align:center;margin:20px;">';
-        tmpHtml += '<div style="width:1100px;height:500px;vertical-align:center;horizontal-align:center;margin:20px;">';
-        tmpHtml += '<div style="margin-left:200px; margin-right:80px;">';
-        tmpHtml += '&nbsp;<br>';
-        tmpHtml += '<img src="./img/rmvod_badge_center.png" height=450 width=450>';
-        tmpHtml += '</div>';
-        tmpHtml += '</div>';
-        
-        tabContOuterDiv.appendChild(renderTabContDiv('structfeatureplayer',false,tmpHtml));
-        
-        
-        var tmpHtml = '';
-        tmpHtml += '<div style="display:inline-flex;">';
-        //tmpHtml += '<div style="width:580px;height:550px;">';
-        tmpHtml += '<div style="width:580px;height:518px;">';
-        tmpHtml += '<div id="headerblock2">';
-        tmpHtml += '<div style="margin:8px;">';
-        tmpHtml += '&nbsp;';
-        tmpHtml += '</div></div></div>';
-        //tmpHtml += '<div style="width:580px;height:550px;">';
-        tmpHtml += '<div style="width:580px;height:518px;">';
-        tmpHtml += '<div class="listwidget" id="sideartilistwidget" style="">';
-        tmpHtml += '<div>&nbsp;</div>';
-        tmpHtml += '</div></div>';
-        
-        tabContOuterDiv.appendChild(renderTabContDiv('structfeaturesearch',true,tmpHtml));
-        
-        
-        tmpHtml = '';
-        tmpHtml += '<div style="margin-left:375px; margin-right:80px;">';
-        tmpHtml += '&nbsp;<br>';
-        tmpHtml += '<img src="./img/rmvod_badge_center.png" height=450 width=450>';
-        tmpHtml += '</div>';
-        
-        tabContOuterDiv.appendChild(renderTabContDiv('structfeatureedit',false,tmpHtml));
-        
-        
-        tmpHtml = '';
-        tmpHtml += '<div class="headerflexcell" id="headerblock4">';
-        tmpHtml += '<div class="" id="" style="display:block">';
-        tmpHtml += '<div><b>Settings</b></div>';
-        tmpHtml += '<div><b>Play next in series: </b><input name="serplaynext" id="serplaynext" type="checkbox"></div>';
-        tmpHtml += '<div><b>Resume play: </b><input name="resumeplay" id="resumeplay" type="checkbox"></div>';
-        tmpHtml += '</div>';
-        tmpHtml += '</div>';
-        
-        tabContOuterDiv.appendChild(renderTabContDiv('structfeaturesettings',false,tmpHtml));
-        
-                    
-        var outerDiv = document.createElement('div');
-        outerDiv.appendChild(tabCtrlDiv);
-        outerDiv.appendChild(tabContOuterDiv);
-        return outerDiv;
+        var hr = new RMVWAHtmlGenerator();
+        return hr.renderDETabContainer();
     }
     docElRenderFeature(){
-        var featureDiv = document.createElement('div');
-        featureDiv.id = 'featurecont';
-        featureDiv.className = 'featurecont';
-        
-        var playContStr = '';
-        playContStr += '<div class="featureelement" id="structfeatureplayer" style="display:block;"><!-- Player Container -->';
-        playContStr += '<div style="margin-left:80px; margin-right:80px;">';
-        playContStr += '&nbsp;Player Container<br>';
-        playContStr += '<img src="./img/rmvod_badge_center.png" height=500 width=500>';
-        playContStr += '</div>';
-        playContStr += '</div>';
-        
-        var srchContStr = '';
-        srchContStr += '<div class="featureelement" id="structfeaturesearch" style="display:none;"><!-- Search Container -->';
-        srchContStr += '&nbsp;Search Container';
-        srchContStr += '</div>';
-        
-        var editContStr = '';
-        editContStr += '<div class="featureelement" id="structfeatureedit" style="display:none;"><!-- ArtiEdit Container -->';
-        editContStr += '&nbsp;ArtiEdit Container';
-        editContStr += '</div>';
-        
-        var tmpIntDiv = document.createElement('div');
-        tmpIntDiv.style.display = "block";
-        tmpIntDiv.innerHTML = playContStr + srchContStr + editContStr;
-        
-        featureDiv.innerHTML = "";
-        featureDiv.appendChild(tmpIntDiv);
-        
-        return featureDiv;
+        var hr = new RMVWAHtmlGenerator();
+        return hr.renderDEFeatureContainer();
     }
     docElRenderList(){
-        var listContDiv = document.createElement('div');
-        listContDiv.id = 'listcontainer';
-        listContDiv.className = 'listcontainer';
-        
-        var listHtmlStr = '';
-        listHtmlStr += '<div>';
-        listHtmlStr += '<div style="display:block;"><span onclick="switchboard(\'exposePlayer\',\'\',{})"><b><u>Show Player</u></b></span></div>';
-        listHtmlStr += '<div class="listwidget" id="sideartilistwidget" style=""><!-- List Widget -->';
-        listHtmlStr += '&nbsp;<!-- Artifact List Widget goes here. --> <br>';
-        listHtmlStr += '</div>';
-        listHtmlStr += '</div>';
-        
-        listContDiv.innerHTML = listHtmlStr;
-        return listContDiv;
+        var hr = new RMVWAHtmlGenerator();
+        return hr.renderDEListContainer();
     }
     docElFooter(){
-        
-        var footerOuterDiv = document.createElement('div');
-        footerOuterDiv.innerText = "Footer";
-        
-        var versionsContainerDiv = document.createElement('div');
-        var tmpHtml = "";
-        tmpHtml += '<span id="version_html" style="font-family:courier;font-size:small;color:#888888;">html version: 0.3.1</span>';
-        tmpHtml += '&nbsp;&nbsp;';
-        tmpHtml += '<span id="version_js" style="font-family:courier;font-size:small;color:#888888;">js version: 0.2.1</span>';
-        tmpHtml += '&nbsp;&nbsp;';
-        tmpHtml += '<span id="version_db" style="font-family:courier;font-size:small;color:#888888;">db version: 0.1.0</span>';
-        tmpHtml += '&nbsp;&nbsp;';
-        tmpHtml += '<span id="version_api" style="font-family:courier;font-size:small;color:#888888;">api version: 0.1.2</span>';
-        tmpHtml += '&nbsp;&nbsp;';
-        tmpHtml += '<span id="version_css" style="font-family:courier;font-size:small;color:#888888;">css version: 0.2.1</span>';
-        tmpHtml += '&nbsp;&nbsp;';
-        versionsContainerDiv.innerHTML = tmpHtml;
-        
-        footerOuterDiv.appendChild(versionsContainerDiv);
-        
-        return footerOuterDiv;
-        
-        
-        
-            //<div><!-- Footer -->Footer<br>
-                //<div>
-                    //<span id="version_html" style="font-family:courier;font-size:small;color:#888888;">html version: 0.3.1</span>
-                    //&nbsp;&nbsp;
-                    //<span id="version_js" style="font-family:courier;font-size:small;color:#888888;">js version: 0.2.1</span>
-                    //&nbsp;&nbsp;
-                    //<span id="version_db" style="font-family:courier;font-size:small;color:#888888;">db version: 0.1.0</span>
-                    //&nbsp;&nbsp;
-                    //<span id="version_api" style="font-family:courier;font-size:small;color:#888888;">api version: 0.1.2</span>
-                    //&nbsp;&nbsp;
-                    //<span id="version_css" style="font-family:courier;font-size:small;color:#888888;">css version: 0.2.1</span>
-                    //&nbsp;&nbsp;
-                //</div>            
-            //</div>
-        
-        
-        
-        
+        var hr = new RMVWAHtmlGenerator();
+        return hr.renderDEFooterContainer();
     }
     // Render Page Layouts
     basePageLayout02(){  //  BASE PAGE LAYOUT FOR vodlib_static_3.html
-        var headerOuterDiv = this.docElRenderHeaderThreeCell();
-        var featureDiv = this.docElTabContainer();
-        var footerDiv = this.docElFooter();
-        
+        var hr = new RMVWAHtmlGenerator();
         var masterCont = document.getElementById('mastercont');
         masterCont.innerHTML = '';
-        masterCont.appendChild(headerOuterDiv);
-        masterCont.appendChild(featureDiv);
-        masterCont.appendChild(footerDiv);
-        
+        masterCont.appendChild(hr.renderDEThreeCellHeader());
+        masterCont.appendChild(hr.renderDETabContainer());
+        masterCont.appendChild(hr.renderDEFooterContainer());
     }
     contCookieOnLoad() {
         // OnLoad, if "Resume Playback" is checked, check to see if 3 
@@ -1346,7 +1301,13 @@ class RMVodWebApp {
         deetDiv.innerHTML = innerHtml;       
          
     }
-    renderArtifactBlocksByIdList(artiIdListIn){
+    renderArtifactBlocksByIdList(artiIdListIn){ // <<==== DEPRECATED?
+        const methNm = 'renderArtifactBlocksByIdList';
+        console.log("DO NOT CALL " + methNm + " -- IT IS DEPRECATED!");
+        throw methNm + " <<====DEPRECATED";
+        
+        
+        
         var tmpDiv = document.createElement('div');
         for (var idx = 0; idx<artiIdListIn.length; idx++ ) {
             tmpDiv.appendChild(this.renderArtifactInitial(artiIdListIn[idx]));
@@ -1458,7 +1419,13 @@ class RMVodWebApp {
                 console.log("execSearchSingleFactor fell through: ", factorStrIn, JSON.stringify(srchValObjIn));
         }
     }
-    renderArtifactInitial (artiIdIn) {
+    renderArtifactInitial (artiIdIn) { // <<==== DEPRECATED?
+        const methNm = 'renderArtifactInitial';
+        console.log("DO NOT CALL " + methNm + " -- IT IS DEPRECATED!");
+        throw methNm + " <<====DEPRECATED";
+        
+        
+        
         var blob = this.sse.ssRead('blob');
         var artiData = blob['artifacts'][artiIdIn];
         var artiTags = blob['a2t'][artiIdIn];
@@ -2025,9 +1992,9 @@ function switchboard(actionIn,objIdIn,argObjIn) {
             ml.execSearchSingleFactor('text',{'text':argObjIn['srchstr']});
             break;
         
-        case 'execAdvSrch' :
-            ml.execAdvancedSearch();
-            break;
+        //case 'execAdvSrch' : // <<====THIS IS DEPRECATED?
+            //ml.execAdvancedSearch();
+            //break;
             
         case 'initiateArtiEdit':
             ml.renderArtifactEdit(objIdIn);
