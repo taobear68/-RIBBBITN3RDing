@@ -529,7 +529,7 @@ class RMVodWebApp {
         // the API and DB for their versions
         this.apiFetchRemoteVersions();
         //this.postCSSVer("0.2.0");
-        this.postJSVer("0.3.8");
+        this.postJSVer("0.4.0");
         //this.env = {};
         //this.env.versions. = {};
         //this.env.versions.api = "undetermined";
@@ -1308,11 +1308,11 @@ class RMVodWebApp {
         
         
         
-        var tmpDiv = document.createElement('div');
-        for (var idx = 0; idx<artiIdListIn.length; idx++ ) {
-            tmpDiv.appendChild(this.renderArtifactInitial(artiIdListIn[idx]));
-        }
-        return tmpDiv;
+        //var tmpDiv = document.createElement('div');
+        //for (var idx = 0; idx<artiIdListIn.length; idx++ ) {
+            //tmpDiv.appendChild(this.renderArtifactInitial(artiIdListIn[idx]));
+        //}
+        //return tmpDiv;
     }
     renderArtifactBlocksBySrchTxtApi(SrchStrIn){
         var cbFunc = function (objIn){
@@ -1426,75 +1426,75 @@ class RMVodWebApp {
         
         
         
-        var blob = this.sse.ssRead('blob');
-        var artiData = blob['artifacts'][artiIdIn];
-        var artiTags = blob['a2t'][artiIdIn];
+        //var blob = this.sse.ssRead('blob');
+        //var artiData = blob['artifacts'][artiIdIn];
+        //var artiTags = blob['a2t'][artiIdIn];
         
-        var firstDisplayList = ['title','majtype','season','episode','runmins'];
+        //var firstDisplayList = ['title','majtype','season','episode','runmins'];
         
-        // Create "outermost" div
-        var divOutermost = document.createElement('div');
-        divOutermost.id = artiIdIn + '-outermost';
-        divOutermost.className = "artifact-outermost";
-        divOutermost.style = "display:block;";
+        //// Create "outermost" div
+        //var divOutermost = document.createElement('div');
+        //divOutermost.id = artiIdIn + '-outermost';
+        //divOutermost.className = "artifact-outermost";
+        //divOutermost.style = "display:block;";
         
-        // Create "Initial Display Row" div
-        var divInitialDisplay = document.createElement('div');
-        divInitialDisplay.className = "artifact-default-disp-row";
-        divInitialDisplay.style = "display:inline-flex;";     
+        //// Create "Initial Display Row" div
+        //var divInitialDisplay = document.createElement('div');
+        //divInitialDisplay.className = "artifact-default-disp-row";
+        //divInitialDisplay.style = "display:inline-flex;";     
         
-        var widthList = ['300px','100px','40px','40px','50px','75px'];
-        // Create cells for "Initial Display Row"
-        for (var idx=0; idx<firstDisplayList.length; idx++ ) {
-            var tmpDiv = document.createElement('div');
-            tmpDiv.className = "artifact-default-disp-cell"; // artifact-default-disp-cel
-            tmpDiv.style = "display:inline-flex;width:" + widthList[idx] + ';';
-            // Conditional handling  should be here so that 'title' is presented
-            // as a 'play title' link
-            var fieldKey = firstDisplayList[idx];
-            if (fieldKey == 'title') {
-                //make it a link
-                tmpDiv.innerHTML = '<span class="title-play-link" onclick="switchboard(\'vodPlayTitle\',\'' + artiIdIn + '\',{})"><b><u>' + artiData[fieldKey] + '</u></b></span>';
-            } else {
-                tmpDiv.innerText = artiData[fieldKey];
-            }
-            divInitialDisplay.appendChild(tmpDiv);
-        }
-        var tmpDiv = document.createElement('div');
-        tmpDiv.className = "artifact-default-disp-cell";
-        tmpDiv.style = "display:inline-flex;width:" +  widthList[5] + ';';  // widthList[5]
+        //var widthList = ['300px','100px','40px','40px','50px','75px'];
+        //// Create cells for "Initial Display Row"
+        //for (var idx=0; idx<firstDisplayList.length; idx++ ) {
+            //var tmpDiv = document.createElement('div');
+            //tmpDiv.className = "artifact-default-disp-cell"; // artifact-default-disp-cel
+            //tmpDiv.style = "display:inline-flex;width:" + widthList[idx] + ';';
+            //// Conditional handling  should be here so that 'title' is presented
+            //// as a 'play title' link
+            //var fieldKey = firstDisplayList[idx];
+            //if (fieldKey == 'title') {
+                ////make it a link
+                //tmpDiv.innerHTML = '<span class="title-play-link" onclick="switchboard(\'vodPlayTitle\',\'' + artiIdIn + '\',{})"><b><u>' + artiData[fieldKey] + '</u></b></span>';
+            //} else {
+                //tmpDiv.innerText = artiData[fieldKey];
+            //}
+            //divInitialDisplay.appendChild(tmpDiv);
+        //}
+        //var tmpDiv = document.createElement('div');
+        //tmpDiv.className = "artifact-default-disp-cell";
+        //tmpDiv.style = "display:inline-flex;width:" +  widthList[5] + ';';  // widthList[5]
         
-        var tmpButtonStr = '<button onclick="switchboard(\'toggleDivViz\',\'';
-        tmpButtonStr += artiIdIn.trim() + '-reveal-container';
-        tmpButtonStr += '\',{})">Button</button>';
+        //var tmpButtonStr = '<button onclick="switchboard(\'toggleDivViz\',\'';
+        //tmpButtonStr += artiIdIn.trim() + '-reveal-container';
+        //tmpButtonStr += '\',{})">Button</button>';
         
-        tmpDiv.innerHTML = tmpButtonStr;
+        //tmpDiv.innerHTML = tmpButtonStr;
         
-        // <button onclick="toggleDivViz()" label="">Button</button>
-        divInitialDisplay.appendChild(tmpDiv);
+        //// <button onclick="toggleDivViz()" label="">Button</button>
+        //divInitialDisplay.appendChild(tmpDiv);
         
-        // Create "Generic Row Container" div
-        var divGenericRow = document.createElement('div');
-        divGenericRow.className = "artifact-default-disp-row";
-        divGenericRow.style = "display:inline-flex;";     
+        //// Create "Generic Row Container" div
+        //var divGenericRow = document.createElement('div');
+        //divGenericRow.className = "artifact-default-disp-row";
+        //divGenericRow.style = "display:inline-flex;";     
         
-        divGenericRow.appendChild(divInitialDisplay)
-        divOutermost.appendChild(divGenericRow);
+        //divGenericRow.appendChild(divInitialDisplay)
+        //divOutermost.appendChild(divGenericRow);
         
-        var divDetailContainer = document.createElement('div');
-        divDetailContainer.className = "artifact-detail-reveal-container";
-        divDetailContainer.id = artiIdIn + "-reveal-container";
-        divDetailContainer.style = "display:none;";
-        divDetailContainer.innerText = "This page intentionally left blank. " + artiIdIn;
-        divOutermost.appendChild(divDetailContainer);
+        //var divDetailContainer = document.createElement('div');
+        //divDetailContainer.className = "artifact-detail-reveal-container";
+        //divDetailContainer.id = artiIdIn + "-reveal-container";
+        //divDetailContainer.style = "display:none;";
+        //divDetailContainer.innerText = "This page intentionally left blank. " + artiIdIn;
+        //divOutermost.appendChild(divDetailContainer);
         
-        var divEditContainer = document.createElement('div');
-        divEditContainer.className = "artifact-edit-container";
-        divEditContainer.id = artiIdIn + "-edit-container";
-        divEditContainer.style = "display:none;";
-        divEditContainer.innerText = "This page intentionally left blank. " + artiIdIn;
-        divOutermost.appendChild(divEditContainer);
-        return divOutermost;
+        //var divEditContainer = document.createElement('div');
+        //divEditContainer.className = "artifact-edit-container";
+        //divEditContainer.id = artiIdIn + "-edit-container";
+        //divEditContainer.style = "display:none;";
+        //divEditContainer.innerText = "This page intentionally left blank. " + artiIdIn;
+        //divOutermost.appendChild(divEditContainer);
+        //return divOutermost;
     }
     renderArtifactDetailApi(artiIdIn){
         var cbFunc = function (objIn) {
@@ -1537,6 +1537,7 @@ class RMVodWebApp {
             //var wa = new RMVodWebApp();
             var sse = new RMSSSEnhanced();
             
+            // Maybe move these renderers out to RMVWAHtmlGenerator... someday?
             var simpleDisplayField = function (artiIdIn,labelIn,fieldNameIn,currentValueIn) {
                 const fieldId = artiIdIn + '-edit-' + fieldNameIn + '-value';
                 
@@ -1784,6 +1785,8 @@ class RMVodWebApp {
             editDiv.innerHTML = '';
             editDiv.appendChild(edOuterDiv);
             
+            // THIS SHOULD BE DONE WITH A "CLICK" EVENT TO THE EDIT TAB 
+            // INSTEAD OF THIS DIRECT ACTION ON DIVS
             document.getElementById('structfeatureplayer').style.display = 'none';
             document.getElementById('structfeaturesearch').style.display = 'none';
             document.getElementById('structfeatureedit').style.display = 'block';
@@ -1907,8 +1910,6 @@ function switchboard(actionIn,objIdIn,argObjIn) {
                 document.getElementById(epListDivId).style.display = 'block';
                 ml.populateSeriesEpisodes(objIdIn);
                 document.getElementById(serDeetDivId).style.display = 'block';
-                //ml.populateArtifactDetails(objIdIn);
-                //console.log("tvsExpandEpisodes - Trying to tvsDetailShowButton");
                 ml.tvsDetailShowButton(objIdIn);
             }
             break;
@@ -1917,18 +1918,8 @@ function switchboard(actionIn,objIdIn,argObjIn) {
             console.log("Trying to toggleDivViz: " + objIdIn);
             var dEl = document.getElementById(objIdIn);
             var dState = dEl.style.display;
-            //console.log(dState);
             if (dState == 'none') {
                 document.getElementById(objIdIn).style.display = 'block';
-                if (objIdIn.includes('-reveal-container')) {
-                    artiID = objIdIn.replace('-reveal-container','');
-                    //ml.vodlibartiobjget(artiID);
-                    //ml.renderArtifactDetail(artiID);
-                    ml.renderArtifactDetailApi(artiID);
-                    //console.log(artiID);
-                } else if (objIdIn == 'big-search-container') {
-                    ml.renderAdvSearch();
-                }
             } else {
                 document.getElementById(objIdIn).style.display = 'none';
             }
@@ -1992,10 +1983,6 @@ function switchboard(actionIn,objIdIn,argObjIn) {
             ml.execSearchSingleFactor('text',{'text':argObjIn['srchstr']});
             break;
         
-        //case 'execAdvSrch' : // <<====THIS IS DEPRECATED?
-            //ml.execAdvancedSearch();
-            //break;
-            
         case 'initiateArtiEdit':
             ml.renderArtifactEdit(objIdIn);
             document.getElementById('tabspan2').click();
