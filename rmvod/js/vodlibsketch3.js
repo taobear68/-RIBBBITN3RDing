@@ -181,24 +181,24 @@ class RMVodWebApp {
         // /* vodlib.css version 0.2.0 */
         // which we should parse for just the "0.2.0" portion
         
-        console.log("postCSSVer: " + verStrIn);
+        //console.log("postCSSVer: " + verStrIn);
         document.getElementById("version_css").innerText = "css version: " + verStrIn;
     }
     postJSVer(verStrIn){
-        console.log("postJSVer: " + verStrIn);
+        //console.log("postJSVer: " + verStrIn);
         document.getElementById("version_js").innerText = "js version: " + verStrIn;
     }
     postDBVer(verStrIn){
         // "version_db"
-        console.log("postDBVer: " + verStrIn);
+        //console.log("postDBVer: " + verStrIn);
         document.getElementById("version_db").innerText = "db version: " + verStrIn;
     }
     postAPIVer(verStrIn){
-        console.log("postAPIVer: " + verStrIn);
+        //console.log("postAPIVer: " + verStrIn);
         document.getElementById("version_api").innerText = "api version: " + verStrIn;
     }
     postHTMLVer(verStrIn){
-        console.log("postHTMLVer: " + verStrIn);
+        //console.log("postHTMLVer: " + verStrIn);
         document.getElementById("version_html").innerText = "html version: " + verStrIn;
     }
     clockSet() {
@@ -241,11 +241,46 @@ class RMVodWebApp {
         }
         gtFunc();
         var intv = setInterval(gtFunc,15000);
-        console.log("Interval: " + intv);
+        //console.log("Interval: " + intv);
         
     }
+    genericApiCall(payloadObjIn,endpointIn,cbFuncIn){
+        /*
+         * payloadeObjIn must minimally be {}
+         * 
+         * endpointIn should be the full path to the endpoint
+         * 
+         * cbFuncIn should accept one argument, which would be the 
+         * JSON.parse of the responseText
+         * 
+         * */
+        var contentRet ={};
+        const apiEndpoint = endpointIn;
+        const payload = payloadObjIn;
+        const bodyDataStr = JSON.stringify(payload);
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            var sse = new RMSSSEnhanced();
+            var responseObj = {}
+            if (this.readyState == this.DONE) {
+                if (this.onreadystatechange) {
+                    if (([200,201,202].indexOf(this.status) > -1)) {
+                        xhttp.onreadystatechange = null;
+                        var fetchObj =  JSON.parse(this.responseText);
+                        if ((typeof cbFuncIn) == "function") {
+                            cbFuncIn(fetchObj);
+                        }
+                    }
+                }
+            }
+        }
+        xhttp.open("POST", apiEndpoint, true);
+        xhttp.setRequestHeader("Content-type", "application/json");
+        xhttp.send(bodyDataStr);
+        return contentRet;
+    }
     apiFetchRemoteVersions(){
-        console.log("This is where we get API and DB versions");
+        //console.log("This is where we get API and DB versions");
         var cbFunc = function (objIn) {
             console.log('apiFetchRemoteVersions: ' + JSON.stringify(objIn));
             var wa = new RMVodWebApp();
@@ -317,272 +352,62 @@ class RMVodWebApp {
         const endpoint = '/rmvid/api/suplist/get';
         var result = this.genericApiCall(payloadObj,endpoint,cbFunc);
     }
-    renderTitleDiv(){
-        //titletop
-        
-        var tmpHtml = '';
-        tmpHtml += '<div style="width:690px;height:50px;">'
-        tmpHtml += '<div style="display:inline-flex;">';
-        tmpHtml += '  <div style="display:inline-flex; width:225px;">';
-        tmpHtml += '    <div style="display:inline-flex;width:100%">';
-        tmpHtml += '      <div>';
-        tmpHtml += '        <div style="display:block;">';
-        tmpHtml += '          <b><a href="/index.html">RIBBBITVOD!</a></b>';
-        tmpHtml += '        </div>';
-        tmpHtml += '        <div id="playback-title-div" style="display:block;">';
-        tmpHtml += '          &nbsp;';
-        tmpHtml += '        </div>';
-        tmpHtml += '      </div>';
-        tmpHtml += '    </div>';
-        tmpHtml += '  </div>';
-        tmpHtml += '  <div style="display:inline-flex; width:225px;">';
-        tmpHtml += '    <div id="simple-search-div">';
-        tmpHtml += '      &nbsp; I can haz search?';
-        tmpHtml += '    </div>';
-        tmpHtml += '  </div>';
-        tmpHtml += '  <div style="display:inline-flex; width:225px;">';
-        tmpHtml += '    <div id="aux-header-div">';
-        tmpHtml += '      &nbsp; Post no bills';
-        tmpHtml += '    </div>';
-        tmpHtml += '  </div>';
-        tmpHtml += '</div>';
-        tmpHtml += '</div>';
-        //tmpHtml += '';
-        
-        try {
-            document.getElementById('titletop').innerHTML = tmpHtml;
-        } catch (e) {
-            console.log('titletop not available yet. ' + e);
-        }
-        
-        //this.renderSimpleSearchWidget();
-        this.renderStaticModernSearchWidget();
-    }
-    genericApiCall(payloadObjIn,endpointIn,cbFuncIn){
-        /*
-         * payloadeObjIn must minimally be {}
-         * 
-         * endpointIn should be the full path to the endpoint
-         * 
-         * cbFuncIn should accept one argument, which would be the 
-         * JSON.parse of the responseText
-         * 
-         * */
-        var contentRet ={};
-        const apiEndpoint = endpointIn;
-        const payload = payloadObjIn;
-        const bodyDataStr = JSON.stringify(payload);
-        var xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function() {
-            var sse = new RMSSSEnhanced();
-            var responseObj = {}
-            if (this.readyState == this.DONE) {
-                if (this.onreadystatechange) {
-                    if (([200,201,202].indexOf(this.status) > -1)) {
-                        xhttp.onreadystatechange = null;
-                        var fetchObj =  JSON.parse(this.responseText);
-                        if ((typeof cbFuncIn) == "function") {
-                            cbFuncIn(fetchObj);
-                        }
-                    }
-                }
-            }
-        }
-        xhttp.open("POST", apiEndpoint, true);
-        xhttp.setRequestHeader("Content-type", "application/json");
-        xhttp.send(bodyDataStr);
-        return contentRet;
-    }
-    vodlibtaglistget (cbFuncIn) {
-        // /artifact/get
-        var contentRet ={};
-        const apiEndpoint = '/rmvid/api/taglist/get'; 
-        const payload = {};
-        const bodyDataStr = JSON.stringify(payload);
-        var xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function() {
-            var sse = new RMSSSEnhanced();
-            var responseObj = {}
-            if (this.readyState == this.DONE) {
-                if (this.onreadystatechange) {
-                    if (([200,201,202].indexOf(this.status) > -1)) {
-                        xhttp.onreadystatechange = null;
-                        var tagsList = JSON.parse(this.responseText);
-                        var theBlob = sse.ssRead('blob');
-                        theBlob['tags'] = tagsList;
-                        sse.ssWrite('blob',theBlob);
-                        if ((typeof cbFuncIn) == "function") {
-                            cbFuncIn();
-                        }
-                    }
-                }
-            }
-        }
-        xhttp.open("POST", apiEndpoint, true);
-        xhttp.setRequestHeader("Content-type", "application/json");
-        xhttp.send(bodyDataStr); // bodyDataStr
-        return contentRet;
-    }
-    vodlibartiobjget (artiIdIn,cbFuncIn) {
-        var contentRet ={};
-        const apiEndpoint = '/rmvid/api/artifact/get'; 
-        const payload = {'artifactid':artiIdIn};
-        const bodyDataStr = JSON.stringify(payload);
-        var xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function() {
-            var sse = new RMSSSEnhanced();
-            var responseObj = {}
-            if (this.readyState == this.DONE) {
-                if (this.onreadystatechange) {
-                    if (([200,201,202].indexOf(this.status) > -1)) {
-                        xhttp.onreadystatechange = null;
-                        var artiObj = JSON.parse(this.responseText);
-                        var artiObjId = artiObj['artifactid'];
-                        var theBlob = sse.ssRead('blob');
-                        theBlob['artifacts'][artiObjId] = artiObj;
-                        sse.ssWrite('blob',theBlob);
-                        if ((typeof cbFuncIn) == "function") {
-                            cbFuncIn();
-                        }
-                    }
-                }
-            }
-        }
-        xhttp.open("POST", apiEndpoint, true);
-        xhttp.setRequestHeader("Content-type", "application/json");
-        //xhttp.send({}); // bodyDataStr
-        xhttp.send(bodyDataStr); // bodyDataStr
-        return contentRet;
-    }
-    vodlibartilistget (cbFuncIn) {
-        var contentRet ={};
-        const apiEndpoint = '/rmvid/api/titleidlist/get'; 
-        const bodyDataStr = JSON.stringify({});
-        var xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function() {
-            var sse = new RMSSSEnhanced();
-            var responseObj = {}
-            if (this.readyState == this.DONE) {
-                if (this.onreadystatechange) {
-                    if (([200,201,202].indexOf(this.status) > -1)) {
-                        xhttp.onreadystatechange = null;
-                        sse.ssWrite('titleidlist',JSON.parse(this.responseText));
-                        if ((typeof cbFuncIn) == "function") {
-                            cbFuncIn();
-                        }
-                    }
-                }
-            }
-        }
-        xhttp.open("POST", apiEndpoint, true);
-        xhttp.setRequestHeader("Content-type", "application/json");
-        xhttp.send({});
-        return contentRet;
-    }  // /api/get/titleidlist
-    vodlibqdget (cbFuncIn) {
-        var contentRet ={};
-        const apiEndpoint = '/rmvid/api/blob/get'; 
-        const bodyDataStr = JSON.stringify({});
-        var xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function() {
-            var sse = new RMSSSEnhanced();
-            var responseObj = {}
-            if (this.readyState == this.DONE) {
-                if (this.onreadystatechange) {
-                    if (([200,201,202].indexOf(this.status) > -1)) {
-                        xhttp.onreadystatechange = null;
-                        sse.ssWrite('blob',JSON.parse(this.responseText));
-                        if ((typeof cbFuncIn) == "function") {
-                            cbFuncIn();
-                        }
-                    }
-                }
-            }
-        }
-        xhttp.open("POST", apiEndpoint, true);
-        xhttp.setRequestHeader("Content-type", "application/json");
-        xhttp.send({});
-        return contentRet;
-    }  // /api/get/titleidlist
-    vodPlayTitleApi2(artiIdIn){
-        var cbFunc = function () {
+    vodPlayTitleApi3(artiIdIn){
+        var cbFunc = function (dataObjIn) {
             var wa = new RMVodWebApp()
-            // Set cookie for "resume playback" artifact id
-            wa.cc.setCookie('playing_aid',artiIdIn,365);
-            
+            wa.cc.setCookie('playing_aid',dataObjIn['artifactid'],365);
             try {
                 const tmpIntvHandle = this.cc.getCookie('cont_play_sample_int_handle');
-                //console.log("Looks like we have a left-over interval: " + tmpIntvHandle + ".  Clearing it");
                 clearInterval(tmpIntvHandle);
-                //console.log("Interval cleared.  Clearing the cookie now.");
                 this.cc.clearCookie('cont_play_sample_int_handle');
-                //console.log("Done.");
             } catch (e) {
                 console.log("Attempt to clear left-over interval failed.");
             }
-            
-            
-            var artiObj = wa.sse.ssRead('blob')['artifacts'][artiIdIn];
-            var artiDir = artiObj['filepath'];
-            var artiFil = artiObj['file'];
-            var playerAR = 1.7778;
-            var playerHeight = 500;
-            var playerWidth = parseInt(playerHeight * playerAR);
-            
+            // Setup HTML for the "actual player"
+            var artiDir = dataObjIn['filepath'];
+            var artiFil = dataObjIn['file'];
             var srcURI = '/rmvid/vidsrc/' + artiDir + '/' + artiFil ;
-            
-            
             var playerHTML = '';
-            //playerHTML += '<div style="width:660px;height:360px;vertical-align:center;horizontal-align:center;margin:20px;">';
             playerHTML += '<div style="width:1100px;height:500px;vertical-align:top;horizontal-align:center;">';
-            //playerHTML += '<video id="actualvideoplayer" width=' + playerWidth.toString() + ' height=' + playerHeight.toString() + ' style="vertical-align:top;horizontal-align:center;" autoplay=true controls=true>';
             playerHTML += '<video id="actualvideoplayer" width=1100 height=500 style="vertical-align:top;horizontal-align:center;" autoplay=true controls=true>';
-            // playerHTML += '<source src="/rmvid/vidsrc/' + artiDir + '/' + artiFil + '" type="video/mp4">' ;
             playerHTML += '<source src="' + srcURI + '" type="video/mp4">' ;
             playerHTML += 'Your browser does not support the video tag';
             playerHTML += '</video>';
             playerHTML += "</div>";
-            
+            // Stuff that HTML in the appropriate DIV
             document.getElementById('structfeatureplayer').innerHTML = playerHTML;
-            
             var avpDE = document.getElementById('actualvideoplayer');
+            // Set a "playback ended" event for the player
             avpDE.addEventListener('ended', (event) => {pbEnded(artiIdIn)});
-            
+            // Get the current "Source" for the player to put in the 
+            // artifact_source_uri cookie
             var currSrc = avpDE.currentSrc;
-            //console.log('currSrc: ' + currSrc);
-            
-            // wa.cc.setCookie('artifact_source_uri',document.getElementById('actualvideoplayer').currentSrc,5);
             wa.cc.setCookie('artifact_source_uri',currSrc,5);
-            
+            // Event to set Tab 0  as the active tab
             document.getElementById('tabspan0').click();
-            
-            //  HEY HEY HEY  >>>>
-            // THIS NEEDS TO BE REWORKED FOR THE NEW "CINEMATIC VIEW" THING
-            var newContentDiv = wa.renderArtifactDetailApi(artiIdIn);
-            //  HEY HEY HEY  ^^^^^^^^
-            
-            
-            //console.log('vodPlayTitleApi2.cbFunc - artifact_source_uri: ' + wa.cc.getCookie('artifact_source_uri'));
-            
+            // Populate the artifact details in the page header
+            wa.renderArtifactDetailHeader(dataObjIn);
+            // Setup an "interval" to post the current play time to a 
+            // cookie to be used in "resume payback"
             try {
                 wa.contCookiePostInterval(60000);
             } catch (e) {
                 console.log('vodPlayTitleApi2 cbFunc barfed on trying wa.contCookiePostInterval(60000): ' + e);
             }
         }
-        
-        //console.log("Trying to add " + artiIdIn + " to the Recent Plays cookie.");
+        // Add this artifactid to the "recent plays" cookie
         this.cc.addRecentPlay(artiIdIn);
-        //console.log("Done adding " + artiIdIn + " to the Recent Plays cookie.");
-        
+        // Make this artifact's list entry appear "played" if present.
         try {
-            // this.cc.addRecentPlay(artiIdIn);
             const listTitleSpanId = artiIdIn + '_list-title-span';
             document.getElementById(listTitleSpanId).className = 'listtitleseen';
         } catch (e) {
-            console.log('vodPlayTitleApi2 - Setting the classname for the artifact failed');
+            console.log('vodPlayTitleApi2 - Setting the classname for the playing artifact failed');
         }
-        this.vodlibartiobjget(artiIdIn,cbFunc);
+        // Do the API call.
+        const apiEndpoint = '/rmvid/api/artifact/get'; 
+        const payload = {'artifactid':artiIdIn};
+        this.genericApiCall(payload,apiEndpoint,cbFunc);
     }
     vodPlayNextTitle(artiIdIn){
         //// Confirm checkbox is checked
@@ -592,7 +417,8 @@ class RMVodWebApp {
         }
         var cbFunc = function(objIn){
             var wa = new RMVodWebApp();
-            wa.vodPlayTitleApi2(objIn['artifactid']);
+            //wa.vodPlayTitleApi2(objIn['artifactid']);
+            wa.vodPlayTitleApi3(objIn['artifactid']);
         }
         const payloadObj = {'artifactid':artiIdIn};
         const endpoint = '/rmvid/api/nextepisode/get';
@@ -653,7 +479,7 @@ class RMVodWebApp {
             var optNm = optList[idx];
             var tmpCookie = this.cc.getCookie('opt_' + optNm);
             var cbDE = document.getElementById(optNm);
-            console.log('onloadOptions: ' + optNm + ' - ' + document.getElementById(optNm).name + ' -  ' + cbDE.checked );
+            //console.log('onloadOptions: ' + optNm + ' - ' + document.getElementById(optNm).name + ' -  ' + cbDE.checked );
             switch (tmpCookie) {
                 case true:
                 case 'true':
@@ -898,88 +724,6 @@ class RMVodWebApp {
         // Put it in this div:  big-search-container
     }
     // Major Page Parts
-    docElRenderHeaderFourCell(){  // <<=== DEPRECATED
-        // Header
-        var headerOuterDiv = document.createElement('div');
-        headerOuterDiv.className = "headercont";
-        headerOuterDiv.id = "headercont";
-        
-        var cell1OuterDiv1 = document.createElement('div');
-        cell1OuterDiv1.className = "headerflexcell";
-        cell1OuterDiv1.id = "headerblock1";
-        cell1OuterDiv1.innerHTML = '<div><a href="./vodlib_static_2.html"><img src="./img/rmvod_badge_center.png" height="75" width="75" style="height:75px;width:75px;"></a></div>';
-        
-        var cell1OuterDiv2 = document.createElement('div');
-        cell1OuterDiv2.className = "headerflexcell";
-        cell1OuterDiv2.id = "headerblock2";
-        
-        var cellTwoStr = "";
-        cellTwoStr += '<div class="" id="" style="display:block;">';
-        
-        cellTwoStr += '<div class="" id="" style="display:block;"><!-- SEARCH BY TAG -->';
-        cellTwoStr += '<b>Filter by tag:</b><br>';
-        cellTwoStr += '<select id="tag-search-select" name="tag-search-select" onchange="switchboard(\'execTagSearch\',\'tag-search-select\',{})">';
-        cellTwoStr += '</select>';
-        cellTwoStr += '</div>';
-        
-        cellTwoStr += '<div class="" id="" style="display:block;"><!-- SEARCH BY TITLE -->';
-        cellTwoStr += '<b>Seach by Title:</b><br>';
-        cellTwoStr += '<input type="text" id="" class="" style="width:150px;">';
-        cellTwoStr += '</div>';
-        
-        cellTwoStr += '<div class="" id="" style="display:block;"><!-- SEARCH BY TITLE -->';
-        cellTwoStr += '<b>Seach by Title:</b><br>';
-        cellTwoStr += '<input type="text" id="" class="" style="width:150px;">';
-        cellTwoStr += '</div>';
-        
-        cellTwoStr += '<div class="" id="" style="display:block;">';
-        cellTwoStr += '<span class="" id="" style="">';
-        cellTwoStr += '<u>Advanced Search</u>';
-        cellTwoStr += '</span>';
-        cellTwoStr += '</div>';
-        
-        cellTwoStr += '</div>';
-        
-        cell1OuterDiv2.innerHTML = cellTwoStr;
-
-        var cell1OuterDiv3 = document.createElement('div');
-        cell1OuterDiv3.className = "headerflexcell";
-        cell1OuterDiv3.id = "headerblock3";
-        cell1OuterDiv3.innerHTML = '<div>Third thing</div>';
-
-        var cell1OuterDiv4 = document.createElement('div');
-        cell1OuterDiv4.className = "headerflexcell";
-        cell1OuterDiv4.id = "headerblock4";
-        
-        var cellFourStr = "";
-        cellFourStr += '<div class="" id="" style="display:block">';
-        cellFourStr += '<div>';
-        cellFourStr += '<b>Settings</b>';
-        cellFourStr += '</div>';
-        cellFourStr += '<div>';
-        cellFourStr += '<b>Play next in series: </b><input name="serplaynext" id="serplaynext" type="checkbox">';
-        cellFourStr += '</div>';
-        cellFourStr += '<div>';
-        cellFourStr += '<b>Resume play: </b><input name="resumeplay" id="resumeplay" type="checkbox">';
-        cellFourStr += '</div>';
-        cellFourStr += '</div>';
-        
-        cell1OuterDiv4.innerHTML = cellFourStr;
-        
-        var tmpWrapDiv = document.createElement('div');
-        tmpWrapDiv.id = 'headerflexwrap';
-        tmpWrapDiv.className = 'headerflexwrap';
-        
-        //tmpWrapDiv.innerHTML = cell1OuterDiv1 + cell1OuterDiv2 + cell1OuterDiv3 + cell1OuterDiv4;
-        tmpWrapDiv.appendChild(cell1OuterDiv1);
-        tmpWrapDiv.appendChild(cell1OuterDiv2);
-        tmpWrapDiv.appendChild(cell1OuterDiv3);
-        tmpWrapDiv.appendChild(cell1OuterDiv4);
-        
-        headerOuterDiv.appendChild(tmpWrapDiv);
-        
-        return headerOuterDiv;
-    }
     docElRenderHeaderThreeCell(){
         var hContDiv = document.createElement('div');
         hContDiv.id = 'headercont';
@@ -1034,10 +778,10 @@ class RMVodWebApp {
             tabTabDiv.id = "tab" + tabNmbrIn.toString();
             var tmpHtml = "";
             var className = "tab-unsel";
-            console.log("className: " + className);
+            // console.log("className: " + className);
             if (selBoolIn == true) {
                 className = "tab-sel";
-                console.log("className: " + className);
+                // console.log("className: " + className);
             }
             tmpHtml += '<span class="' + className + '" id="tabspan' + tabNmbrIn.toString() + '" onclick="switchboard(\'tabPick\',this.id,{})">';
             tmpHtml += tabLabelIn;
@@ -1226,26 +970,6 @@ class RMVodWebApp {
         
     }
     // Render Page Layouts
-    basePageLayout01(){  //  BASE PAGE LAYOUT FOR vodlib_static_2.html
-        var headerOuterDiv = this.docElRenderHeaderFourCell();
-        var featureDiv = this.docElRenderFeature();
-        var listContDiv = this.docElRenderList();
-        
-        var bigBizDiv = document.createElement('div');
-        bigBizDiv.id = 'bigbusiness';
-        bigBizDiv.className = 'bigbusiness';
-        bigBizDiv.innerHTML = "<!-- RENDERED BY basePageLayout01 -->";
-
-        bigBizDiv.appendChild(featureDiv);
-        bigBizDiv.appendChild(listContDiv);
-        
-        var masterCont = document.getElementById('mastercont');
-        masterCont.innerHTML = '';
-        masterCont.appendChild(headerOuterDiv);
-        masterCont.appendChild(bigBizDiv);
-        
-        //this.clockSet();
-    }
     basePageLayout02(){  //  BASE PAGE LAYOUT FOR vodlib_static_3.html
         var headerOuterDiv = this.docElRenderHeaderThreeCell();
         var featureDiv = this.docElTabContainer();
@@ -1309,7 +1033,8 @@ class RMVodWebApp {
         if (cbDE.checked == true) {
             var playAID = this.cc.getCookie('playing_aid');
             //console.log('contCookieOnLoad -  Going to try to play ' + playAID);
-            this.vodPlayTitleApi2(playAID);
+            //this.vodPlayTitleApi2(playAID);
+            this.vodPlayTitleApi3(playAID);
             //console.log("contCookieOnLoad -  About to launch the resume playback interval.  Brace for shitstorm.");
             var intervHandle = setInterval(cbFunc,1000);
             this.cc.setCookie('cont_play_sample_int_handle',intervHandle,5);
@@ -2178,32 +1903,12 @@ function switchboard(actionIn,objIdIn,argObjIn) {
     switch (actionIn) {
         
         case "firstthing":
-            //var ml = new RMVodWebApp();
-            
-            // Commenting out "base page layout", because we're doing 
-            // a new layout, and working with the static HTML again 
-            // for now
-            
-            // Let's try using "basePageLayout01" to help reduce what 
-            // we're depending on in the static HTML page
-            //ml.basePageLayout01();
             ml.basePageLayout02();
-            
             ml.clockSet();
-
-            
             ml.initStorage();
-            var cbFunc = function () {
-                var ml = new RMVodWebApp();
-                ml.renderArtifactBlocksByTagApi('');
-                //ml.renderSimpleSearchWidget();
-                ml.renderStaticModernSearchWidget
-            };
-            ml.vodlibartilistget(cbFunc);
-            ml.renderTitleDiv();
-            
+            ml.renderArtifactBlocksByTagApi('');
+            ml.renderStaticModernSearchWidget();
             ml.onloadOptions();
-            
             ml.contCookieOnLoad();
             break;
 
@@ -2214,7 +1919,7 @@ function switchboard(actionIn,objIdIn,argObjIn) {
             break;        
             
         case "vodPlayTitle":
-            ml.vodPlayTitleApi2(objIdIn); //vodPlayTitleApi2
+            ml.vodPlayTitleApi3(objIdIn);
             break;
             
         case "vodPlayNextTitle":
@@ -2305,16 +2010,14 @@ function switchboard(actionIn,objIdIn,argObjIn) {
             document.getElementById(objIdIn).value = "";
             var ryVal1 = document.getElementById('relyear-srch-start').value;
             document.getElementById('relyear-srch-start').value = "";
-            console.log('Dates captured: ', ryVal1, ryVal2); //objIdIn + " has value " + mtVal);
+            console.log('Dates captured: ', ryVal1, ryVal2); 
             ml.execSearchSingleFactor('relyear',{'relyear1':ryVal1,'relyear2':ryVal2});
             break;
             
         case 'execWhereClauseSrch':
-            //thing
             console.log("Trying to " + actionIn + ": " + objIdIn, JSON.stringify(argObjIn)); 
             const re = /'/g;
             var rawWCStr = document.getElementById(objIdIn).value.replace(re,"\'");
-            //console.log("Value: " + rawWCStr);
             ml.execSearchSingleFactor('whereclause',{'whereclause':rawWCStr});
             break;
             
@@ -2328,9 +2031,7 @@ function switchboard(actionIn,objIdIn,argObjIn) {
             
         case 'initiateArtiEdit':
             ml.renderArtifactEdit(objIdIn);
-            
             document.getElementById('tabspan2').click();
-            
             break;
             
         case 'exposePlayer':
@@ -2340,16 +2041,12 @@ function switchboard(actionIn,objIdIn,argObjIn) {
             break;
             
         case 'updateArtifactField' :
-            // console.log(actionIn + ', ' + objIdIn + ', ' + JSON.stringify(argObjIn));
             ml.postArtifactFieldEdit(objIdIn,argObjIn);
             break;
             
         case 'appendArtifactFieldList' :
             console.log(actionIn + ', ' + objIdIn + ', ' + JSON.stringify(argObjIn));
-            
-            // appendArtifactFieldList, 1a2d3dbc-20fa-4ba7-a2b6-3e788302f807-edit-director-value-slist, {"listfield":"1a2d3dbc-20fa-4ba7-a2b6-3e788302f807-edit-director-value"}            
             var listTA = document.getElementById(argObjIn['listfield']);
-            //console.log(listTA.value);
             var newValDE = document.getElementById(objIdIn);
             var listAry = JSON.parse(listTA.value);
             var newVal = newValDE.value;
@@ -2367,13 +2064,9 @@ function switchboard(actionIn,objIdIn,argObjIn) {
             break;
             
         case 'checkboxChange':
-            //console.log(actionIn + ', ' + objIdIn + ', ' + JSON.stringify(argObjIn));
-            // cbDE.onchange = "switchboard('checkboxChange','" + optNm + "',{})"
             const cookieNm = 'opt_' + objIdIn;
             const cookieVal = document.getElementById(objIdIn).checked;
-            //console.log('Checkbox value for ' + objIdIn + ': ' + cookieVal);
             ml.cc.setCookie(cookieNm,cookieVal,365);
-            //console.log('Verify cookie value for ' + cookieNm + ': ' + ml.cc.getCookie(cookieNm));
             break;
             
         case "tabPick":
@@ -2382,7 +2075,6 @@ function switchboard(actionIn,objIdIn,argObjIn) {
             lu['tabspan1'] = 'structfeaturesearch';
             lu['tabspan2'] = 'structfeatureedit';
             lu['tabspan3'] = 'structfeaturesettings';
-            
             var selTabSpan = document.getElementById(objIdIn);
             var selTab = selTabSpan.parentElement;
             var selStruct = document.getElementById(lu[objIdIn]);
@@ -2411,10 +2103,6 @@ function switchboard(actionIn,objIdIn,argObjIn) {
                 }
             }
             break;
-            
-            
-            
-            
         
         /* 
          * Oh no... we should never get here!
