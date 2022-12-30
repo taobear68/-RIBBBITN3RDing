@@ -529,7 +529,7 @@ class RMVodWebApp {
         // the API and DB for their versions
         this.apiFetchRemoteVersions();
         //this.postCSSVer("0.2.0");
-        this.postJSVer("0.4.0");
+        this.postJSVer("0.4.2");
         //this.env = {};
         //this.env.versions. = {};
         //this.env.versions.api = "undetermined";
@@ -634,6 +634,9 @@ class RMVodWebApp {
                         if ((typeof cbFuncIn) == "function") {
                             cbFuncIn(fetchObj);
                         }
+                    } else {
+                        // Is it good to report on error?  
+                        // If so, do it here. 
                     }
                 }
             }
@@ -656,7 +659,6 @@ class RMVodWebApp {
         const payloadObj = {};
         const endpoint = '/rmvid/api/apiversion/get';
         var result = this.genericApiCall(payloadObj,endpoint,cbFunc);
-        
     }
     apiFetchRemoteVersions2(){  //someday
         //console.log("This is where we get API and DB versions");
@@ -905,7 +907,6 @@ class RMVodWebApp {
         const methNm = 'renderAdvSearch';
         console.log("DO NOT CALL " + methNm + " -- IT IS DEPRECATED!");
         throw methNm + " <<====DEPRECATED";
-        
     }
     // Major Page Parts
     docElRenderHeaderThreeCell(){
@@ -1301,105 +1302,26 @@ class RMVodWebApp {
         deetDiv.innerHTML = innerHtml;       
          
     }
-    renderArtifactBlocksByIdList(artiIdListIn){ // <<==== DEPRECATED?
-        const methNm = 'renderArtifactBlocksByIdList';
-        console.log("DO NOT CALL " + methNm + " -- IT IS DEPRECATED!");
-        throw methNm + " <<====DEPRECATED";
-        
-        
-        
-        //var tmpDiv = document.createElement('div');
-        //for (var idx = 0; idx<artiIdListIn.length; idx++ ) {
-            //tmpDiv.appendChild(this.renderArtifactInitial(artiIdListIn[idx]));
-        //}
-        //return tmpDiv;
-    }
-    renderArtifactBlocksBySrchTxtApi(SrchStrIn){
-        var cbFunc = function (objIn){
-            var wa = new RMVodWebApp();
-            var artiTitleIdList = wa.sse.ssRead('titleidlist');
-            if (objIn.length > 0) {
-                var tmpDiv = wa.renderSALByIdList(objIn);
-                document.getElementById('sideartilistwidget').innerHTML = '';
-                document.getElementById('sideartilistwidget').appendChild(tmpDiv);
-            }
-        }
+    execSearchSingleFactor2(factorStrIn,srchValObjIn) {
         var payloadObj = {};
-        if (SrchStrIn.length > 0){
-            payloadObj = {'srchstr':SrchStrIn};
-        }
-        var endpoint = "/rmvid/api/simpletxtsrch/get";
-        this.genericApiCall(payloadObj,endpoint,cbFunc);
-    }
-    renderArtifactBlocksByTagApi(tagStrIn){
-        var cbFunc = function (objIn){
-            var wa = new RMVodWebApp();
-            var artiTitleIdList = wa.sse.ssRead('titleidlist');
-            var tmpDiv = wa.renderSALByIdList(objIn);
-            document.getElementById('sideartilistwidget').innerHTML = '';
-            document.getElementById('sideartilistwidget').appendChild(tmpDiv);
-        }
-        var payloadObj = {};
-        if (tagStrIn.length > 0){
-            payloadObj = {'tag':tagStrIn};
-        }
-        var endpoint = "/rmvid/api/titleidlist/get";
-        this.genericApiCall(payloadObj,endpoint,cbFunc);
-    }
-    renderArtifactBlocksByMajTypeApi(majtypeStrIn){
-        console.log("renderArtifactBlocksByMajTypeApi: " + majtypeStrIn);
-        var cbFunc = function (objIn){
-            var wa = new RMVodWebApp();
-            var artiTitleIdList = wa.sse.ssRead('titleidlist');
-            var tmpDiv = wa.renderSALByIdList(objIn);
-            document.getElementById('sideartilistwidget').innerHTML = '';
-            document.getElementById('sideartilistwidget').appendChild(tmpDiv);
-        }
-        var payloadObj = {};
-        if (majtypeStrIn.length > 0){
-            payloadObj = {'majtype':majtypeStrIn};
-        }
-        var endpoint = "/rmvid/api/titleidlist/get";
-        this.genericApiCall(payloadObj,endpoint,cbFunc);
-    }
-    renderArtifactBlocksByRelyearApi(relyear1In,relyear2In){
-        console.log("renderArtifactBlocksByRelyearApi: " + relyear1In, relyear2In);
-        var cbFunc = function (objIn){
-            var wa = new RMVodWebApp();
-            var artiTitleIdList = wa.sse.ssRead('titleidlist');
-            var tmpDiv = wa.renderSALByIdList(objIn);
-            document.getElementById('sideartilistwidget').innerHTML = '';
-            document.getElementById('sideartilistwidget').appendChild(tmpDiv);
-        }
-        var payloadObj = {};
-        if (relyear2In > 1900){
-            payloadObj = {'relyear1':relyear1In,'relyear2':relyear2In};
-        }
-        var endpoint = "/rmvid/api/titleidlist/get";
-        this.genericApiCall(payloadObj,endpoint,cbFunc);
-    }
-    execSearchSingleFactor(factorStrIn,srchValObjIn) {
+        var endpoint = '';
+        var cbFunc = function(){};
         switch (factorStrIn) {
             case "tag":
-                //thing
-                this.renderArtifactBlocksByTagApi(srchValObjIn['tag']);
+                cbFunc = function (objIn){
+                    var wa = new RMVodWebApp();
+                    var artiTitleIdList = wa.sse.ssRead('titleidlist');
+                    var tmpDiv = wa.renderSALByIdList(objIn);
+                    document.getElementById('sideartilistwidget').innerHTML = '';
+                    document.getElementById('sideartilistwidget').appendChild(tmpDiv);
+                }
+                if (srchValObjIn['tag'].length > 0){
+                    payloadObj = {'tag':srchValObjIn['tag']}; // srchValObjIn['tag']
+                } 
+                endpoint = "/rmvid/api/titleidlist/get";
                 break;
             case "text":
-                //thing
-                this.renderArtifactBlocksBySrchTxtApi(srchValObjIn['text']);
-                break;
-            case "majtype":
-                //thing
-                this.renderArtifactBlocksByMajTypeApi(srchValObjIn['majtype']);
-                break;
-            case "relyear":
-                //thing
-                this.renderArtifactBlocksByRelyearApi(srchValObjIn['relyear1'],srchValObjIn['relyear2']);
-                break;
-            case "whereclause":
-                console.log("execSearchSingleFactor: " + factorStrIn + ": " + srchValObjIn[factorStrIn]);
-                
-                var cbFunc = function (objIn){
+                cbFunc = function (objIn){
                     var wa = new RMVodWebApp();
                     var artiTitleIdList = wa.sse.ssRead('titleidlist');
                     if (objIn.length > 0) {
@@ -1408,93 +1330,61 @@ class RMVodWebApp {
                         document.getElementById('sideartilistwidget').appendChild(tmpDiv);
                     }
                 }
-                var payloadObj = {};
+                if (srchValObjIn['text'].length > 0){
+                    payloadObj = {'srchstr':srchValObjIn['text']}; // srchValObjIn['text']
+                }
+                var endpoint = "/rmvid/api/simpletxtsrch/get";
+                break;
+            case "majtype":
+                cbFunc = function (objIn){
+                    var wa = new RMVodWebApp();
+                    var artiTitleIdList = wa.sse.ssRead('titleidlist');
+                    var tmpDiv = wa.renderSALByIdList(objIn);
+                    document.getElementById('sideartilistwidget').innerHTML = '';
+                    document.getElementById('sideartilistwidget').appendChild(tmpDiv);
+                }
+                if (srchValObjIn['majtype'].length > 0){
+                    payloadObj = {'majtype':srchValObjIn['majtype']};
+                }
+                endpoint = "/rmvid/api/titleidlist/get";
+                break;
+            case "relyear":
+                cbFunc = function (objIn){
+                    var wa = new RMVodWebApp();
+                    var artiTitleIdList = wa.sse.ssRead('titleidlist');
+                    var tmpDiv = wa.renderSALByIdList(objIn);
+                    document.getElementById('sideartilistwidget').innerHTML = '';
+                    document.getElementById('sideartilistwidget').appendChild(tmpDiv);
+                }
+                if (srchValObjIn['relyear2'] > 1900){
+                    payloadObj = {'relyear1':srchValObjIn['relyear1'],'relyear2':srchValObjIn['relyear2']};
+                }
+                endpoint = "/rmvid/api/titleidlist/get";
+                break;
+            case "whereclause":
+                console.log("execSearchSingleFactor: " + factorStrIn + ": " + srchValObjIn[factorStrIn]);
+                cbFunc = function (objIn){
+                    var wa = new RMVodWebApp();
+                    var artiTitleIdList = wa.sse.ssRead('titleidlist');
+                    if (objIn.length > 0) {
+                        var tmpDiv = wa.renderSALByIdList(objIn);
+                        document.getElementById('sideartilistwidget').innerHTML = '';
+                        document.getElementById('sideartilistwidget').appendChild(tmpDiv);
+                    }
+                }
                 if (srchValObjIn[factorStrIn].length > 0){
                     payloadObj = {'whereclause':srchValObjIn[factorStrIn]};
                 }
-                var endpoint = "/rmvid/api/titleidlist/get";
-                this.genericApiCall(payloadObj,endpoint,cbFunc);
+                endpoint = "/rmvid/api/titleidlist/get";
                 break;
             default:
                 console.log("execSearchSingleFactor fell through: ", factorStrIn, JSON.stringify(srchValObjIn));
         }
-    }
-    renderArtifactInitial (artiIdIn) { // <<==== DEPRECATED?
-        const methNm = 'renderArtifactInitial';
-        console.log("DO NOT CALL " + methNm + " -- IT IS DEPRECATED!");
-        throw methNm + " <<====DEPRECATED";
-        
-        
-        
-        //var blob = this.sse.ssRead('blob');
-        //var artiData = blob['artifacts'][artiIdIn];
-        //var artiTags = blob['a2t'][artiIdIn];
-        
-        //var firstDisplayList = ['title','majtype','season','episode','runmins'];
-        
-        //// Create "outermost" div
-        //var divOutermost = document.createElement('div');
-        //divOutermost.id = artiIdIn + '-outermost';
-        //divOutermost.className = "artifact-outermost";
-        //divOutermost.style = "display:block;";
-        
-        //// Create "Initial Display Row" div
-        //var divInitialDisplay = document.createElement('div');
-        //divInitialDisplay.className = "artifact-default-disp-row";
-        //divInitialDisplay.style = "display:inline-flex;";     
-        
-        //var widthList = ['300px','100px','40px','40px','50px','75px'];
-        //// Create cells for "Initial Display Row"
-        //for (var idx=0; idx<firstDisplayList.length; idx++ ) {
-            //var tmpDiv = document.createElement('div');
-            //tmpDiv.className = "artifact-default-disp-cell"; // artifact-default-disp-cel
-            //tmpDiv.style = "display:inline-flex;width:" + widthList[idx] + ';';
-            //// Conditional handling  should be here so that 'title' is presented
-            //// as a 'play title' link
-            //var fieldKey = firstDisplayList[idx];
-            //if (fieldKey == 'title') {
-                ////make it a link
-                //tmpDiv.innerHTML = '<span class="title-play-link" onclick="switchboard(\'vodPlayTitle\',\'' + artiIdIn + '\',{})"><b><u>' + artiData[fieldKey] + '</u></b></span>';
-            //} else {
-                //tmpDiv.innerText = artiData[fieldKey];
-            //}
-            //divInitialDisplay.appendChild(tmpDiv);
-        //}
-        //var tmpDiv = document.createElement('div');
-        //tmpDiv.className = "artifact-default-disp-cell";
-        //tmpDiv.style = "display:inline-flex;width:" +  widthList[5] + ';';  // widthList[5]
-        
-        //var tmpButtonStr = '<button onclick="switchboard(\'toggleDivViz\',\'';
-        //tmpButtonStr += artiIdIn.trim() + '-reveal-container';
-        //tmpButtonStr += '\',{})">Button</button>';
-        
-        //tmpDiv.innerHTML = tmpButtonStr;
-        
-        //// <button onclick="toggleDivViz()" label="">Button</button>
-        //divInitialDisplay.appendChild(tmpDiv);
-        
-        //// Create "Generic Row Container" div
-        //var divGenericRow = document.createElement('div');
-        //divGenericRow.className = "artifact-default-disp-row";
-        //divGenericRow.style = "display:inline-flex;";     
-        
-        //divGenericRow.appendChild(divInitialDisplay)
-        //divOutermost.appendChild(divGenericRow);
-        
-        //var divDetailContainer = document.createElement('div');
-        //divDetailContainer.className = "artifact-detail-reveal-container";
-        //divDetailContainer.id = artiIdIn + "-reveal-container";
-        //divDetailContainer.style = "display:none;";
-        //divDetailContainer.innerText = "This page intentionally left blank. " + artiIdIn;
-        //divOutermost.appendChild(divDetailContainer);
-        
-        //var divEditContainer = document.createElement('div');
-        //divEditContainer.className = "artifact-edit-container";
-        //divEditContainer.id = artiIdIn + "-edit-container";
-        //divEditContainer.style = "display:none;";
-        //divEditContainer.innerText = "This page intentionally left blank. " + artiIdIn;
-        //divOutermost.appendChild(divEditContainer);
-        //return divOutermost;
+        if (endpoint != '') {
+            this.genericApiCall(payloadObj,endpoint,cbFunc);
+        } else {
+            console.log('execSearchSingleFactor2 - endpoint is empty');
+        }
     }
     renderArtifactDetailApi(artiIdIn){
         var cbFunc = function (objIn) {
@@ -1876,7 +1766,7 @@ function switchboard(actionIn,objIdIn,argObjIn) {
             ml.basePageLayout02();
             ml.clockSet();
             ml.initStorage();
-            ml.renderArtifactBlocksByTagApi('');
+            ml.execSearchSingleFactor2('tag',{'tag':''});
             ml.renderStaticModernSearchWidget();
             ml.onloadOptions();
             ml.contCookieOnLoad();
@@ -1945,14 +1835,14 @@ function switchboard(actionIn,objIdIn,argObjIn) {
         
         case 'execTagSearch' :
             tagVal = document.getElementById(objIdIn).value;
-            ml.execSearchSingleFactor('tag',{'tag':tagVal});
+            ml.execSearchSingleFactor2('tag',{'tag':tagVal});
             break;   
             
         case 'execTxtSrch' :
             console.log("Trying to execTxtSrch: " + objIdIn);
             var srchBoxDE = document.getElementById(objIdIn);
             console.log("execTxtSrch for " + srchBoxDE.value);
-            ml.execSearchSingleFactor('text',{'text':srchBoxDE.value});
+            ml.execSearchSingleFactor2('text',{'text':srchBoxDE.value});
             srchBoxDE.value = "";
             break;
             
@@ -1960,7 +1850,7 @@ function switchboard(actionIn,objIdIn,argObjIn) {
             console.log("Trying to " + actionIn + ": " + objIdIn, JSON.stringify(argObjIn)); 
             var mtVal = document.getElementById(objIdIn).value;
             console.log(objIdIn + " has value " + mtVal);
-            ml.execSearchSingleFactor('majtype',{'majtype':mtVal});
+            ml.execSearchSingleFactor2('majtype',{'majtype':mtVal});
             break;
         case 'execRelyearSrch':
             console.log("Trying to " + actionIn + ": " + objIdIn, JSON.stringify(argObjIn)); 
@@ -1969,18 +1859,18 @@ function switchboard(actionIn,objIdIn,argObjIn) {
             var ryVal1 = document.getElementById('relyear-srch-start').value;
             document.getElementById('relyear-srch-start').value = "";
             console.log('Dates captured: ', ryVal1, ryVal2); 
-            ml.execSearchSingleFactor('relyear',{'relyear1':ryVal1,'relyear2':ryVal2});
+            ml.execSearchSingleFactor2('relyear',{'relyear1':ryVal1,'relyear2':ryVal2});
             break;
             
         case 'execWhereClauseSrch':
             console.log("Trying to " + actionIn + ": " + objIdIn, JSON.stringify(argObjIn)); 
             const re = /'/g;
             var rawWCStr = document.getElementById(objIdIn).value.replace(re,"\'");
-            ml.execSearchSingleFactor('whereclause',{'whereclause':rawWCStr});
+            ml.execSearchSingleFactor2('whereclause',{'whereclause':rawWCStr});
             break;
             
         case 'execDirectStringSrch' :
-            ml.execSearchSingleFactor('text',{'text':argObjIn['srchstr']});
+            ml.execSearchSingleFactor2('text',{'text':argObjIn['srchstr']});
             break;
         
         case 'initiateArtiEdit':
