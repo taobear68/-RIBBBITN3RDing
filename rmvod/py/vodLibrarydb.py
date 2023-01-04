@@ -37,7 +37,7 @@ import requests
 # see <https://www.gnu.org/licenses/>.
 
 fileStr = "vodLibrarydb.py"
-versionStr = "0.1.4"
+versionStr = "0.1.5"
 
 class VodLibDB:
     def __init__(self):
@@ -1335,6 +1335,36 @@ class MediaLibraryDB:
             print('Artifact update failed')
         pass
         return retval
+    def artifactListFieldAction(self,paramObjIn):
+        # {"action": "remove-member", "field": "tags", "artifactid": "b013a2e4-a681-4312-bba0-2e476782fe1b", "value": "animation"}
+        artiObj = self.getArtifactById(paramObjIn['artifactid'])
+        wrkList = artiObj[paramObjIn['field']]
+        retObj = {paramObjIn['field']:wrkList}
+        if paramObjIn['action'] == 'remove-member':
+            try:
+                wrkList.remove(paramObjIn['value'])
+                self.modifyArtifact(artiObj['artifactid'],{paramObjIn['field']:wrkList})
+                retObj[paramObjIn['field']] = wrkList
+            except:
+                print('artifactListFieldAction: ' +  paramObjIn['value'] + ' is not a valid ' + paramObjIn['field'])
+            pass
+        elif paramObjIn['action'] == 'add-member':
+            if not (paramObjIn['value'] in wrkList):
+                wrkList.append(paramObjIn['value'])
+                self.modifyArtifact(artiObj['artifactid'],{paramObjIn['field']:wrkList})
+                retObj[paramObjIn['field']] = wrkList
+            else:
+                print('artifactListFieldAction: ' +  paramObjIn['value'] + ' is already a member of ' + paramObjIn['field'])
+            pass
+        elif paramObjIn['action'] == 'add-choice':
+            print('artifactListFieldAction: ' +  "Don't know what to do with add-choice")
+        else:
+            print('artifactListFieldAction: ' +  "Don't know what to do with this: " + paramObjIn['action'])
+            print(str(paramObjIn))
+        pass
+        return retObj
+                
+        pass
     def modifyArtifactTitle(self,oldTitleIn,newTitleIn,artifactIdIn):
         retval = False
         try:
@@ -2169,7 +2199,26 @@ def getSupportList():
     # return json.dumps(ml.getTagList())
     pass
 
-
+@app.route('/artifact/listfield/update',methods=['POST'])
+def updateArtifactListField():
+    dictIn = {}
+    diKeysList = []
+    reqJson = request.json
+    try:
+        dictIn = yaml.safe_load(json.dumps(request.json))
+        diKeysList = list(dictIn.keys())
+        assert "artifactid" in diKeysList
+        assert type(dictIn['artifactid']) == type("string")
+        assert 32 < len(dictIn['artifactid']) < 40
+    except:
+        print("What came in: " + request.json)
+        dictIn = {}
+        diKeysList = []
+    pass
+    ml = MediaLibraryDB()
+    response = ml.artifactListFieldAction(reqJson)
+    print('updateArtifactListField - ' + json.dumps(reqJson))
+    return json.dumps(response)
 @app.route('/artifact/update',methods=['POST'])
 def updateArtifact():
     dictIn = {}

@@ -18,6 +18,204 @@
 //along with RIBBBITmedia VideoOnDemand (a.k.a. "rmvod"). If not, 
 //see <https://www.gnu.org/licenses/>.
 
+class RNWATabWidget {
+    constructor() {
+        // WIDGET NAME MUST BE "ALL ONE WORD", WITH NO DASHES/HYPHENS ("-")
+        this.widgetName = "RNWATabWidget";
+        this.tabCount = 2;
+        this.defaultActiveTab = 0;
+        this.tabTagLabelList = ['Tab 0','Tab 1'];
+        this.tabBodyContentHtmlList = ['<div>Tab 0 Content</div>','<div>Tab 1 Content</div>'];
+        this.tabPickFunction = 'tabPick';
+        //this.setChildNames();
+    }
+    setChildNames(){
+        this.tabTabClassNameBase = this.widgetName + "TabTab";
+        this.tabBodyClassNameBase = this.widgetName + "TabBody";
+    }
+    renderWidget() {
+        this.setChildNames();
+        this.tabCount = this.tabTagLabelList.length;
+        
+        var ctrlCont = document.createElement('div');
+        ctrlCont.className = this.tabTabClassNameBase + '-outer';
+        ctrlCont.id = this.widgetName + '-ctrlrow';
+        ctrlCont.style.display = "inline-flex";
+        for (var i=0; i< this.tabCount; i++) {
+            ctrlCont.appendChild(this.renderTabTab(i));
+        }
+        
+        var contCont = document.createElement('div');
+        contCont.className = this.tabBodyClassNameBase + '-outer';
+        contCont.id = this.widgetName + '-contentrow';
+        //contCont.style.display = "inline-flex";
+        contCont.style.display = "block";
+        for (var i=0; i< this.tabCount; i++) {
+            contCont.appendChild(this.renderTabBody(i));
+        }
+        
+        var widgetDiv = document.createElement('div');
+        widgetDiv.className = this.widgetName;
+        widgetDiv.id = this.widgetName;
+        widgetDiv.appendChild(ctrlCont);
+        widgetDiv.appendChild(contCont);
+        return widgetDiv;
+    }
+    renderTabTab(tabNmbrIn){
+        var divOuter = document.createElement('div');
+        divOuter.id = this.widgetName + '-tab-' + tabNmbrIn.toString();
+        divOuter.style.display = "inline-flex"; 
+        if (tabNmbrIn == this.defaultActiveTab) {
+            divOuter.className = this.tabTabClassNameBase + '-sel';
+        } else {
+            divOuter.className = this.tabTabClassNameBase + '-unsel';
+        }
+        var spanTab = document.createElement('span');
+        spanTab.id = this.widgetName + '-tabspan-' + tabNmbrIn.toString() 
+        if (tabNmbrIn == this.defaultActiveTab) {
+            spanTab.className = this.tabTabClassNameBase + '-sel';
+        } else {
+            spanTab.className = this.tabTabClassNameBase + '-unsel';
+        }
+        spanTab.setAttribute("onclick",this.tabPickFunction + "(this.id);");
+        spanTab.innerText = this.tabTagLabelList[tabNmbrIn];
+        //<div class="tab-unsel" id="tab3"><span class="tab-unsel" id="tabspan3" onclick="switchboard('tabPick',this.id,{})">Settings</span></div>        
+        divOuter.appendChild(spanTab);
+        return divOuter;
+    }
+    renderTabBody(tabNmbrIn){
+        var divOuter = document.createElement('div');
+        divOuter.id = this.widgetName + '-body-' + tabNmbrIn.toString();
+        if (tabNmbrIn == this.defaultActiveTab) {
+            divOuter.className = this.tabBodyClassNameBase + '-sel';
+        } else {
+            divOuter.className = this.tabBodyClassNameBase + '-unsel';
+        }
+        divOuter.innerHTML = this.tabBodyContentHtmlList[tabNmbrIn];
+        return divOuter;
+    }
+    selectTab(tabSpanDeIdIn){
+        var deIdBreakdown = tabSpanDeIdIn.split("-");
+        this.widgetName = deIdBreakdown[0];
+        var tabNmbr = deIdBreakdown[2];
+        var tll = document.getElementById(tabSpanDeIdIn).parentElement.parentElement.children.length;
+        for (var i = 0; i < tll; i++) {
+            if (i == tabNmbr) {
+                document.getElementById(this.widgetName + "-tab-" + i.toString()).className = this.widgetName + 'TabTab-sel';
+                document.getElementById(this.widgetName + "-tabspan-" + i.toString()).className = this.widgetName + 'TabTab-sel';
+                document.getElementById(this.widgetName + "-body-" + i.toString()).className = this.widgetName + 'TabBody-sel';
+            } else {
+                document.getElementById(this.widgetName + "-tab-" + i.toString()).className = this.widgetName + 'TabTab-unsel';
+                document.getElementById(this.widgetName + "-tabspan-" + i.toString()).className = this.widgetName + 'TabTab-unsel';
+                document.getElementById(this.widgetName + "-body-" + i.toString()).className = this.widgetName + 'TabBody-unsel';
+            }
+        }
+    }
+}
+
+class RNWAListWidget {
+    constructor(){
+        // WIDGET NAME MUST BE "ALL ONE WORD", WITH NO DASHES/HYPHENS ("-")
+        this.widgetName = "RNWATabWidget";
+        this.recordId = '';
+        this.listMembers = [];
+        this.choiceList = [];
+        this.addChoiceFunction = 'addChoice';
+        this.removeMemberFunction = 'removeMember';
+        this.addMemberFunction = 'addMember';
+    }
+    renderWidget(){
+        var widgetDiv = document.createElement('div');
+        widgetDiv.id = this.widgetName;
+        widgetDiv.className = this.widgetName;
+        
+        var reIdDiv = document.createElement('div');
+        reIdDiv.id = this.widgetName + '_DocId';
+        reIdDiv.style.display = "none";
+        reIdDiv.innerText = this.recordId;
+        widgetDiv.appendChild(reIdDiv);
+        
+        
+        var listDiv = document.createElement('div');
+        listDiv.id = this.widgetName + '_Box';
+        listDiv.className = this.widgetName + 'Box';
+        //listDiv.style = "display:block;width:400px;height:200px;border-width:2px;border-style:solid;border-color:#000000;";
+        for (var i = 0; i < this.listMembers.length; i++) {
+            listDiv.appendChild(this.renderListMember(i,this.listMembers[i]));
+        }
+        
+        var addButtonDiv = document.createElement('div');
+        addButtonDiv.id = this.widgetName + "_AddMember";
+        addButtonDiv.className = this.widgetName + "AddMember";
+        //addButtonDiv.style = "display:inline-flex;padding:4px;border-radius:25px;border-style:solid;border-color:#000000;margin:3px;";
+        
+        var addButtonSpan = document.createElement('span');
+        addButtonSpan.id = this.widgetName + "_AddMemberButton";
+        addButtonSpan.className = this.widgetName + "AddMemberButton";
+        addButtonSpan.setAttribute("onclick",this.addChoiceFunction + "(this.id);");
+        addButtonSpan.innerHTML = "&nbsp;+&nbsp;";
+        addButtonDiv.appendChild(addButtonSpan);
+        listDiv.appendChild(addButtonDiv);
+        
+        widgetDiv.appendChild(listDiv);
+        
+        widgetDiv.appendChild(this.renderChoiceList());
+        
+        return widgetDiv
+    }
+    renderListMember(lmIdxIn,lmValStrIn){
+        var idxZFStr = ('0000'+lmIdxIn.toString()).slice(-4)
+        var lmDiv = document.createElement('div');
+        lmDiv.id = this.widgetName + '_Member_' + idxZFStr;
+        lmDiv.className = this.widgetName + 'Member';
+        //lmDiv.style = "display:inline-flex;padding:4px;border-radius:25px;border-style:solid;border-color:#000000;margin:3px;";
+        
+        var labelSpan = document.createElement('span');
+        labelSpan.className = this.widgetName + 'MemberLabel';
+        labelSpan.innerText = lmValStrIn;
+        
+        var rmvSpan = document.createElement('span');
+        rmvSpan.id = this.widgetName  + "_Member_" + idxZFStr + "_rmv";
+        rmvSpan.className = this.widgetName + 'MemberRmv';
+        rmvSpan.setAttribute("onclick",this.removeMemberFunction + "(this.id);");
+        //rmvSpan.style = "margin-left:5px;";
+        rmvSpan.innerText = "X";
+        
+        lmDiv.appendChild(labelSpan);
+        lmDiv.appendChild(rmvSpan);
+                
+        return lmDiv;
+    }
+    renderChoiceList(){
+        var slDiv = document.createElement('div');
+        slDiv.id = this.widgetName + "_SelectDiv";
+        slDiv.name = this.widgetName + "SelectDiv";
+        //slDiv.style = this.widgetName + "SelectDiv";
+        
+        var selectDE = document.createElement('select');
+        selectDE.id = this.widgetName + "_Select";
+        selectDE.name = this.widgetName + "Select";
+        selectDE.className = this.widgetName + "Select";
+        //selectDE.setAttribute("onclick",this.removeMemberFunction + "(this.id);");
+        selectDE.setAttribute("onchange",this.addMemberFunction + "(this.id);");
+        
+        var opt = document.createElement('option');
+        opt.value = "none";
+        opt.innerHTML = "None";
+        selectDE.appendChild(opt);        
+        
+        for (var i = 0; i < this.choiceList.length; i++) {
+            var opt = document.createElement('option');
+            opt.value = this.choiceList[i];
+            opt.innerHTML = this.choiceList[i];
+            selectDE.appendChild(opt);
+        }
+        
+        slDiv.appendChild(selectDE);
+        
+        return slDiv
+    }
+}
 
 class CookieCrisp {
     // This is an abstraction layer over cookie handling.
@@ -529,7 +727,7 @@ class RMVodWebApp {
         // the API and DB for their versions
         this.apiFetchRemoteVersions();
         //this.postCSSVer("0.2.0");
-        this.postJSVer("0.4.2");
+        this.postJSVer("0.4.3");
         //this.env = {};
         //this.env.versions. = {};
         //this.env.versions.api = "undetermined";
@@ -718,9 +916,46 @@ class RMVodWebApp {
         const endpoint = '/rmvid/api/suplist/get';
         var result = this.genericApiCall(payloadObj,endpoint,cbFunc);
     }
+    apiExecListAction(deIdIn, actionIn){
+        
+        var listName = deIdIn.split('_')[0];
+        var artiId = document.getElementById(listName + '_DocId').innerText;
+        var endpoint = "/rmvid/api/artifact/listfield/update";
+        var payloadObj = {};
+        payloadObj['action'] = actionIn;
+        payloadObj['field'] = listName;
+        payloadObj['artifactid'] = artiId;
+        
+        switch (actionIn){
+            case 'add-member':
+                var actionValue = document.getElementById(deIdIn).value;
+                payloadObj['value'] = actionValue;
+                break;
+            case 'remove-member':
+                var actionValue = document.getElementById(deIdIn).parentElement.children[0].innerText;
+                payloadObj['value'] = actionValue;
+                break;
+            case 'add-choice':
+                // Haven't quite worked this one out.
+                break;
+            default:
+                console.log('apiExecListAction - Well, this is a fine how do you do.  ' + deIdIn + ", " + actionIn);
+        }
+        console.log('apiExecListAction - endpoint: ' + endpoint);
+        console.log('apiExecListAction - payload: ' + JSON.stringify(payloadObj));
+        var cbFunc = function(objIn){
+            console.log('apiExecListAction.cbfunc');
+            console.log(JSON.stringify(objIn))
+            var fieldNm = Object.keys(objIn)[0];
+            var wa = new RMVodWebApp()
+            wa.refreshFieldListWidget(fieldNm,objIn[fieldNm]);
+            
+        }
+        var result = this.genericApiCall(payloadObj,endpoint,cbFunc);
+    }
     vodPlayTitleApi3(artiIdIn){
         var cbFunc = function (dataObjIn) {
-            var wa = new RMVodWebApp()
+            var wa = new RMVodWebApp();
             wa.cc.setCookie('playing_aid',dataObjIn['artifactid'],365);
             try {
                 const tmpIntvHandle = this.cc.getCookie('cont_play_sample_int_handle');
@@ -1421,6 +1656,38 @@ class RMVodWebApp {
         document.getElementById('header-production').innerHTML = 'Production: ' + prodStr;
         document.getElementById('header-cast').innerHTML = 'Cast: ' + castStr;
     }
+    refreshFieldListWidget(fieldNmIn,valuesListIn){
+        var blobKey = '';
+        switch (fieldNmIn) {
+            case 'tags':
+                blobKey = 'tags';
+                break;
+            case 'relorg':
+                blobKey = 'companies';
+                break;
+            case 'director':
+            case 'writer':
+            case 'primcast':
+                blobKey = 'persons';             
+                break;
+            default:
+                console.log('renderFieldListWidget: ' + fieldNmIn + ", " + JSON.stringify(valuesListIn));
+                return;
+        }
+        
+        var lew = new RNWAListWidget();
+        lew.widgetName = fieldNmIn;
+        lew.recordId = "";
+        lew.choiceList = this.sse.ssRead('blob')[blobKey];
+        lew.listMembers = valuesListIn;
+        lew.addChoiceFunction = 'addChoice';
+        lew.removeMemberFunction = 'removeMember';
+        lew.addMemberFunction = 'addMember'; 
+        var lewDE = lew.renderWidget();
+        var boxDiv = document.getElementById(fieldNmIn + '_Box');
+        boxDiv.innerHTML = lewDE.children[1].innerHTML;        
+        
+    }
     renderArtifactEdit(artiIdIn){
         console.log('renderArtifactEdit: ' + artiIdIn);
         var cbFunc = function (dataObjIn) {
@@ -1507,56 +1774,86 @@ class RMVodWebApp {
                 
                 return rowContDiv;
             }
-            var simpleListField = function (artiIdIn,labelIn,fieldNameIn,currentValueListIn,optionListIn) {
-                const fieldId = artiIdIn + '-edit-' + fieldNameIn + '-value';
+            var simpleListField = function (artiIdIn,labelIn,fieldNameIn,currentValueListIn,optionListIn) { // <== DEPRECATED
+                var foo = document.createElement('div');
+                foo.innerHTML = "<b>simpleListField is no longer a thing.</b>";
+                return foo;
                 
-                var rowContDiv = document.createElement('div');
-                rowContDiv.className = "edit-form-row";
+                //const fieldId = artiIdIn + '-edit-' + fieldNameIn + '-value';
                 
-                var labelDiv = document.createElement('div');
-                labelDiv.className = "edit-form-field-label";
-                labelDiv.innerHTML = "<span style=\"\"><b>" + labelIn + ":&nbsp;</b></span>";
+                //var rowContDiv = document.createElement('div');
+                //rowContDiv.className = "edit-form-row";
                 
-                // This needs an onChange script
-                var valueDiv = document.createElement('div');
-                valueDiv.className = "edit-form-field-value-orig";
+                //var labelDiv = document.createElement('div');
+                //labelDiv.className = "edit-form-field-label";
+                //labelDiv.innerHTML = "<span style=\"\"><b>" + labelIn + ":&nbsp;</b></span>";
                 
-                var tmpHtml = '';
-                tmpHtml = '<div><div>';
-                // TEXTAREA needs onChange script to post current 
-                tmpHtml += '<textarea class="edit-simple-textarea" ';
-                tmpHtml += 'id="' + fieldId + '" ';
-                // tmpHtml += 'onchange="console.log(\'' + fieldId + ' has changed.\')"';
-                // tmpHtml += 'onchange="console.log(' + fieldId + ' has changed.)"';
-                tmpHtml += 'onchange="switchboard(\'updateArtifactField\',\'' + fieldId + '\',{\'field\':\'' + fieldNameIn + '\'})" ';
-                tmpHtml += ' >';
+                //// This needs an onChange script
+                //var valueDiv = document.createElement('div');
+                //valueDiv.className = "edit-form-field-value-orig";
                 
-                tmpHtml += JSON.stringify(currentValueListIn);
+                //var tmpHtml = '';
+                //tmpHtml = '<div><div>';
+                //// TEXTAREA needs onChange script to post current 
+                //tmpHtml += '<textarea class="edit-simple-textarea" ';
+                //tmpHtml += 'id="' + fieldId + '" ';
+                //// tmpHtml += 'onchange="console.log(\'' + fieldId + ' has changed.\')"';
+                //// tmpHtml += 'onchange="console.log(' + fieldId + ' has changed.)"';
+                //tmpHtml += 'onchange="switchboard(\'updateArtifactField\',\'' + fieldId + '\',{\'field\':\'' + fieldNameIn + '\'})" ';
+                //tmpHtml += ' >';
                 
-                tmpHtml += '</textarea>';
-                tmpHtml += '</div><div>';
-                // SELECT needs an onChange script that appends selected 
-                // value to list in textarea above 
-                const slFieldId = fieldId + '-slist';
-                tmpHtml += '<select id="';
-                tmpHtml += slFieldId;
-                tmpHtml += '" onchange="';
-                tmpHtml += 'switchboard(\'appendArtifactFieldList\',\'' + slFieldId + '\',{\'listfield\':\'' + fieldId + '\'})';
-                tmpHtml += '" name="">';
-                tmpHtml += '<option value="none" selected>None</option>';
-                for (var idx=0; idx<optionListIn.length; idx++ ){
-                    tmpHtml += '<option value="' + optionListIn[idx] + '">' + optionListIn[idx] + '</option>';
-                }
-                tmpHtml += '</select>';
-                tmpHtml += '<br>&nbsp;';
-                tmpHtml += '</div></div>';
+                //tmpHtml += JSON.stringify(currentValueListIn);
                 
-                valueDiv.innerHTML = tmpHtml;
+                //tmpHtml += '</textarea>';
+                //tmpHtml += '</div><div>';
+                //// SELECT needs an onChange script that appends selected 
+                //// value to list in textarea above 
+                //const slFieldId = fieldId + '-slist';
+                //tmpHtml += '<select id="';
+                //tmpHtml += slFieldId;
+                //tmpHtml += '" onchange="';
+                //tmpHtml += 'switchboard(\'appendArtifactFieldList\',\'' + slFieldId + '\',{\'listfield\':\'' + fieldId + '\'})';
+                //tmpHtml += '" name="">';
+                //tmpHtml += '<option value="none" selected>None</option>';
+                //for (var idx=0; idx<optionListIn.length; idx++ ){
+                    //tmpHtml += '<option value="' + optionListIn[idx] + '">' + optionListIn[idx] + '</option>';
+                //}
+                //tmpHtml += '</select>';
+                //tmpHtml += '<br>&nbsp;';
+                //tmpHtml += '</div></div>';
                 
-                rowContDiv.appendChild(labelDiv);
-                rowContDiv.appendChild(valueDiv);
+                //valueDiv.innerHTML = tmpHtml;
                 
-                return rowContDiv;
+                //rowContDiv.appendChild(labelDiv);
+                //rowContDiv.appendChild(valueDiv);
+                
+                //return rowContDiv;
+            }
+            var fancyListField = function (artiIdIn,labelIn,fieldNameIn,currentValueListIn,optionListIn) {
+                var lew = new RNWAListWidget();
+                lew.widgetName = fieldNameIn;
+                lew.recordId = artiIdIn;
+                lew.choiceList = optionListIn; //sse.ssRead('blob')['persons'];
+                lew.listMembers = currentValueListIn;
+                lew.addChoiceFunction = 'addChoice';
+                lew.removeMemberFunction = 'removeMember';
+                lew.addMemberFunction = 'addMember'; 
+                
+                var tmpDiv = document.createElement('div');
+                //tmpDiv.style = "display:block;";
+                tmpDiv.style = "display:inline-flex;";
+                tmpDiv.appendChild(lew.renderWidget());
+                
+                var row = document.createElement('div');
+                row.className = "edit-form-row ";
+                var label = document.createElement('div');
+                label.className = "edit-form-field-label";
+                label.innerHTML = '<span style=""><b>' + wrkFieldName + ':&nbsp;</b></span>';
+                
+                row.appendChild(label);
+                row.appendChild(tmpDiv);  
+                return row;              
+                
             }
             var simpleSelectField = function (artiIdIn,labelIn,fieldNameIn,currentValueIn,optionListIn) {
                 const fieldId = artiIdIn + '-edit-' + fieldNameIn + '-value';
@@ -1640,19 +1937,19 @@ class RMVodWebApp {
                     case 'primcast' :
                         // const personList = ['Person One', 'Person Two'];
                         const personList = sse.ssRead('blob')['persons'];
-                        fieldDiv = simpleListField(artiIdIn,wrkFieldName,wrkFieldName,dataObjIn[wrkFieldName],personList);
+                        fieldDiv = fancyListField(artiIdIn,wrkFieldName,wrkFieldName,dataObjIn[wrkFieldName],personList);
                         edOuterDiv.appendChild(fieldDiv);
                         break;
                     case 'tags' :
                         // const personList = ['Person One', 'Person Two'];
                         const tagList = sse.ssRead('blob')['tags'];
-                        fieldDiv = simpleListField(artiIdIn,wrkFieldName,wrkFieldName,dataObjIn[wrkFieldName],tagList);
+                        fieldDiv = fancyListField(artiIdIn,wrkFieldName,wrkFieldName,dataObjIn[wrkFieldName],tagList);
                         edOuterDiv.appendChild(fieldDiv);
                         break;
                     case 'relorg' :
                         // const companyList = ['Company One', 'Company Two'];
                         const companyList = sse.ssRead('blob')['companies'];
-                        fieldDiv = simpleListField(artiIdIn,wrkFieldName,wrkFieldName,dataObjIn[wrkFieldName],companyList);
+                        fieldDiv = fancyListField(artiIdIn,wrkFieldName,wrkFieldName,dataObjIn[wrkFieldName],companyList);
                         edOuterDiv.appendChild(fieldDiv);
                         break;
                     case 'synopsis' :
@@ -1947,7 +2244,12 @@ function switchboard(actionIn,objIdIn,argObjIn) {
                 }
             }
             break;
-        
+        case 'listAction':
+            console.log(actionIn + ', ' + objIdIn + ', ' + JSON.stringify(argObjIn));
+            ml.apiExecListAction(objIdIn,argObjIn['action']);
+            
+            
+            break;
         /* 
          * Oh no... we should never get here!
          * */
@@ -1965,7 +2267,21 @@ function pbEnded (artiIdIn) {
     switchboard('vodPlayNextTitle',artiIdIn,{});
 }   
 
+function removeMember(deIdIn) {
+    console.log('removeMember - ' + deIdIn);
+    switchboard('listAction',deIdIn,{'action':'remove-member'})
+}
+ 
+function addMember(deIdIn) {
+    console.log('addMember - ' + deIdIn);
+    switchboard('listAction',deIdIn,{'action':'add-member'})
+}
 
+function addChoice(deIdIn) {
+    console.log('addChoice - ' + deIdIn);
+    switchboard('listAction',deIdIn,{'action':'add-choice'})
+}
+ 
  
 /*  
 mastercont     // The outermost div
