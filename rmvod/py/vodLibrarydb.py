@@ -37,7 +37,7 @@ import requests
 # see <https://www.gnu.org/licenses/>.
 
 fileStr = "vodLibrarydb.py"
-versionStr = "0.1.5"
+versionStr = "0.1.6"
 
 class VodLibDB:
     def __init__(self):
@@ -1357,7 +1357,12 @@ class MediaLibraryDB:
                 print('artifactListFieldAction: ' +  paramObjIn['value'] + ' is already a member of ' + paramObjIn['field'])
             pass
         elif paramObjIn['action'] == 'add-choice':
-            print('artifactListFieldAction: ' +  "Don't know what to do with add-choice")
+            #print('artifactListFieldAction: ' +  "Don't know what to do with add-choice")
+            wrkList.append(paramObjIn['value']);
+            self.modifyArtifact(artiObj['artifactid'],{paramObjIn['field']:wrkList})
+            artiObj2 = self.getArtifactById(paramObjIn['artifactid'])
+            retObj[paramObjIn['field']] = artiObj2[paramObjIn['field']]
+            
         else:
             print('artifactListFieldAction: ' +  "Don't know what to do with this: " + paramObjIn['action'])
             print(str(paramObjIn))
@@ -2217,7 +2222,7 @@ def updateArtifactListField():
     pass
     ml = MediaLibraryDB()
     response = ml.artifactListFieldAction(reqJson)
-    print('updateArtifactListField - ' + json.dumps(reqJson))
+    # print('updateArtifactListField - ' + json.dumps(reqJson))
     return json.dumps(response)
 @app.route('/artifact/update',methods=['POST'])
 def updateArtifact():

@@ -113,7 +113,7 @@ class RNWATabWidget {
     }
 }
 
-class RNWAListWidget {
+class RNWAListFieldWidget {
     constructor(){
         // WIDGET NAME MUST BE "ALL ONE WORD", WITH NO DASHES/HYPHENS ("-")
         this.widgetName = "RNWATabWidget";
@@ -504,21 +504,10 @@ class RMVWAHtmlGenerator {
         
         return featureDiv;
     }
-    renderDEListContainer(){
-        var listContDiv = document.createElement('div');
-        listContDiv.id = 'listcontainer';
-        listContDiv.className = 'listcontainer';
-        
-        var listHtmlStr = '';
-        listHtmlStr += '<div>';
-        listHtmlStr += '<div style="display:block;"><span onclick="switchboard(\'exposePlayer\',\'\',{})"><b><u>Show Player</u></b></span></div>';
-        listHtmlStr += '<div class="listwidget" id="sideartilistwidget" style=""><!-- List Widget -->';
-        listHtmlStr += '&nbsp;<!-- Artifact List Widget goes here. --> <br>';
-        listHtmlStr += '</div>';
-        listHtmlStr += '</div>';
-        
-        listContDiv.innerHTML = listHtmlStr;
-        return listContDiv;
+    renderDEListContainer(){  // <<==== DEPRECATED
+        const methNm = 'renderDEListContainer';
+        console.log("DO NOT CALL " + methNm + " -- IT IS DEPRECATED!");
+        throw methNm + " <<====DEPRECATED";
     }
     renderDEFooterContainer(){
 
@@ -726,42 +715,16 @@ class RMVodWebApp {
         // These version bits will eventually need to involve polling 
         // the API and DB for their versions
         this.apiFetchRemoteVersions();
-        //this.postCSSVer("0.2.0");
-        this.postJSVer("0.4.3");
-        //this.env = {};
-        //this.env.versions. = {};
-        //this.env.versions.api = "undetermined";
-        //this.env.versions.db = "undetermined";
-        //this.env.versions.html = "undetermined";
-        //this.env.versions.css = "undetermined";
-        //this.env.versions.js = "0.3.7";
-        
+        this.postJSVer("0.4.6");
     }
-    postCSSVer(verStrIn){
-        
-        // CSS file should contain a line like this:
-        // /* vodlib.css version 0.2.0 */
-        // which we should parse for just the "0.2.0" portion
-        
-        //console.log("postCSSVer: " + verStrIn);
-        document.getElementById("version_css").innerText = "css version: " + verStrIn;
+    postCSSVer(verStrIn){  // <<==== DEPRECATED
+        const methNm = 'postCSSVer';
+        console.log("DO NOT CALL " + methNm + " -- IT IS DEPRECATED!");
+        throw methNm + " <<====DEPRECATED";
     }
     postJSVer(verStrIn){
         //console.log("postJSVer: " + verStrIn);
         document.getElementById("version_js").innerText = "js version: " + verStrIn;
-    }
-    postDBVer(verStrIn){
-        // "version_db"
-        //console.log("postDBVer: " + verStrIn);
-        document.getElementById("version_db").innerText = "db version: " + verStrIn;
-    }
-    postAPIVer(verStrIn){
-        //console.log("postAPIVer: " + verStrIn);
-        document.getElementById("version_api").innerText = "api version: " + verStrIn;
-    }
-    postHTMLVer(verStrIn){
-        //console.log("postHTMLVer: " + verStrIn);
-        document.getElementById("version_html").innerText = "html version: " + verStrIn;
     }
     clockSet() {
         
@@ -848,37 +811,19 @@ class RMVodWebApp {
         //console.log("This is where we get API and DB versions");
         var cbFunc = function (objIn) {
             console.log('apiFetchRemoteVersions: ' + JSON.stringify(objIn));
-            var wa = new RMVodWebApp();
-            wa.postHTMLVer(objIn['html_version']);
-            wa.postDBVer(objIn['db_version']);
-            wa.postAPIVer(objIn['api_version']);
-            wa.postCSSVer(objIn['css_version']);
+            //var wa = new RMVodWebApp();
+            //wa.postHTMLVer(objIn['html_version']);
+            document.getElementById("version_html").innerText = "html version: " + objIn['html_version'];
+            //wa.postDBVer(objIn['db_version']);
+            document.getElementById("version_db").innerText = "db version: " + objIn['db_version'];
+            //wa.postAPIVer(objIn['api_version']);
+            document.getElementById("version_api").innerText = "api version: " + objIn['api_version'];
+            //wa.postCSSVer(objIn['css_version']);
+            document.getElementById("version_css").innerText = "css version: " + objIn['css_version'];
         }
         const payloadObj = {};
         const endpoint = '/rmvid/api/apiversion/get';
         var result = this.genericApiCall(payloadObj,endpoint,cbFunc);
-    }
-    apiFetchRemoteVersions2(){  //someday
-        //console.log("This is where we get API and DB versions");
-        //var cbFunc = function (objIn) {
-            //console.log('apiFetchRemoteVersions: ' + JSON.stringify(objIn));
-            //var wa = new RMVodWebApp();
-            
-            //wa.env.versions.api = objIn['api_version'];
-            //wa.env.versions.db = objIn['db_version'];
-            //wa.env.versions.html = objIn['html_version'];
-            //wa.env.versions.css = objIn['css_version'];
-            
-            
-            //wa.postHTMLVer(objIn['html_version']);
-            //wa.postDBVer(objIn['db_version']);
-            //wa.postAPIVer(objIn['api_version']);
-            //wa.postCSSVer(objIn['css_version']);
-        //}
-        //const payloadObj = {};
-        //const endpoint = '/rmvid/api/apiversion/get';
-        //var result = this.genericApiCall(payloadObj,endpoint,cbFunc);
-        
     }
     apiFetchPersonsList(){
         var cbFunc = function (dataObjIn) {
@@ -937,15 +882,18 @@ class RMVodWebApp {
                 break;
             case 'add-choice':
                 // Haven't quite worked this one out.
+                var actionValue = document.getElementById(deIdIn).value;
+                // console.log('apiExecListAction - ' + actionIn + ': ' + actionValue);
+                payloadObj['value'] = actionValue;
                 break;
             default:
                 console.log('apiExecListAction - Well, this is a fine how do you do.  ' + deIdIn + ", " + actionIn);
         }
-        console.log('apiExecListAction - endpoint: ' + endpoint);
-        console.log('apiExecListAction - payload: ' + JSON.stringify(payloadObj));
+        // console.log('apiExecListAction - endpoint: ' + endpoint);
+        // console.log('apiExecListAction - payload: ' + JSON.stringify(payloadObj));
         var cbFunc = function(objIn){
-            console.log('apiExecListAction.cbfunc');
-            console.log(JSON.stringify(objIn))
+            // console.log('apiExecListAction.cbfunc');
+            // console.log(JSON.stringify(objIn))
             var fieldNm = Object.keys(objIn)[0];
             var wa = new RMVodWebApp()
             wa.refreshFieldListWidget(fieldNm,objIn[fieldNm]);
@@ -1133,37 +1081,6 @@ class RMVodWebApp {
         const payload = {};
         this.genericApiCall(payload,endpoint,cbFunc);
     }
-    execAdvancedSearch(){  // <<==== DEPRECATED
-        const methNm = 'execAdvancedSearch';
-        console.log("DO NOT CALL " + methNm + " -- IT IS DEPRECATED!");
-        throw methNm + " <<====DEPRECATED";
-    }
-    renderAdvSearch(){ // <<==== DEPRECATED
-        const methNm = 'renderAdvSearch';
-        console.log("DO NOT CALL " + methNm + " -- IT IS DEPRECATED!");
-        throw methNm + " <<====DEPRECATED";
-    }
-    // Major Page Parts
-    docElRenderHeaderThreeCell(){
-        var hr = new RMVWAHtmlGenerator();
-        return hr.renderDEThreeCellHeader();
-    }
-    docElTabContainer() {
-        var hr = new RMVWAHtmlGenerator();
-        return hr.renderDETabContainer();
-    }
-    docElRenderFeature(){
-        var hr = new RMVWAHtmlGenerator();
-        return hr.renderDEFeatureContainer();
-    }
-    docElRenderList(){
-        var hr = new RMVWAHtmlGenerator();
-        return hr.renderDEListContainer();
-    }
-    docElFooter(){
-        var hr = new RMVWAHtmlGenerator();
-        return hr.renderDEFooterContainer();
-    }
     // Render Page Layouts
     basePageLayout02(){  //  BASE PAGE LAYOUT FOR vodlib_static_3.html
         var hr = new RMVWAHtmlGenerator();
@@ -1179,9 +1096,7 @@ class RMVodWebApp {
         // 3 cookies, clear the 3 cookies, and begin playback of the 
         // SRC URI at the "Progress" Point
         
-        
         //  We're going to fake checking the chekcbox for now
-        
         
         var cbFunc = function () {
             
@@ -1190,21 +1105,14 @@ class RMVodWebApp {
             try {
                 var playerDE = document.getElementById('actualvideoplayer');
                 var wa = new RMVodWebApp();
-                //playerDE.pause();
                 playerDE.currentTime = wa.cc.getCookie('playback_offset');
-                //playerDE.play();
                 if (playerDE.currentSrc == wa.cc.getCookie('artifact_source_uri')) {
-                    //wa.cc.clearCookie('');
-                    //wa.cc.clearCookie('playback_offset');
-                    //wa.cc.clearCookie('');
-                    //console.log("contCookieOnLoad.cbFunc - Yay, we did it.  Trying to clear the interval " + intervHandle);
                     clearInterval(intervHandle);
                 } else {
                     if ((playerDE.currentSrc != "") & (wa.cc.getCookie('artifact_source_uri') == "")) {
                         wa.cc.setCookie('artifact_source_uri', playerDE.currentSrc,5);
                         if (playerDE.currentSrc == wa.cc.getCookie('artifact_source_uri')) {
                             clearInterval(intervHandle);
-                            //console.log("contCookieOnLoad.cbFunc - We're clearly playing something, so... hammering it into place.")
                         }
                     } else {
                         console.log("contCookieOnLoad.cbFunc - Still waiting for Cookie artifact_source_uri to match what's in the player");
@@ -1217,20 +1125,13 @@ class RMVodWebApp {
             }
         }
         
-        // var srcUri = this.cc.getCookie('artifact_source_uri');
-        // var playPos = this.cc.getCookie('playback_offset');
-        
         var cbDE = document.getElementById('resumeplay');
         if (cbDE.checked == true) {
             var playAID = this.cc.getCookie('playing_aid');
-            //console.log('contCookieOnLoad -  Going to try to play ' + playAID);
-            //this.vodPlayTitleApi2(playAID);
             this.vodPlayTitleApi3(playAID);
-            //console.log("contCookieOnLoad -  About to launch the resume playback interval.  Brace for shitstorm.");
             var intervHandle = setInterval(cbFunc,1000);
             this.cc.setCookie('cont_play_sample_int_handle',intervHandle,5);
         }
-        
     }
     contCookiePostInterval(delayMsIn){
         // On Start of "Normal" Playback, an Interval is started (6000ms, 
@@ -1260,28 +1161,22 @@ class RMVodWebApp {
                 var currSrc = playerDE.currentSrc;
                 wa.cc.setCookie('artifact_source_uri',currSrc);
                 wa.cc.setCookie('playback_offset',currTime);
-                //console.log(currTime);
-                //console.log(currSrc);
-            } // else {
-                //console.log("Player is paused.  Will resume tracking when playback is resumed");
-            //}  
+            }
         }
         
         var intervalHandle = setInterval(cbFunc,delayMs);
         this.cc.setCookie('cont_play_sample_int_handle',intervalHandle,5);
         return intervalHandle;
     }
-    contCookieNaturalEnd () { //intHandleIn
+    contCookieNaturalEnd () {
         var intHandleIn = this.cc.getCookie('cont_play_sample_int_handle');
-        //console.log ("Got interval handle " + intHandleIn + " from cookie cont_play_sample_int_handle" );
         clearInterval(intHandleIn);
-        //console.log("Is it cleared?");
         this.cc.clearCookie('artifact_source_uri');
         this.cc.clearCookie('playback_offset');
         this.cc.clearCookie('cont_play_sample_int_handle');
         this.cc.clearCookie('play_aid');
     }
-    // NEW SIDE LIST HANDLING
+    // SIDE LIST HANDLING
     renderSALByIdList(artiIdListIn){
         // Whole List -- No details or episodes
         var allowedMajTypes = ['tvseries','movie'];
@@ -1621,16 +1516,6 @@ class RMVodWebApp {
             console.log('execSearchSingleFactor2 - endpoint is empty');
         }
     }
-    renderArtifactDetailApi(artiIdIn){
-        var cbFunc = function (objIn) {
-            var wa = new RMVodWebApp();
-            console.log('renderArtifactDetailApi.cbFunc');
-            wa.renderArtifactDetailHeader(objIn);
-        }
-        const endpoint = '/rmvid/api/artifact/get';
-        const payload = {'artifactid':artiIdIn};
-        this.genericApiCall(payload,endpoint,cbFunc);
-    }
     renderArtifactDetailHeader(artiObj){
         //console.log('renderArtifactDetailHeader');
         var prodStr = '';
@@ -1675,7 +1560,7 @@ class RMVodWebApp {
                 return;
         }
         
-        var lew = new RNWAListWidget();
+        var lew = new RNWAListFieldWidget();
         lew.widgetName = fieldNmIn;
         lew.recordId = "";
         lew.choiceList = this.sse.ssRead('blob')[blobKey];
@@ -1778,59 +1663,9 @@ class RMVodWebApp {
                 var foo = document.createElement('div');
                 foo.innerHTML = "<b>simpleListField is no longer a thing.</b>";
                 return foo;
-                
-                //const fieldId = artiIdIn + '-edit-' + fieldNameIn + '-value';
-                
-                //var rowContDiv = document.createElement('div');
-                //rowContDiv.className = "edit-form-row";
-                
-                //var labelDiv = document.createElement('div');
-                //labelDiv.className = "edit-form-field-label";
-                //labelDiv.innerHTML = "<span style=\"\"><b>" + labelIn + ":&nbsp;</b></span>";
-                
-                //// This needs an onChange script
-                //var valueDiv = document.createElement('div');
-                //valueDiv.className = "edit-form-field-value-orig";
-                
-                //var tmpHtml = '';
-                //tmpHtml = '<div><div>';
-                //// TEXTAREA needs onChange script to post current 
-                //tmpHtml += '<textarea class="edit-simple-textarea" ';
-                //tmpHtml += 'id="' + fieldId + '" ';
-                //// tmpHtml += 'onchange="console.log(\'' + fieldId + ' has changed.\')"';
-                //// tmpHtml += 'onchange="console.log(' + fieldId + ' has changed.)"';
-                //tmpHtml += 'onchange="switchboard(\'updateArtifactField\',\'' + fieldId + '\',{\'field\':\'' + fieldNameIn + '\'})" ';
-                //tmpHtml += ' >';
-                
-                //tmpHtml += JSON.stringify(currentValueListIn);
-                
-                //tmpHtml += '</textarea>';
-                //tmpHtml += '</div><div>';
-                //// SELECT needs an onChange script that appends selected 
-                //// value to list in textarea above 
-                //const slFieldId = fieldId + '-slist';
-                //tmpHtml += '<select id="';
-                //tmpHtml += slFieldId;
-                //tmpHtml += '" onchange="';
-                //tmpHtml += 'switchboard(\'appendArtifactFieldList\',\'' + slFieldId + '\',{\'listfield\':\'' + fieldId + '\'})';
-                //tmpHtml += '" name="">';
-                //tmpHtml += '<option value="none" selected>None</option>';
-                //for (var idx=0; idx<optionListIn.length; idx++ ){
-                    //tmpHtml += '<option value="' + optionListIn[idx] + '">' + optionListIn[idx] + '</option>';
-                //}
-                //tmpHtml += '</select>';
-                //tmpHtml += '<br>&nbsp;';
-                //tmpHtml += '</div></div>';
-                
-                //valueDiv.innerHTML = tmpHtml;
-                
-                //rowContDiv.appendChild(labelDiv);
-                //rowContDiv.appendChild(valueDiv);
-                
-                //return rowContDiv;
             }
             var fancyListField = function (artiIdIn,labelIn,fieldNameIn,currentValueListIn,optionListIn) {
-                var lew = new RNWAListWidget();
+                var lew = new RNWAListFieldWidget();
                 lew.widgetName = fieldNameIn;
                 lew.recordId = artiIdIn;
                 lew.choiceList = optionListIn; //sse.ssRead('blob')['persons'];
@@ -2101,17 +1936,6 @@ function switchboard(actionIn,objIdIn,argObjIn) {
             }
             break;
         
-        case "toggleDivViz":
-            console.log("Trying to toggleDivViz: " + objIdIn);
-            var dEl = document.getElementById(objIdIn);
-            var dState = dEl.style.display;
-            if (dState == 'none') {
-                document.getElementById(objIdIn).style.display = 'block';
-            } else {
-                document.getElementById(objIdIn).style.display = 'none';
-            }
-            break;
-            
         case 'xpopsldetail' :
             deid = objIdIn + '-sidelist-detail-outer';
             var deObj = document.getElementById(deid);
@@ -2149,6 +1973,7 @@ function switchboard(actionIn,objIdIn,argObjIn) {
             console.log(objIdIn + " has value " + mtVal);
             ml.execSearchSingleFactor2('majtype',{'majtype':mtVal});
             break;
+            
         case 'execRelyearSrch':
             console.log("Trying to " + actionIn + ": " + objIdIn, JSON.stringify(argObjIn)); 
             var ryVal2 = document.getElementById(objIdIn).value;
@@ -2175,33 +2000,8 @@ function switchboard(actionIn,objIdIn,argObjIn) {
             document.getElementById('tabspan2').click();
             break;
             
-        case 'exposePlayer':
-            document.getElementById('structfeatureedit').style.display = 'none';
-            document.getElementById('structfeaturesearch').style.display = 'none';
-            document.getElementById('structfeatureplayer').style.display = 'block';
-            break;
-            
         case 'updateArtifactField' :
             ml.postArtifactFieldEdit(objIdIn,argObjIn);
-            break;
-            
-        case 'appendArtifactFieldList' :
-            console.log(actionIn + ', ' + objIdIn + ', ' + JSON.stringify(argObjIn));
-            var listTA = document.getElementById(argObjIn['listfield']);
-            var newValDE = document.getElementById(objIdIn);
-            var listAry = JSON.parse(listTA.value);
-            var newVal = newValDE.value;
-            if (listAry.indexOf(newVal) < 0) {
-                listAry.push(newVal);
-                // Clear "string" value from list if present
-                const strIdx = listAry.indexOf("string");
-                if (strIdx > -1) {
-                    listAry.splice(strIdx,1);
-                }
-                listTA.value = JSON.stringify(listAry);
-                listTA.onchange();
-                //console.log(JSON.stringify(listAry));
-            }
             break;
             
         case 'checkboxChange':
@@ -2244,11 +2044,10 @@ function switchboard(actionIn,objIdIn,argObjIn) {
                 }
             }
             break;
+        
         case 'listAction':
-            console.log(actionIn + ', ' + objIdIn + ', ' + JSON.stringify(argObjIn));
+            // console.log(actionIn + ', ' + objIdIn + ', ' + JSON.stringify(argObjIn));
             ml.apiExecListAction(objIdIn,argObjIn['action']);
-            
-            
             break;
         /* 
          * Oh no... we should never get here!
@@ -2278,8 +2077,14 @@ function addMember(deIdIn) {
 }
 
 function addChoice(deIdIn) {
-    console.log('addChoice - ' + deIdIn);
-    switchboard('listAction',deIdIn,{'action':'add-choice'})
+    var re = /_AddMemberButton/;
+    if (deIdIn.search(re) > -1) {
+        var de = document.getElementById(deIdIn);
+        var newDeId = deIdIn.replace(re,'_new_option');
+        de.parentElement.innerHTML = '<input id="' + newDeId + '" type="text" onchange="addChoice(this.id)">';
+    } else {
+        switchboard('listAction',deIdIn,{'action':'add-choice'});
+    }
 }
  
  
