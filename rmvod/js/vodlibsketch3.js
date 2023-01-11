@@ -461,6 +461,15 @@ class RMVWAHtmlGenerator {
         tmpHtml += '<div><b>Settings</b></div>';
         tmpHtml += '<div><b>Play next in series: </b><input name="serplaynext" id="serplaynext" type="checkbox"></div>';
         tmpHtml += '<div><b>Resume play: </b><input name="resumeplay" id="resumeplay" type="checkbox"></div>';
+        
+        tmpHtml += '<div><span onclick="switchboard(\'formNewSingleArti\',\'\',{})">'  // syle="text-decoration:underline;font-weight:bold;" 
+        tmpHtml += '<b><u>Create a single Artifact</u></b>'
+        tmpHtml += '</span></div>';
+        
+        tmpHtml += '<div><span onclick="switchboard(\'formNewMultiArti\',\'\',{})">'  // syle="text-decoration:underline;font-weight:bold;" 
+        tmpHtml += '<b><u>Create a multiple Artifacts</u></b>'
+        tmpHtml += '</span></div>';
+        
         tmpHtml += '</div>';
         tmpHtml += '</div>';
         
@@ -715,7 +724,7 @@ class RMVodWebApp {
         // These version bits will eventually need to involve polling 
         // the API and DB for their versions
         this.apiFetchRemoteVersions();
-        this.postJSVer("0.4.6");
+        this.postJSVer("0.4.8");
     }
     postCSSVer(verStrIn){  // <<==== DEPRECATED
         const methNm = 'postCSSVer';
@@ -1887,6 +1896,146 @@ class RMVodWebApp {
         const payload = {'artifactid':wrkArtiId,'values':updateObj};
         this.genericApiCall(payload,endpoint,cbFunc);
     }
+    renderNewSingleArtiForm(){
+        //Web UI for Create a Single Artifact:
+        //You put in filepath, file, majtype
+        //API Call => If file exists, create bare-bones Artifact with 
+        //filename as title, and send the artifactid back to the UI.  
+        //UI initiates "Edit" on returned artifactid
+        var tmpHtml = "";
+        tmpHtml += '<span id="" class="" style="font-weight:bold">Path:  </span>';
+        tmpHtml += '<input id="nafilepath" type="text" class="">';
+        tmpHtml += '<br>';
+        tmpHtml += '<span id="" class="" style="font-weight:bold">Filename:  </span>';
+        tmpHtml += '<input id="nafilename" type="text" class="">';
+        tmpHtml += '<br>';
+        tmpHtml += '<span id="" class="" style="font-weight:bold">Major Type:  </span>';
+        tmpHtml += '<select name="namajtype" id="namajtype" class="">';
+        tmpHtml += '<option value="none"></option>';
+        tmpHtml += '<option value="movie">movie</option>';
+        tmpHtml += '<option value="tvseries">tvseries</option>';
+        tmpHtml += '<option value="tvepisode">tvepisode</option>';
+        tmpHtml += '</select>';
+        tmpHtml += '<br>';
+        tmpHtml += '<div style="padding-left:200px;"><span style="font-weight:bold;text-decoration:underline;" onclick="switchboard(\'singleNewArtiSubmit\',\'\',{})">Submit</span></div>';
+        //tmpHtml += '';
+        
+        var div = document.createElement('div');
+        div.className = "";
+        div.id = "";
+        div.innerHTML = tmpHtml;
+        
+        var targetDiv = document.getElementById('structfeatureedit');
+        targetDiv.innerHTML = "";
+        targetDiv.appendChild(div);
+        
+        // tabspan2
+        const ev = new Event('click');
+        document.getElementById('tabspan2').dispatchEvent(ev);
+    }
+    renderNewMultiArtiForm(){
+        //Web UI for Create a Single Artifact:
+        //You put in filepath, file, majtype
+        //API Call => If file exists, create bare-bones Artifact with 
+        //filename as title, and send the artifactid back to the UI.  
+        //UI initiates "Edit" on returned artifactid
+        var tmpHtml = "";
+        tmpHtml += '<span id="" class="" style="font-weight:bold">Path:  </span>';
+        tmpHtml += '<input id="nafilepath" type="text" class="">';
+        tmpHtml += '<br>';
+        
+        tmpHtml += '<span id="" class="" style="font-weight:bold">Filename:  </span>';
+        tmpHtml += '<textarea id="nafilename" cols="40" rows="12" class=""></textarea>';
+        tmpHtml += '<br>';
+        
+        tmpHtml += '<span id="" class="" style="font-weight:bold">Major Type:  </span>';
+        tmpHtml += '<select name="namajtype" id="namajtype" class="">';
+        tmpHtml += '<option value="none"></option>';
+        tmpHtml += '<option value="movie">movie</option>';
+        tmpHtml += '<option value="tvseries">tvseries</option>';
+        tmpHtml += '<option value="tvepisode">tvepisode</option>';
+        tmpHtml += '</select>';
+        tmpHtml += '<br>';
+        
+        tmpHtml += '<span id="" class="" style="font-weight:bold">Starting Tag:  </span>';
+        //tmpHtml += '<textarea id="nafilename" cols="40" rows="12" class="">';
+        tmpHtml += '<select name="natag" id="natag" class="">';
+        tmpHtml += '<option value="none"></option>';
+        tmpHtml += '<option value="comedy">comedy</option>';
+        tmpHtml += '<option value="drama">drama</option>';
+        tmpHtml += '<option value="action">action</option>';
+        tmpHtml += '</select>';
+        tmpHtml += '<br>';
+        
+        tmpHtml += '<div style="padding-left:200px;"><span style="font-weight:bold;text-decoration:underline;" onclick="switchboard(\'multiNewArtiSubmit\',\'\',{})">Submit</span></div>';
+        //tmpHtml += '';
+        tmpHtml += '<div id="mutiaddresult">';
+        
+        tmpHtml += '</div>';
+        
+        var div = document.createElement('div');
+        div.className = "";
+        div.id = "";
+        div.innerHTML = tmpHtml;
+        
+        var targetDiv = document.getElementById('structfeatureedit');
+        targetDiv.innerHTML = "";
+        targetDiv.appendChild(div);
+        
+        // tabspan2
+        const ev = new Event('click');
+        document.getElementById('tabspan2').dispatchEvent(ev);
+    }
+    apiSubmitNewSingleArtiForm(){
+        var nafp = document.getElementById('nafilepath').value;
+        var nafn = document.getElementById('nafilename').value;
+        var namt = document.getElementById('namajtype').value;
+        var cbFunc = function(dataObjIn){
+            // dataObjIn is the result object returned from the API
+            var ml =  new RMVodWebApp();
+            if (dataObjIn['status'] == 'success') {
+                // Add succeeded
+                ml.renderArtifactEdit(dataObjIn['data']['artifactid']);
+                const ev = new Event('click');
+                document.getElementById('tabspan2').dispatchEvent(ev); 
+            } else {
+                // Add failed
+                window.alert("Sumbit failed.  Correct the problem listed below and try again.\n" + dataObjIn['statusdetail'])
+            }
+        }
+        var payload = {'filepath':nafp,'file':nafn,'majtype':namt};
+        var endpoint = "/rmvid/api/artifact/newsingle";
+        this.genericApiCall(payload,endpoint,cbFunc);
+        
+    }
+    apiSubmitNewMultiArtiForm(){
+        var nafp = document.getElementById('nafilepath').value;
+        var nafn = document.getElementById('nafilename').value;
+        var namt = document.getElementById('namajtype').value;     
+        var natag = document.getElementById('natag').value;
+        var laFileList = nafn.split('\n');
+        var resObj = {'success':[],'failure':[]};
+        for (var i = 0; i < laFileList.length; i++ ) {
+            var cbFunc = function(dataObjIn){
+                // dataObjIn is the result object returned from the API
+                var ml =  new RMVodWebApp();
+                if (dataObjIn['status'] == 'success') {
+                    // Add succeeded
+                    var tmpDiv = document.createElement('div');
+                    tmpDiv.innerHTML = ' > ' + dataObjIn['statusdetail'] + ' Succeeded! ';
+                    document.getElementById('mutiaddresult').appendChild(tmpDiv);
+                } else {
+                    // Add failed
+                    var tmpDiv = document.createElement('div');
+                    tmpDiv.innerHTML = ' > Add Failed: ' + dataObjIn['statusdetail'];
+                    document.getElementById('mutiaddresult').appendChild(tmpDiv);
+                }
+            }
+            var payload = {'filepath':nafp,'file':laFileList[i],'majtype':namt,'tags':[natag]};
+            var endpoint = "/rmvid/api/artifact/newsingle";
+            this.genericApiCall(payload,endpoint,cbFunc);
+        }
+    }
 }
 
 function switchboard(actionIn,objIdIn,argObjIn) {
@@ -2049,6 +2198,26 @@ function switchboard(actionIn,objIdIn,argObjIn) {
             // console.log(actionIn + ', ' + objIdIn + ', ' + JSON.stringify(argObjIn));
             ml.apiExecListAction(objIdIn,argObjIn['action']);
             break;
+            
+        case 'formNewSingleArti':  //renderNewMultiArtiForm
+            ml.renderNewSingleArtiForm();
+            break;
+            
+        case 'formNewMultiArti':  //renderNewMultiArtiForm
+            ml.renderNewMultiArtiForm();
+            break;
+            
+        case 'singleNewArtiSubmit':
+            // singleNewArtiSubmit // submitNewSingleArtiForm
+            ml.apiSubmitNewSingleArtiForm();
+            break;
+            
+        case 'multiNewArtiSubmit':
+            ml.apiSubmitNewMultiArtiForm();
+            break;
+            
+            
+            
         /* 
          * Oh no... we should never get here!
          * */

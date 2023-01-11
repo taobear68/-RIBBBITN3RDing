@@ -37,7 +37,7 @@ import requests
 # see <https://www.gnu.org/licenses/>.
 
 fileStr = "vodLibrarydb.py"
-versionStr = "0.1.6"
+versionStr = "0.1.8"
 
 class VodLibDB:
     def __init__(self):
@@ -973,7 +973,7 @@ class VodLibDB:
         selSql += majtypeIn
         selSql += "' LIMIT 1"
         
-        rowsTuple = self._stdRead(selSql);
+        rowsTuple = self._stdRead(selSql)
         retDict = {}
         if len(rowsTuple) > 0:
             retDict['title'] = rowsTuple[0][0]
@@ -982,6 +982,18 @@ class VodLibDB:
             raise Exception("No result found")
         pass
         return retDict
+    def getArtifactCountByFieldValue(self,fieldIn,valueIn):
+        count = 0
+        selSql = "SELECT COUNT(*) FROM artifacts WHERE "
+        selSql += fieldIn
+        selSql += " = '"
+        selSql += valueIn
+        selSql += "'"
+        
+        rowsTuple = self._stdRead(selSql)
+        count = rowsTuple[0][0]
+        
+        return count
     def setImdbId(self,artiIdIn,imdbIdIn):
         retval = False
         try:
@@ -1074,6 +1086,20 @@ class MediaLibraryDB:
     def getDBVersion(self):
         vldb = VodLibDB()
         return vldb.getDBVersion()
+    def newArtiPreCheck(self,pathIn,fileIn):
+        print("newArtiPreCheck " + pathIn + ", " +fileIn)
+        basePath = '/var/www/html/rmvid/vidsrc/'
+        exist = os.path.exists(basePath + pathIn + '/' + fileIn)
+        print("newArtiPreCheck exist " + fileIn, exist)
+        
+        vldb = VodLibDB()
+        count = vldb.getArtifactCountByFieldValue('file',fileIn)
+        print("newArtiPreCheck count " + fileIn, count)
+        
+        retval = False
+        if (exist == True) and (count == 0):
+            retval = True
+        return retval
     def intializeLibDict(self):
         self.libDict = {}
         self.libDict['n2a'] = {}
@@ -2251,6 +2277,81 @@ def updateArtifact():
     # artiDict = ml.getArtifactById(dictIn['artifactid'])
     # return json.dumps(artiDict)
     pass
+
+@app.route('/artifact/newsingle',methods=['POST'])
+def newSingleArtifact():
+    dictIn = {}
+    diKeysList = []
+    reqJson = request.json
+    try:
+        dictIn = yaml.safe_load(json.dumps(request.json))
+        diKeysList = list(dictIn.keys())
+        assert "majtype" in diKeysList
+        assert "file" in diKeysList
+        assert "filepath" in diKeysList
+        #assert type(dictIn['artifactid']) == type("string")
+        #assert 32 < len(dictIn['artifactid']) < 40
+        
+        #assert 'values' in diKeysList
+        #assert type(dictIn['values']) == type({'key':'value'})
+    except:
+        print("What came in: " + request.json)
+        dictIn = {}
+        diKeysList = []
+    pass
+    ml = MediaLibraryDB()  
+    print(json.dumps(dictIn))
+    result = {'status':'failed','statusdetail':'did not even begin','data':{'artifactid':''}}
+    evenTry = True
+    try:
+        print("Trying newArtiPreCheck...",dictIn['filepath'],dictIn['file'])
+        checkVal = ml.newArtiPreCheck(dictIn['filepath'],dictIn['file'])
+        print(checkVal)
+        assert checkVal == True
+        print("Tried newArtiPreCheck.")
+    except:
+        evenTry = False
+        sdStr = "Artifact for file = " + dictIn['file'] 
+        sdStr += " already exists, or file is not present in the specified path."
+        result = {'status':'failed','statusdetail':sdStr,'data':{'artifactid':''}}
+    if evenTry == True:
+        try:
+            print("trying newSingleArtifact...")
+            artiData = {}
+            artiData['title'] = dictIn['file']
+            artiData['file'] = dictIn['file']
+            artiData['majtype'] = dictIn['majtype']
+            artiData['filepath'] = dictIn['filepath']
+            artiData['runmins'] = -1
+            artiData['season'] = -1
+            artiData['episode'] = -1
+            artiData['relyear'] = -1
+            artiData['director'] = '[]'
+            artiData['writer'] = '[]'
+            artiData['primcast'] = '[]'
+            artiData['relorg'] = '[]'
+            artiData['eidrid'] = 'string'
+            artiData['imdbid'] = 'string'
+            artiData['arbmeta'] = '{}'
+            # artiData['tags'] = str(dictIn['tags'])
+            #artiData[''] = '';
+            artifactid = ml.createArtifact(artiData)
+            
+            #  addTagtoArtifact(self,tagStrIn,artifactIdIn)
+            ml.addTagtoArtifact(dictIn['tags'][0],artifactid)
+            
+            result = {'status':'success','statusdetail':dictIn['file'],'data':{'artifactid':artifactid}}
+        except:
+            print("newSingleArtifact EXCEPTION!")
+            print(json.dumps(artiData))
+            result = {'status':'failed','statusdetail':'Attempt to insert failed','data':{'artifactid':''}}
+            pass
+        pass
+    print(json.dumps(result))
+    return json.dumps(result)
+    pass
+    
+    
 
 @app.route('/simpletxtsrch/get',methods=['POST','GET'])   ####  NEW NEW NEW  
 def simpleTextSearch():
