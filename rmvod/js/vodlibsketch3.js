@@ -399,82 +399,29 @@ class RMVWAHtmlGenerator {
             return tabContDiv;
         }
         
+        // Create Tab Heading container
         var tabCtrlDiv = document.createElement('div');
         tabCtrlDiv.style.width = "1200px";
         tabCtrlDiv.style.height = "40px";
         tabCtrlDiv.style.display = "inline-flex";
         
+        // Create Tab Headings and append Tab Headings to container
         tabCtrlDiv.appendChild(renderTabTabDiv(0,'Player',false));
         tabCtrlDiv.appendChild(renderTabTabDiv(1,'List/Search',true));
         tabCtrlDiv.appendChild(renderTabTabDiv(2,'Edit',false));
         tabCtrlDiv.appendChild(renderTabTabDiv(3,'Settings',false));
         
-        
+        // Create Tab Content container
         var tabContOuterDiv = document.createElement('div');
         tabContOuterDiv.className = "featurecont0";
         tabContOuterDiv.id = "featurecont";
         tabContOuterDiv.style.dicplay = "block";
-        //tabContOuterDiv.style.width = "1200px";
-        //tabContOuterDiv.style.height = "550px";
         
-        var tmpHtml = '';
-        //tmpHtml += '<div style="width:1150px;height:550px;vertical-align:center;horizontal-align:center;margin:20px;">';
-        tmpHtml += '<div style="width:1100px;height:500px;vertical-align:center;horizontal-align:center;margin:20px;">';
-        tmpHtml += '<div style="margin-left:200px; margin-right:80px;">';
-        tmpHtml += '&nbsp;<br>';
-        tmpHtml += '<img src="./img/rmvod_badge_center.png" height=450 width=450>';
-        tmpHtml += '</div>';
-        tmpHtml += '</div>';
-        
-        tabContOuterDiv.appendChild(renderTabContDiv('structfeatureplayer',false,tmpHtml));
-        
-        
-        var tmpHtml = '';
-        tmpHtml += '<div style="display:inline-flex;">';
-        //tmpHtml += '<div style="width:580px;height:550px;">';
-        tmpHtml += '<div style="width:580px;height:518px;">';
-        tmpHtml += '<div id="headerblock2">';
-        tmpHtml += '<div style="margin:8px;">';
-        tmpHtml += '&nbsp;';
-        tmpHtml += '</div></div></div>';
-        //tmpHtml += '<div style="width:580px;height:550px;">';
-        tmpHtml += '<div style="width:580px;height:518px;">';
-        tmpHtml += '<div class="listwidget" id="sideartilistwidget" style="">';
-        tmpHtml += '<div>&nbsp;</div>';
-        tmpHtml += '</div></div>';
-        
-        tabContOuterDiv.appendChild(renderTabContDiv('structfeaturesearch',true,tmpHtml));
-        
-        
-        tmpHtml = '';
-        tmpHtml += '<div style="margin-left:375px; margin-right:80px;">';
-        tmpHtml += '&nbsp;<br>';
-        tmpHtml += '<img src="./img/rmvod_badge_center.png" height=450 width=450>';
-        tmpHtml += '</div>';
-        
-        tabContOuterDiv.appendChild(renderTabContDiv('structfeatureedit',false,tmpHtml));
-        
-        
-        tmpHtml = '';
-        tmpHtml += '<div class="headerflexcell" id="headerblock4">';
-        tmpHtml += '<div class="" id="" style="display:block">';
-        tmpHtml += '<div><b>Settings</b></div>';
-        tmpHtml += '<div><b>Play next in series: </b><input name="serplaynext" id="serplaynext" type="checkbox"></div>';
-        tmpHtml += '<div><b>Resume play: </b><input name="resumeplay" id="resumeplay" type="checkbox"></div>';
-        
-        tmpHtml += '<div><span onclick="switchboard(\'formNewSingleArti\',\'\',{})">'  // syle="text-decoration:underline;font-weight:bold;" 
-        tmpHtml += '<b><u>Create a single Artifact</u></b>'
-        tmpHtml += '</span></div>';
-        
-        tmpHtml += '<div><span onclick="switchboard(\'formNewMultiArti\',\'\',{})">'  // syle="text-decoration:underline;font-weight:bold;" 
-        tmpHtml += '<b><u>Create a multiple Artifacts</u></b>'
-        tmpHtml += '</span></div>';
-        
-        tmpHtml += '</div>';
-        tmpHtml += '</div>';
-        
-        tabContOuterDiv.appendChild(renderTabContDiv('structfeaturesettings',false,tmpHtml));
-        
+        // Insert Tab Content into Tabs and append Tabs to container
+        tabContOuterDiv.appendChild(renderTabContDiv('structfeatureplayer',false,this.renderHTMLPlayerTab()));
+        tabContOuterDiv.appendChild(renderTabContDiv('structfeaturesearch',true,this.renderHTMLSearchTab()));
+        tabContOuterDiv.appendChild(renderTabContDiv('structfeatureedit',false,this.renderHTMLEditTab()));
+        tabContOuterDiv.appendChild(renderTabContDiv('structfeaturesettings',false,this.renderHTMLSettingsTab()));
                     
         var outerDiv = document.createElement('div');
         outerDiv.appendChild(tabCtrlDiv);
@@ -558,7 +505,14 @@ class RMVWAHtmlGenerator {
         newSrchWidget.style.margin = "8px";
         
         var mfPicker = document.createElement('div');
-        mfPicker.innerHTML = 'Multi-Factor Search:&nbsp;<input name="mfsearchyn"  id="mfsearchyn" type="checkbox">';
+        // mfPicker.innerHTML = 'Multi-Factor Search:&nbsp;<input name="mfsearchyn"  id="mfsearchyn" type="checkbox">';
+        
+        var tmpHtml = 'Multi-Factor Search:&nbsp;<input name="mfsearchyn"  id="mfsearchyn" ';
+        tmpHtml += ' onchange="switchboard(\'mfSetCheck\',this.id,{})" ';
+        tmpHtml += ' type="checkbox">';
+        
+        //var tmpHtml = 'Multi-Factor Search:&nbsp;<input name="mfsearchyn"  id="mfsearchyn" onchange="switchboard(\'mfSetCheck\',this.id,{})" type="checkbox">';
+        mfPicker.innerHTML = tmpHtml;
         
         newSrchWidget.appendChild(mfPicker);
 
@@ -662,9 +616,74 @@ class RMVWAHtmlGenerator {
         
         lastContainer.appendChild(sfdSqlWhere);
         
+        // Multi-Factor Search Exec button/link
+        var sfdMFSExec = document.createElement('div');
+        sfdMFSExec.id = "mfsexeccontainer";
+        sfdMFSExec.style.display = 'none';
+        var tmpHtml = '<span id="mfsexeclink" style="margin-left:400px;font-weight: bold; text-decoration: underline; " onclick="switchboard(\'execmfsrch\',this.id,{})">';
+        tmpHtml += 'Search';
+        tmpHtml += '</span>';
+        sfdMFSExec.innerHTML = tmpHtml;
+        lastContainer.appendChild(sfdMFSExec);
         
         newSrchWidget.appendChild(lastContainer);
+        
+        
+        
         return newSrchWidget;
+    }
+    renderHTMLSettingsTab(){
+        
+        var tmpHtml = '';
+        tmpHtml += '<div class="headerflexcell" id="headerblock4">';
+        tmpHtml += '<div class="" id="" style="display:block">';
+        tmpHtml += '<div><b>Settings</b></div>';
+        tmpHtml += '<div><b>Play next in series: </b><input name="serplaynext" id="serplaynext" type="checkbox"></div>';
+        tmpHtml += '<div><b>Resume play: </b><input name="resumeplay" id="resumeplay" type="checkbox"></div>';
+        
+        tmpHtml += '<div><span onclick="switchboard(\'formNewSingleArti\',\'\',{})">'  // syle="text-decoration:underline;font-weight:bold;" 
+        tmpHtml += '<b><u>Create a single Artifact</u></b>'
+        tmpHtml += '</span></div>';
+        
+        tmpHtml += '<div><span onclick="switchboard(\'formNewMultiArti\',\'\',{})">'  // syle="text-decoration:underline;font-weight:bold;" 
+        tmpHtml += '<b><u>Create a multiple Artifacts</u></b>'
+        tmpHtml += '</span></div>';
+        
+        tmpHtml += '</div>';
+        tmpHtml += '</div>';   
+        return tmpHtml;     
+    }
+    renderHTMLSearchTab(){
+        var tmpHtml = '';
+        tmpHtml += '<div style="display:inline-flex;">';
+        tmpHtml += '<div style="width:580px;height:518px;">';
+        tmpHtml += '<div id="headerblock2">';
+        tmpHtml += '<div style="margin:8px;">';
+        tmpHtml += '&nbsp;';
+        tmpHtml += '</div></div></div>';
+        tmpHtml += '<div style="width:580px;height:518px;">';
+        tmpHtml += '<div class="listwidget" id="sideartilistwidget" style="">';
+        tmpHtml += '<div>&nbsp;</div>';
+        tmpHtml += '</div></div>';
+        return tmpHtml;        
+    }
+    renderHTMLPlayerTab(){
+        var tmpHtml = '';
+        tmpHtml += '<div style="width:1100px;height:500px;vertical-align:center;horizontal-align:center;margin:20px;">';
+        tmpHtml += '<div style="margin-left:200px; margin-right:80px;">';
+        tmpHtml += '&nbsp;<br>';
+        tmpHtml += '<img src="./img/rmvod_badge_center.png" height=450 width=450>';
+        tmpHtml += '</div>';
+        tmpHtml += '</div>';    
+        return tmpHtml;    
+    }
+    renderHTMLEditTab(){
+        var tmpHtml = '';
+        tmpHtml += '<div style="margin-left:375px; margin-right:80px;">';
+        tmpHtml += '&nbsp;<br>';
+        tmpHtml += '<img src="./img/rmvod_badge_center.png" height=450 width=450>';
+        tmpHtml += '</div>';     
+        return tmpHtml;   
     }
     renderHTMLVideoPlayer(urlStrIn){
         var playerHTML = '';
@@ -675,6 +694,38 @@ class RMVWAHtmlGenerator {
         playerHTML += '</video>';
         playerHTML += "</div>";
         return playerHTML;
+    }
+}
+
+class RMVWADOMActions{
+    constructor(){
+    }
+    setInnerText(idIn,valStrIn){
+        try{
+            document.getElementById(idIn).innerText = valStrIn;
+        } catch (e) {
+            console.log("RMVWADOMActions.setInnerText FAILED: " + idIn + ", " + valStrIn + " (" + e + ")");
+        }
+    }
+    setInnerHTML(idIn,valStrIn){
+        //document.getElementById(idIn).innerHTML = valStrIn;
+        try{
+            document.getElementById(idIn).innerHTML = valStrIn;
+        } catch (e) {
+            console.log("RMVWADOMActions.setInnerText FAILED: " + idIn + ", " + valStrIn + " (" + e + ")");
+        }    
+    }
+    clearInner(idIn){
+        this.setInnerHTML(idIn,'');
+    }
+    updateVersions(objIn){
+        this.setInnerText('version_html',"html version: " + objIn['html_version']);
+        this.setInnerText('version_db',"db version: " + objIn['db_version']);
+        this.setInnerText('version_api',"api version: " + objIn['api_version']);
+        this.setInnerText('version_css',"css version: " + objIn['css_version']);
+    }
+    getInputValue(idIn){
+        return document.getElementById(idIn).value
     }
 }
 
@@ -724,7 +775,7 @@ class RMVodWebApp {
         // These version bits will eventually need to involve polling 
         // the API and DB for their versions
         this.apiFetchRemoteVersions();
-        this.postJSVer("0.4.8");
+        this.postJSVer("0.4.9");
     }
     postCSSVer(verStrIn){  // <<==== DEPRECATED
         const methNm = 'postCSSVer';
@@ -819,16 +870,8 @@ class RMVodWebApp {
     apiFetchRemoteVersions(){
         //console.log("This is where we get API and DB versions");
         var cbFunc = function (objIn) {
-            console.log('apiFetchRemoteVersions: ' + JSON.stringify(objIn));
-            //var wa = new RMVodWebApp();
-            //wa.postHTMLVer(objIn['html_version']);
-            document.getElementById("version_html").innerText = "html version: " + objIn['html_version'];
-            //wa.postDBVer(objIn['db_version']);
-            document.getElementById("version_db").innerText = "db version: " + objIn['db_version'];
-            //wa.postAPIVer(objIn['api_version']);
-            document.getElementById("version_api").innerText = "api version: " + objIn['api_version'];
-            //wa.postCSSVer(objIn['css_version']);
-            document.getElementById("version_css").innerText = "css version: " + objIn['css_version'];
+            var da = new RMVWADOMActions();
+            da.updateVersions(objIn);
         }
         const payloadObj = {};
         const endpoint = '/rmvid/api/apiversion/get';
@@ -1061,7 +1104,7 @@ class RMVodWebApp {
         
         this.tagSelListRefresh();
     }
-    tagSelListRefresh(){
+    tagSelListRefresh(){ //  NEEDS TO BE BETTER - maybe involve apiFetchTagsList
         var tsl = document.getElementById('tag-search-select');
         // Clear the current list of options
         while (tsl.length > 0) {
@@ -1442,6 +1485,18 @@ class RMVodWebApp {
          
     }
     execSearchSingleFactor2(factorStrIn,srchValObjIn) {
+        try{ // React correctly to MultiFactor Search Y/N
+            var mfsyn = document.getElementById('mfsearchyn');
+            console.log(document.getElementById('mfsearchyn').id);
+            console.log("mfsyn: " + mfsyn.checked.toString());
+            if (mfsyn.checked == true) {
+                console.log("Multi-Factor Search enabled.  Single search Factor " + factorStrIn + " ignored.");
+                return;
+            } 
+        } catch (e) {
+            console.log('mfsearchyn must not exist yet.');
+        }
+        
         var payloadObj = {};
         var endpoint = '';
         var cbFunc = function(){};
@@ -1519,11 +1574,66 @@ class RMVodWebApp {
             default:
                 console.log("execSearchSingleFactor fell through: ", factorStrIn, JSON.stringify(srchValObjIn));
         }
-        if (endpoint != '') {
+        if (endpoint != '') { // If we've set an endpoint, call the API
             this.genericApiCall(payloadObj,endpoint,cbFunc);
         } else {
             console.log('execSearchSingleFactor2 - endpoint is empty');
         }
+        try { // Try to reset the Search Factors on the form
+            this.resetSearchFactors();
+        } catch (e) {
+            console.log("Ignoring this error: " + e);
+        }
+    }
+    execSearchMultiFactor(){
+        var sfValsObj = {}
+        // Get TAG value:
+        sfValsObj['tag'] =  document.getElementById('tag-search-select').value;
+        // Get STRING value:
+        sfValsObj['string'] =  document.getElementById('txt-srch-str').value;// txt-srch-str
+        // Get MAJOR TYPE value:
+        sfValsObj['majtype'] =  document.getElementById('majtype-search-select').value;// majtype-search-select
+        // Get YEAR value:
+        sfValsObj['relyearstart'] =  (document.getElementById('relyear-srch-start').value).toString();
+        sfValsObj['relyearend'] =  (document.getElementById('relyear-srch-end').value).toString();
+        // Get SQL WHERE value
+        sfValsObj['sqlwhere'] =  document.getElementById('sql-where-srch').value;// sql-where-srch
+        
+        console.log('execSearchMultiFactor: ' + JSON.stringify(sfValsObj));
+        
+        var cbFunc = function(objIn){
+            //console.log(JSON.stringify(objIn));
+            var wa = new RMVodWebApp();
+            //var artiTitleIdList = wa.sse.ssRead('titleidlist');
+            var tmpDiv = wa.renderSALByIdList(objIn);
+            document.getElementById('sideartilistwidget').innerHTML = '';
+            document.getElementById('sideartilistwidget').appendChild(tmpDiv);            
+        }
+        
+        const endpoint = '/rmvid/api/mfsearch/get';
+        const payload = sfValsObj;
+        this.genericApiCall(payload,endpoint,cbFunc);
+        
+        try { // Try to reset the Search Factors on the form
+            this.resetSearchFactors();
+        } catch (e) {
+            console.log("Ignoring this error: " + e);
+        }
+        
+    }
+    resetSearchFactors(){
+        // Clear Text Search
+        document.getElementById('txt-srch-str').value = '';
+        // Clear Dates
+        document.getElementById('relyear-srch-start').value = '';
+        document.getElementById('relyear-srch-end').value = '';
+        //Reset Tag Select List
+        document.getElementById('tag-search-select').value = 'None'; // tag-search-select
+        // Reset Major Type Select List
+        document.getElementById('majtype-search-select').value = 'All'; // majtype-search-select
+        // Reset SQL WHERE Clause
+        document.getElementById('sql-where-srch').value = '';// sql-where-srch
+        
     }
     renderArtifactDetailHeader(artiObj){
         //console.log('renderArtifactDetailHeader');
@@ -1957,13 +2067,25 @@ class RMVodWebApp {
         tmpHtml += '</select>';
         tmpHtml += '<br>';
         
+        
+        const tagList = this.sse.ssRead('blob')['tags'];
+        
         tmpHtml += '<span id="" class="" style="font-weight:bold">Starting Tag:  </span>';
         //tmpHtml += '<textarea id="nafilename" cols="40" rows="12" class="">';
         tmpHtml += '<select name="natag" id="natag" class="">';
-        tmpHtml += '<option value="none"></option>';
-        tmpHtml += '<option value="comedy">comedy</option>';
-        tmpHtml += '<option value="drama">drama</option>';
-        tmpHtml += '<option value="action">action</option>';
+        tmpHtml += '<option value="none">None</option>';
+        
+        for (var i = 0; i < tagList.length; i++ ){
+            tmpHtml += '<option value="' + tagList[i] + '">' + tagList[i] + '</option>';
+            //var opt = document.createElement('option');
+            //opt.value = objIn[i];
+            //opt.innerHTML = objIn[i];
+            //tsl.appendChild(opt);
+        }        
+
+        //tmpHtml += '<option value="comedy">comedy</option>';
+        //tmpHtml += '<option value="drama">drama</option>';
+        //tmpHtml += '<option value="action">action</option>';
         tmpHtml += '</select>';
         tmpHtml += '<br>';
         
@@ -2035,6 +2157,18 @@ class RMVodWebApp {
             var endpoint = "/rmvid/api/artifact/newsingle";
             this.genericApiCall(payload,endpoint,cbFunc);
         }
+    }
+    handleMFSCBStateChange(checkedBoolIn){
+        console.log("mfSetCheck state = "  + checkedBoolIn);
+        if (checkedBoolIn == true) {
+            console.log("We should be exposing a 'Search' button.");
+            document.getElementById('mfsexeccontainer').style.display = 'block';
+        } else {
+            console.log("We should be hiding the 'Search' button.");
+            document.getElementById('mfsexeccontainer').style.display = 'none';
+        }
+        
+        
     }
 }
 
@@ -2113,7 +2247,7 @@ function switchboard(actionIn,objIdIn,argObjIn) {
             var srchBoxDE = document.getElementById(objIdIn);
             console.log("execTxtSrch for " + srchBoxDE.value);
             ml.execSearchSingleFactor2('text',{'text':srchBoxDE.value});
-            srchBoxDE.value = "";
+            // srchBoxDE.value = "";
             break;
             
         case 'execMajTypSrch':
@@ -2126,9 +2260,9 @@ function switchboard(actionIn,objIdIn,argObjIn) {
         case 'execRelyearSrch':
             console.log("Trying to " + actionIn + ": " + objIdIn, JSON.stringify(argObjIn)); 
             var ryVal2 = document.getElementById(objIdIn).value;
-            document.getElementById(objIdIn).value = "";
+            //document.getElementById(objIdIn).value = "";
             var ryVal1 = document.getElementById('relyear-srch-start').value;
-            document.getElementById('relyear-srch-start').value = "";
+            //document.getElementById('relyear-srch-start').value = "";
             console.log('Dates captured: ', ryVal1, ryVal2); 
             ml.execSearchSingleFactor2('relyear',{'relyear1':ryVal1,'relyear2':ryVal2});
             break;
@@ -2216,6 +2350,20 @@ function switchboard(actionIn,objIdIn,argObjIn) {
             ml.apiSubmitNewMultiArtiForm();
             break;
             
+        case 'mfSetCheck':
+            var de = document.getElementById(objIdIn);
+            ml.handleMFSCBStateChange(de.checked);
+            break;
+            
+        case 'execmfsrch':  //switchboard('execmfsrch',this.id,{})
+            //console.log('execmfsrch: ' + objIdIn);
+            ml.execSearchMultiFactor();
+            //console.log('');
+            break;
+            
+            
+            
+            
             
             
         /* 
@@ -2226,7 +2374,7 @@ function switchboard(actionIn,objIdIn,argObjIn) {
             xcStr += 'Received objIdIn = ' + objIdIn + '  and ';
             xcStr += 'argObjIn = ' + JSON.stringify(argObjIn) + '.';
             // throw 'Action ' + actionIn + ' is not recognized!';       
-            throw xcStr; 
+            throw new Error(xcStr); 
     }
 }
 

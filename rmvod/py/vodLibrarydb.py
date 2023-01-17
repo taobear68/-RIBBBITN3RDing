@@ -37,7 +37,7 @@ import requests
 # see <https://www.gnu.org/licenses/>.
 
 fileStr = "vodLibrarydb.py"
-versionStr = "0.1.8"
+versionStr = "0.1.9"
 
 class VodLibDB:
     def __init__(self):
@@ -442,6 +442,38 @@ class VodLibDB:
             retList.append(tmpDict)
         pass
         return retList
+    def getArtifactListByIdList(self,artiIdListIn):
+        # print("getArtifactListByMajtype - majtypeStrIn: " + majtypeStrIn)
+        assert type(artiIdListIn) == type(['thing'])
+        if len(artiIdListIn) > 0:
+            fetchSql = '';
+            fetchSql += "SELECT artifactid, title, majtype "
+            fetchSql += "FROM artifacts "
+            fetchSql += "WHERE artifactid in ("
+            i = 0
+            for artiId in artiIdListIn:
+                fetchSql += "'" + artiId + "'"
+                if (i < (len(artiIdListIn) - 1 )):
+                    fetchSql += ','
+                pass
+                i += 1
+            fetchSql += ') ' 
+        else:
+            fetchSql = "SELECT artifactid, title, majtype "
+            fetchSql += "FROM artifacts  "
+        pass
+        fetchSql += "ORDER BY title"
+        # print("getArtifactListByMajtype - fetchSql: " + fetchSql)
+        listTuple = self._stdRead(fetchSql)
+        retList = []
+        for itemTuple in listTuple:
+            tmpDict = {}
+            tmpDict['artifactid'] = itemTuple[0]
+            tmpDict['title'] = itemTuple[1]
+            tmpDict['majtype'] = itemTuple[2]
+            retList.append(tmpDict)
+        pass
+        return retList
     def getArtifactListByArbWhereClause(self,whereClauseStrIn):
         assert type(whereClauseStrIn) == type('thing')
         if len(whereClauseStrIn) > 0:
@@ -471,26 +503,52 @@ class VodLibDB:
         fetchSql = "SELECT artifactid, title, majtype "
         fetchSql += "FROM artifacts  "
         fetchSql += "ORDER BY title"
+        # try:
+            # if (relyear1In == '') and  (int(relyear2In) > 1900):
+                # # We're just doing one year, so we're counting on relyear2In
+                # pass
+                # fetchSql = "SELECT artifactid, title, majtype "
+                # fetchSql += " FROM artifacts  "
+                # fetchSql += " WHERE relyear = " + str(relyear2In) + " "
+                # fetchSql += " ORDER BY title"
+            # elif (int(relyear1In) > 1900) and  (int(relyear2In) > 1900) and (int(relyear2In) > int(relyear1In)): 
+                # # We're working with both years
+                # pass
+                # fetchSql = "SELECT artifactid, title, majtype "
+                # fetchSql += " FROM artifacts  "
+                # fetchSql += " WHERE relyear >= " + str(relyear1In) + " AND relyear <= " + str(relyear2In) + " "
+                # fetchSql += " ORDER BY title"
+            # pass
+        # except:
+            # print ("getArtifactListByRelyear - Something is broken with the year values provided: " + str(relyear1In) + " and " + str(relyear2In) + ".")
+            # pass
+        # pass
+        
+        
         try:
-            if (relyear1In == '') and  (int(relyear2In) > 1900):
-                # We're just doing one year, so we're counting on relyear2In
-                pass
-                fetchSql = "SELECT artifactid, title, majtype "
-                fetchSql += " FROM artifacts  "
-                fetchSql += " WHERE relyear = " + str(relyear2In) + " "
-                fetchSql += " ORDER BY title"
-            elif (int(relyear1In) > 1900) and  (int(relyear2In) > 1900) and (int(relyear2In) > int(relyear1In)): 
+            if (int(relyear1In) > 1900) and  (int(relyear2In) > 1900) and (int(relyear2In) > int(relyear1In)): 
                 # We're working with both years
                 pass
                 fetchSql = "SELECT artifactid, title, majtype "
                 fetchSql += " FROM artifacts  "
                 fetchSql += " WHERE relyear >= " + str(relyear1In) + " AND relyear <= " + str(relyear2In) + " "
                 fetchSql += " ORDER BY title"
+            elif (int(relyear2In) > 1900):
+                # We're just doing one year, so we're counting on relyear2In
+                pass
+                fetchSql = "SELECT artifactid, title, majtype "
+                fetchSql += " FROM artifacts  "
+                fetchSql += " WHERE relyear = " + str(relyear2In) + " "
+                fetchSql += " ORDER BY title"
+            else: 
+                raise Exception("getArtifactListByRelyear - Unable to interpret dates")
             pass
         except:
             print ("getArtifactListByRelyear - Something is broken with the year values provided: " + str(relyear1In) + " and " + str(relyear2In) + ".")
             pass
         pass
+        
+        
         
         # print("getArtifactListByMajtype - fetchSql: " + fetchSql)
         
@@ -1500,7 +1558,7 @@ class MediaLibraryDB:
     def findArtifactsBySrchStr(self,srchStrIn):  ####  NEW NEW NEW  # getArtifactListByPersTitleStr(self,titleFragIn)
         #ntag = self.__normalizeTagStr(srchStrIn)
         retobj = []
-        print ('findArtifactsBySrchStr: ' + str(type(srchStrIn)) + str(srchStrIn))
+        # print ('findArtifactsBySrchStr: ' + str(type(srchStrIn)) + str(srchStrIn))
         try:
             vldb = VodLibDB()
             retobj = vldb.getArtifactListByPersTitleStr(str(srchStrIn))
@@ -1509,6 +1567,49 @@ class MediaLibraryDB:
             pass
         pass
         return retobj
+    def getArtifactsByMultiFactorSrch(self,mfSrchObjIn):
+        # {"tag":"science_fiction","string":"star","majtype":"movie","relyearstart":"","relyearend":"","sqlwhere":""}
+        retobj = []
+        idList = []
+        tmpResObj = {"tag":[],"string":[],"majtype":[],'relyear':[],'sqlwhere':[]}
+        if (mfSrchObjIn['tag'] != ''):
+            tmpResObj['tag'] = self.getArtifactsByTag(mfSrchObjIn['tag'])
+        if (mfSrchObjIn['string'] != ''):
+            tmpResObj['string'] = self.findArtifactsBySrchStr(mfSrchObjIn['string'])
+        if (mfSrchObjIn['majtype'] != ''):
+            tmpResObj['majtype'] = self.getArtifactsByMajtype(mfSrchObjIn['majtype'])
+        if (mfSrchObjIn['relyearend'] != ''):
+            try:
+                tmpResObj['relyear'] = self.getArtifactsByRelyear(int(mfSrchObjIn['relyearstart']),int(mfSrchObjIn['relyearend']))
+            except:
+                if int(mfSrchObjIn['relyearend']) > 1900:
+                    tmpResObj['relyear'] = self.getArtifactsByRelyear(int(mfSrchObjIn['relyearend']),int(mfSrchObjIn['relyearend']))
+                else:
+                    print('Cannot process dates.  Sad.')
+        if (mfSrchObjIn['sqlwhere'] != ''):
+            tmpResObj['sqlwhere'] = self.getArtifactsByArbWhereClause(mfSrchObjIn['sqlwhere'])
+        
+        for key in list(tmpResObj.keys()):
+            if len(tmpResObj[key]) > 0:
+                if len(idList) == 0:
+                    #tmpIdList = []
+                    for lElObj in tmpResObj[key]:
+                        idList.append(lElObj['artifactid'])
+                    pass
+                else:
+                    tmpIdList = []
+                    for lElObj in tmpResObj[key]:
+                        if lElObj['artifactid'] in idList:
+                            tmpIdList.append(lElObj['artifactid'])
+                        pass
+                    pass
+                    idList = tmpIdList
+                pass
+            pass
+        pass
+        vldb = VodLibDB()
+        retobj = vldb.getArtifactListByIdList(idList);
+        return retobj        
     def getArtifactsByArbWhereClause(self,whereClauseStrIn):
          # getArtifactListByArbWhereClause
         retobj = []
@@ -2351,7 +2452,35 @@ def newSingleArtifact():
     return json.dumps(result)
     pass
     
-    
+@app.route('/mfsearch/get',methods=['POST'])
+def multiFactorSearch():
+    #print('BEGIN multiFactorSearch ====>>')
+    dictIn = {}
+    diKeysList = []
+    reqJson = request.json
+    srchStr = ""
+    #print(reqJson)
+    try:
+        dictIn = yaml.safe_load(json.dumps(request.json))
+        diKeysList = list(dictIn.keys())
+        # assert "srchstr" in diKeysList
+        # assert type(dictIn['srchstr']) == type("string")
+        # assert 1 < len(dictIn['srchstr']) < 100
+        # print("simpleTextSearch GOT THROUGH THE ASSERTS!!")
+        
+        # assert 'values' in diKeysList
+        # assert type(dictIn['values']) == type({'key':'value'})
+    except:
+        print("What came in: " + str(request.json))
+        dictIn = {}
+        diKeysList = []
+        return json.dumps([])
+    #print(json.dumps(request.json))
+    #retobj = request.json
+    ml = MediaLibraryDB()
+    retobj = ml.getArtifactsByMultiFactorSrch(request.json)
+    return json.dumps(retobj)
+    pass
 
 @app.route('/simpletxtsrch/get',methods=['POST','GET'])   ####  NEW NEW NEW  
 def simpleTextSearch():
