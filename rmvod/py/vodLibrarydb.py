@@ -37,7 +37,7 @@ import requests
 # see <https://www.gnu.org/licenses/>.
 
 fileStr = "vodLibrarydb.py"
-versionStr = "0.1.9"
+versionStr = "0.2.1"
 
 class VodLibDB:
     def __init__(self):
@@ -498,33 +498,9 @@ class VodLibDB:
         pass
         return retList
     def getArtifactListByRelyear(self,relyear1In, relyear2In):
-        # print("getArtifactListByRelyear - relyear1In type: " + str(type(relyear1In)) + ", relyear2In type: " + str(type(relyear2In)) )
-        # print("getArtifactListByRelyear - relyear1In: " + str(relyear1In) + ", relyear2In: " + str(relyear2In) )
         fetchSql = "SELECT artifactid, title, majtype "
         fetchSql += "FROM artifacts  "
         fetchSql += "ORDER BY title"
-        # try:
-            # if (relyear1In == '') and  (int(relyear2In) > 1900):
-                # # We're just doing one year, so we're counting on relyear2In
-                # pass
-                # fetchSql = "SELECT artifactid, title, majtype "
-                # fetchSql += " FROM artifacts  "
-                # fetchSql += " WHERE relyear = " + str(relyear2In) + " "
-                # fetchSql += " ORDER BY title"
-            # elif (int(relyear1In) > 1900) and  (int(relyear2In) > 1900) and (int(relyear2In) > int(relyear1In)): 
-                # # We're working with both years
-                # pass
-                # fetchSql = "SELECT artifactid, title, majtype "
-                # fetchSql += " FROM artifacts  "
-                # fetchSql += " WHERE relyear >= " + str(relyear1In) + " AND relyear <= " + str(relyear2In) + " "
-                # fetchSql += " ORDER BY title"
-            # pass
-        # except:
-            # print ("getArtifactListByRelyear - Something is broken with the year values provided: " + str(relyear1In) + " and " + str(relyear2In) + ".")
-            # pass
-        # pass
-        
-        
         try:
             if (int(relyear1In) > 1900) and  (int(relyear2In) > 1900) and (int(relyear2In) > int(relyear1In)): 
                 # We're working with both years
@@ -547,11 +523,6 @@ class VodLibDB:
             print ("getArtifactListByRelyear - Something is broken with the year values provided: " + str(relyear1In) + " and " + str(relyear2In) + ".")
             pass
         pass
-        
-        
-        
-        # print("getArtifactListByMajtype - fetchSql: " + fetchSql)
-        
         listTuple = self._stdRead(fetchSql)
         retList = []
         for itemTuple in listTuple:
@@ -650,23 +621,23 @@ class VodLibDB:
         pass
         return retList
     def getEpisodeTIMListBySeriesId(self,sEpiIdIn):
-        epiArtiIdList = self.getEpisodeListBySeriesId(sEpiIdIn)
-        if len(epiArtiIdList) == 0:
-            print('getEpisodeTIMListBySeriesId: getEpisodeListBySeriesId(' + sEpiIdIn + ') returned no rows')
-            return []
-        pass
+        # epiArtiIdList = self.getEpisodeListBySeriesId(sEpiIdIn)
+        # if len(epiArtiIdList) == 0:
+            # print('getEpisodeTIMListBySeriesId: getEpisodeListBySeriesId(' + sEpiIdIn + ') returned no rows')
+            # return []
+        # pass
         fetchSql = "SELECT a.artifactid, a.title, a.majtype "
-        fetchSql += "FROM artifacts  a "
-        fetchSql += "WHERE a.artifactid IN ("
-        
-        for artiId in epiArtiIdList:
-            #print(artiId)
-            fetchSql += "'" + artiId + "'"
-            if (epiArtiIdList.index(artiId)) < (len(epiArtiIdList) -1 ):
-                fetchSql += ", "
-            else: 
-                fetchSql += ') '
-            pass
+        fetchSql += " FROM artifacts  a "
+        fetchSql += " WHERE a.artifactid IN ("
+        fetchSql += " SELECT episodeaid FROM s2e WHERE seriesaid = '" + sEpiIdIn + "') " 
+        # for artiId in epiArtiIdList:
+            # #print(artiId)
+            # fetchSql += "'" + artiId + "'"
+            # if (epiArtiIdList.index(artiId)) < (len(epiArtiIdList) -1 ):
+                # fetchSql += ", "
+            # else: 
+                # fetchSql += ') '
+            # pass
         
         try:
             fetchSql += "ORDER BY a.title"
@@ -1121,6 +1092,32 @@ class VodLibDB:
         retval = True
         
         return retval
+    def getTVEposidesByPathFileFrag(self,pathIn,fnFragIn):
+        retval = []
+        # > Get list of "tvepisode" artifacts with the filePath and fnFrag
+        sqlStr = "SELECT a.artifactid, a.title, a.file, a.filepath"
+        sqlStr += " FROM artifacts a  "
+        sqlStr += " WHERE majtype = 'tvepisode' "
+        sqlStr += " AND filepath = '" + pathIn + "' "
+        sqlStr += " AND file LIKE '%" + fnFragIn + "%' "
+        print('\n' + sqlStr + '\n')
+        
+        resTuple = self._stdRead(sqlStr)
+        
+        resList = [];
+        for itemTuple in resTuple:
+            # resList.append(itemTuple[0])
+            tmpDict = {}
+            tmpDict['artifactid'] = itemTuple[0]
+            tmpDict['title'] = itemTuple[1]
+            tmpDict['file'] = itemTuple[2]
+            tmpDict['filepath'] = itemTuple[3]
+            resList.append(tmpDict)
+        return resList
+    def addEpisodeToSeries(self,serAIDIn,epAIDIn):
+        insSql = 'INSERT INTO s2e SET seriesaid = "' + serAIDIn + '", episodeaid = "' + epAIDIn +'"'
+        result = self._stdInsert(insSql)
+        
 
 class MediaLibraryDB:
     def __init__(self):
@@ -1144,6 +1141,11 @@ class MediaLibraryDB:
     def getDBVersion(self):
         vldb = VodLibDB()
         return vldb.getDBVersion()
+    def artifactFileCheck(self,pathIn,fileIn):
+        basePath = '/var/www/html/rmvid/vidsrc/'
+        exist = os.path.exists(basePath + pathIn + '/' + fileIn)
+        # print("newArtiPreCheck exist " + fileIn, exist)
+        return  exist    
     def newArtiPreCheck(self,pathIn,fileIn):
         print("newArtiPreCheck " + pathIn + ", " +fileIn)
         basePath = '/var/www/html/rmvid/vidsrc/'
@@ -1727,6 +1729,73 @@ class MediaLibraryDB:
         arbmetaDict['titlelibrary'] = libTitle
         artiObjIn['arbmeta'] = json.dumps(arbmetaDict)
         return artiObjIn
+    def addEpisodesToSeries(self,seriesArtiIdIn,filePathIn,fnFragIn):
+        vldb = VodLibDB()
+
+        #retDict = {'method':addEpisodesToSeries,'params':[seriesArtiIdIn,filePathIn,fnFragIn],'result':[]}
+        retDict = {}
+        retDict['method'] = 'addEpisodesToSeries'
+        retDict['params'] = [seriesArtiIdIn,filePathIn,fnFragIn]
+        retDict['status'] = {'success':False,'detail':'','log':[]}
+        retDict['data'] = []
+        
+        serEpiList = vldb.getEpisodeListBySeriesId(seriesArtiIdIn)
+        
+        # > Confirm the seriesArtiId is good
+        # > Get tags associated with the series
+        seriesArti = self.getArtifactById(seriesArtiIdIn)
+        
+        # > Get list of "tvepisode" artifacts with the filePath and fnFrag
+        episodeList = vldb.getTVEposidesByPathFileFrag(filePathIn,fnFragIn)
+        # print('addEpisodesToSeries - episodeList: ' + str(episodeList))
+        # episodeAIDList = []
+        # for epiDict in episodeList:
+            # episodeAIDList.append(epiDict['artifactid'])
+        
+        seriesAddList = []
+        failCount = 0
+        if (len(episodeList) > 0):
+            # > For each artifact:
+            for artifactDict in episodeList:
+                # > Confirm the artifact's file is present
+                filExist = self.artifactFileCheck(filePathIn,artifactDict['file'])
+                # > If not, skip it (Maybe print something(?))
+                if filExist == False:
+                    xStr = 'File does not exist: ' + artifactDict['file']
+                    retDict['status']['log'].append(xStr)
+                    failCount += 1
+                    #raise Exception(xStr)
+                    continue
+                pass
+                # > Is it is already associated with a series?
+                if artifactDict['artifactid'] in serEpiList:
+                    # > If so:
+                    # > Skip it (Maybe print something(?))
+                    xStr = "Artifact is already an associated episode: " + artifactDict['artifactid']
+                    retDict['status']['log'].append(xStr)
+                    print(xStr)
+                    continue
+                else:
+                    pass
+                    # > If not:
+                    # > Add it to the series (insert into s2e)
+                    # seriesAddList.append(artifactDict['artifactid'])
+                    vldb.addEpisodeToSeries(seriesArtiIdIn,artifactDict['artifactid'])
+                    # > Add tags associated with the series to the artifact (?)
+                    # > Append it to retDict['result']
+                    retDict['data'].append(artifactDict['artifactid'])
+                    xStr = "Artifact added to series: " + artifactDict['artifactid']
+                    retDict['status']['log'].append(xStr)
+                pass
+            pass
+        else:
+            failCount += 1
+            retDict['status']['detail'] = "No artifacts found for Path " + filePathIn + " and Filename fragment " + fnFragIn
+        
+        pass
+        if failCount == 0:
+            retDict['status']['success'] = True
+        return retDict
 
 class MLCLI:
     def __init__(self):
@@ -2351,6 +2420,7 @@ def updateArtifactListField():
     response = ml.artifactListFieldAction(reqJson)
     # print('updateArtifactListField - ' + json.dumps(reqJson))
     return json.dumps(response)
+
 @app.route('/artifact/update',methods=['POST'])
 def updateArtifact():
     dictIn = {}
@@ -2395,6 +2465,7 @@ def newSingleArtifact():
         
         #assert 'values' in diKeysList
         #assert type(dictIn['values']) == type({'key':'value'})
+        pass
     except:
         print("What came in: " + request.json)
         dictIn = {}
@@ -2404,23 +2475,30 @@ def newSingleArtifact():
     print(json.dumps(dictIn))
     result = {'status':'failed','statusdetail':'did not even begin','data':{'artifactid':''}}
     evenTry = True
-    try:
-        print("Trying newArtiPreCheck...",dictIn['filepath'],dictIn['file'])
-        checkVal = ml.newArtiPreCheck(dictIn['filepath'],dictIn['file'])
-        print(checkVal)
-        assert checkVal == True
-        print("Tried newArtiPreCheck.")
-    except:
-        evenTry = False
-        sdStr = "Artifact for file = " + dictIn['file'] 
-        sdStr += " already exists, or file is not present in the specified path."
-        result = {'status':'failed','statusdetail':sdStr,'data':{'artifactid':''}}
+    if dictIn['majtype'] != 'tvepisode':
+        try:
+            print("Trying newArtiPreCheck...",dictIn['filepath'],dictIn['file'])
+            checkVal = ml.newArtiPreCheck(dictIn['filepath'],dictIn['file'])
+            print(checkVal)
+            assert checkVal == True
+            print("Tried newArtiPreCheck.")
+        except:
+            evenTry = False
+            sdStr = "Artifact for file = " + dictIn['file'] 
+            sdStr += " already exists, or file is not present in the specified path."
+            result = {'status':'failed','statusdetail':sdStr,'data':{'artifactid':''}}
+    else:
+        print("Skipping file pre-test because this is a tvepisode")
+    pass
     if evenTry == True:
         try:
             print("trying newSingleArtifact...")
             artiData = {}
             artiData['title'] = dictIn['file']
-            artiData['file'] = dictIn['file']
+            if dictIn['majtype'] == 'tvepisode':
+                artiData['file'] = ''
+            else:
+                artiData['file'] = dictIn['file']
             artiData['majtype'] = dictIn['majtype']
             artiData['filepath'] = dictIn['filepath']
             artiData['runmins'] = -1
@@ -2454,29 +2532,18 @@ def newSingleArtifact():
     
 @app.route('/mfsearch/get',methods=['POST'])
 def multiFactorSearch():
-    #print('BEGIN multiFactorSearch ====>>')
     dictIn = {}
     diKeysList = []
     reqJson = request.json
     srchStr = ""
-    #print(reqJson)
     try:
         dictIn = yaml.safe_load(json.dumps(request.json))
         diKeysList = list(dictIn.keys())
-        # assert "srchstr" in diKeysList
-        # assert type(dictIn['srchstr']) == type("string")
-        # assert 1 < len(dictIn['srchstr']) < 100
-        # print("simpleTextSearch GOT THROUGH THE ASSERTS!!")
-        
-        # assert 'values' in diKeysList
-        # assert type(dictIn['values']) == type({'key':'value'})
     except:
         print("What came in: " + str(request.json))
         dictIn = {}
         diKeysList = []
         return json.dumps([])
-    #print(json.dumps(request.json))
-    #retobj = request.json
     ml = MediaLibraryDB()
     retobj = ml.getArtifactsByMultiFactorSrch(request.json)
     return json.dumps(retobj)
@@ -2514,6 +2581,27 @@ def simpleTextSearch():
     result = ml.findArtifactsBySrchStr(srchStr)
     return json.dumps(result)
 
+@app.route('/series/artifacts/add',methods=['POST'])
+def addArtisToSeries():
+    #  addEpisodesToSeries(self,seriesArtiIdIn,filePathIn,fnFragIn)
+    print('BEGIN addArtisToSeries ====>>')
+    dictIn = {}
+    diKeysList = []
+    reqJson = request.json
+    srchStr = ""
+    print(reqJson)
+    try:
+        dictIn = yaml.safe_load(json.dumps(request.json))
+        diKeysList = list(dictIn.keys())
+    except:
+        print("What came in: " + str(request.json))
+        dictIn = {}
+        diKeysList = []
+        return json.dumps([])
+    ml = MediaLibraryDB()
+    retobj = ml.addEpisodesToSeries(dictIn['seriesaid'],dictIn['filepath'],dictIn['filefrag'])
+    return json.dumps(retobj)
+    pass
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Optional app description')
     # Switch

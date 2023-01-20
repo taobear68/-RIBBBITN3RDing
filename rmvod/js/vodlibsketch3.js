@@ -775,7 +775,7 @@ class RMVodWebApp {
         // These version bits will eventually need to involve polling 
         // the API and DB for their versions
         this.apiFetchRemoteVersions();
-        this.postJSVer("0.4.9");
+        this.postJSVer("0.5.0");
     }
     postCSSVer(verStrIn){  // <<==== DEPRECATED
         const methNm = 'postCSSVer';
@@ -1462,6 +1462,24 @@ class RMVodWebApp {
             innerHtml += '<u>Edit</u>';
             innerHtml += '</span>';
             
+            var regex = /'/g;
+            if (objIn['majtype'] == 'tvseries') {
+                innerHtml += '&nbsp;&nbsp;';
+                innerHtml += '<span class="" id="" style="font-size:10px;"';
+                innerHtml += 'onclick="switchboard(\'seriesAddEpisodesForm\',\'' ;
+                //innerHtml +=  objIn['artifactid'] + '\',{\'title\':\'' + objIn['title'].replace("'","\\\'") ;
+                innerHtml +=  objIn['artifactid'] + '\',{\'title\':\'' + objIn['title'].replace(regex,"\\\'") ;
+                innerHtml += '\',\'artifactid\':\'' + objIn['artifactid'] ;
+                innerHtml += '\',\'filepath\':\'' + objIn['filepath'] ;
+                innerHtml += '\',\'file\':\'' + objIn['file'] ;
+                innerHtml += '\'})" ';
+                innerHtml += '>'; // initiateArtiEdit
+                innerHtml += '<u>Associate Episodes</u>';
+                innerHtml += '</span>';                
+            }
+            
+            // if majtype == 'tvseries' add "associate episodes" button
+            
             var docElId = artiIdIn + '-sidelist-detail-outer';
             var deetDiv = document.getElementById(docElId);
             deetDiv.innerHTML = innerHtml;
@@ -2043,6 +2061,53 @@ class RMVodWebApp {
         const ev = new Event('click');
         document.getElementById('tabspan2').dispatchEvent(ev);
     }
+    renderSeriesEpisodeAddForm(argObjIn){
+        //Web UI for Create a Single Artifact:
+        //You put in filepath, file, majtype
+        //API Call => If file exists, create bare-bones Artifact with 
+        //filename as title, and send the artifactid back to the UI.  
+        //UI initiates "Edit" on returned artifactid
+        var tmpHtml = "";
+        tmpHtml += '<p>';
+        tmpHtml += 'Add Episodes to TV Series <b>' + argObjIn['title'] + '</b> by providing the filepath component and filename fragment which will identify files in the video storage location.';
+        tmpHtml += '</p>';
+        tmpHtml += '<span id="" class="" style="font-weight:bold">File path:  </span>';
+        tmpHtml += '<input id="nafilepath" type="text" class="">';
+        tmpHtml += '<br>';
+        tmpHtml += '<span id="" class="" style="font-weight:bold">Filename fragment:  </span>';
+        tmpHtml += '<input id="nafilename" type="text" class="">';
+        tmpHtml += '<br>';
+        tmpHtml += '<span id="" class="" style="font-weight:bold">Artifact ID:  </span>';
+        tmpHtml += '<input id="naartifactid" type="text" class="" value="' + argObjIn['artifactid'] + '">';
+        tmpHtml += '<br>';
+        //tmpHtml += '<span id="" class="" style="font-weight:bold">Major Type:  </span>';
+        //tmpHtml += '<select name="namajtype" id="namajtype" class="">';
+        //tmpHtml += '<option value="none"></option>';
+        //tmpHtml += '<option value="movie">movie</option>';
+        //tmpHtml += '<option value="tvseries">tvseries</option>';
+        //tmpHtml += '<option value="tvepisode">tvepisode</option>';
+        //tmpHtml += '</select>';
+        //tmpHtml += '<br>';
+        tmpHtml += '<div style="padding-left:200px;"><span style="font-weight:bold;text-decoration:underline;" onclick="switchboard(\'seriesEpisodeAddSubmit\',\'\',{})">Submit</span></div>';
+        //tmpHtml += '';
+        
+        var div = document.createElement('div');
+        div.className = "";
+        div.id = "";
+        div.innerHTML = tmpHtml;
+        
+        var targetDiv = document.getElementById('structfeatureedit');
+        targetDiv.innerHTML = "";
+        targetDiv.appendChild(div);
+        
+        document.getElementById('nafilepath').value = argObjIn['filepath'];
+        document.getElementById('nafilename').value = argObjIn['file'];
+        
+        
+        // tabspan2
+        const ev = new Event('click');
+        document.getElementById('tabspan2').dispatchEvent(ev);
+    }
     renderNewMultiArtiForm(){
         //Web UI for Create a Single Artifact:
         //You put in filepath, file, majtype
@@ -2167,8 +2232,63 @@ class RMVodWebApp {
             console.log("We should be hiding the 'Search' button.");
             document.getElementById('mfsexeccontainer').style.display = 'none';
         }
-        
-        
+    }
+    execAddSeriesEpisodes(seriesaidIn,filepathIn,filefragIn){
+        var cbFunc = function(dataObjIn) {
+            console.log('execAddSeriesEpisodes.cbFunc: \n' + JSON.stringify(dataObjIn));
+            
+            var tmpHtml = '';
+            
+            if (dataObjIn['status']['success'] == true) {
+                // It worked
+                tmpHtml += "<b>Success!</b><br>";
+                tmpHtml += "The following Artifact IDs were associated:<br>";
+                for (var i = 0; i < dataObjIn['data'].length; i++ ) {
+                    tmpHtml += dataObjIn['data'][i] + "<br>";
+                }
+            } else {
+                // It didn't work
+                tmpHtml += "<b>ERROR!</b> " + dataObjIn['status']['detail'] + "<br>";
+                tmpHtml += "Log:<br>";
+                for (var i = 0; i < dataObjIn['status']['log'].length; i++ ) {
+                    tmpHtml += dataObjIn['status']['log'][i] + "<br>";
+                }
+                if (dataObjIn['data'].length > 0) {
+                    tmpHtml += "<br>";
+                    tmpHtml += "The following Artifact IDs were associated:<br>";
+                    for (var i = 0; i < dataObjIn['data'].length; i++ ) {
+                        tmpHtml += dataObjIn['data'][i] + "<br>";
+                    }                    
+                }     
+            }
+            
+            // structfeatureedit
+            
+            var tmpDiv = document.createElement('div');
+            tmpDiv.innerHTML = tmpHtml;
+            document.getElementById('structfeatureedit').appendChild(tmpDiv);
+            
+            //{
+                //"method":"addEpisodesToSeries",
+                //"params":["4298bd88-0cc1-42a1-9e4a-1fa2a3993d6a","boats/Chernobyl","Chernobyl_S"],
+                //"status":{
+                    //"success":true,
+                    //"detail":"",
+                    //"log":[
+                        //"Artifact is already an associated episode: 157358c0-6830-4a40-b8b1-98b57ee75016",
+                        //"Artifact is already an associated episode: 247e52dd-af26-4fc4-9cf2-86a269c063fd",
+                        //"Artifact is already an associated episode: 807f56fa-7c69-469e-b124-bc5045b8b36d",
+                        //"Artifact added to series: c0c01476-b641-47dc-be52-50a8fd2923ba",
+                        //"Artifact is already an associated episode: c4dc9d25-cedb-4dba-899c-506d5cc90be0"
+                    //]
+                //},
+                //"data":["c0c01476-b641-47dc-be52-50a8fd2923ba"]
+            //}
+        }
+        // dictIn['seriesaid'],dictIn['filepath'],dictIn['filefrag']
+        var payloadObj = {'seriesaid': seriesaidIn, 'filepath':filepathIn, 'filefrag':filefragIn};
+        var endpoint = '/rmvid/api/series/artifacts/add';
+        this.genericApiCall(payloadObj,endpoint,cbFunc)
     }
 }
 
@@ -2361,8 +2481,19 @@ function switchboard(actionIn,objIdIn,argObjIn) {
             //console.log('');
             break;
             
-            
-            
+        case 'seriesAddEpisodesForm':
+            ml.renderSeriesEpisodeAddForm(argObjIn); //['artifactid'],argObjIn['title']
+            break;
+        case 'seriesEpisodeAddSubmit':
+            var seriesaid = document.getElementById('naartifactid').value;
+            var filepath = document.getElementById('nafilepath').value;
+            var filefrag = document.getElementById('nafilename').value;
+            //var  = document.getElementById('').value;
+            ml.execAddSeriesEpisodes(seriesaid,filepath,filefrag);
+            break;
+//vodlibsketch3.js:2455 Uncaught Error: Action seriesEpisodeAddSubmit is not recognized!  Received objIdIn =   and argObjIn = {}.
+//    at switchboard (vodlibsketch3.js:2455:19)
+//    at HTMLSpanElement.onclick (vodlib_static_3.html:1:1)            
             
             
             
