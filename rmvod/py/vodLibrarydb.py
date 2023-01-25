@@ -37,8 +37,9 @@ import requests
 # see <https://www.gnu.org/licenses/>.
 
 fileStr = "vodLibrarydb.py"
-versionStr = "0.2.1"
+versionStr = "0.2.4"
 
+# moving to "proper" deployment via WSGI:  https://flask.palletsprojects.com/en/2.0.x/deploying/mod_wsgi/
 class VodLibDB:
     def __init__(self):
         self.dbc = {}
@@ -262,6 +263,7 @@ class VodLibDB:
         pass
         
         insertSql = "INSERT INTO artifacts SET " + sqlInsSetStr + ";"
+        print ("VodLibDB.createArtifact: " + insertSql)
         try:
             self._stdInsert(insertSql)
         except:
@@ -271,6 +273,7 @@ class VodLibDB:
         
         try:
             self.updateArtifactByIdAndDict(artiDictIn['artifactid'],artiProto)
+            retval = True
         except:
             raise Exception("New Artifact Update failed")
             return False
@@ -1483,6 +1486,10 @@ class MediaLibraryDB:
         except:
             print("getArtifactById for " + artiIdIn + " FAILED")
         pass
+        try:
+            retval['poster'] = self.fetchPosterFile(retval['imdbid'])
+        except:
+            print("getArtifactById couldn't get the poster file.  Sad.")
         return retval
     def getNextEpisodeArtifactById(self,artiIdIn):
         retval = None
@@ -1710,6 +1717,42 @@ class MediaLibraryDB:
         retval = self.modifyArtifact(artiIdIn,updateDict)
         
         return retval
+    def fetchPosterLink(self,imdbidIn):
+        posterUri = ''
+        if imdbidIn == 'string' or imdbidIn == 'none' or imdbidIn == '':
+            return posterUri
+        # print("fetchPosterLink - Attempting to fetch for " + imdbidIn)
+        try:
+            api_url = "http://www.omdbapi.com/?i=" + imdbidIn + "&apikey=87edb0eb"
+            response = requests.get(api_url)
+            responseDict = response.json()
+            posterUri = responseDict['Poster']
+        except:
+            print("fetchPosterLink Failed to fetch " + api_url)
+            pass
+        # print("Got back Poster URI: " + posterUri)
+        return posterUri        
+    def fetchPosterFile(self,imdbidIn):
+        if imdbidIn == '' or imdbidIn == 'string' or imdbidIn == 'none':
+            print("fetchPosterFile - Got a bad imdbid: " + str(imdbidIn))
+            return ''
+        baseDir = '/var/www/html'
+        uriPath = '/rmvid/img/poster_00/' + imdbidIn + '.jpg'
+        filnm = baseDir + uriPath
+        if not (os.path.exists(filnm)):
+            # print("fetchPosterFile - Apparently " + filnm + " does not exist locally.  Trying to fetch it ")
+            try: 
+                posterUri = self.fetchPosterLink(imdbidIn)
+                response = requests.get(posterUri)
+                fh = open(filnm,"wb")
+                fh.write(response.content)
+                fh.close()
+            except:
+                print('Tried to fetch ' + posterUri + ' and save it as ' + filnm + ' but failed miserably')
+                uriPath = ''
+                pass
+            pass
+        return uriPath
     def librarifyTitle(self,titleIn):
         titleOut = titleIn
         if titleIn[0:4] == "The ":
@@ -1796,6 +1839,63 @@ class MediaLibraryDB:
         if failCount == 0:
             retDict['status']['success'] = True
         return retDict
+    def apiCreateSingleArtifact(self,argDictIn):
+        assert type(argDictIn) == type({'this':'that'})
+        dictIn = argDictIn
+        result = {'status':'failed','statusdetail':'did not even begin','data':{'artifactid':''}}
+        evenTry = True
+        if dictIn['majtype'] != 'tvseries':
+            try:
+                #print("Trying newArtiPreCheck...",dictIn['filepath'],dictIn['file'])
+                checkVal = self.newArtiPreCheck(dictIn['filepath'],dictIn['file'])
+                #print(checkVal)
+                assert checkVal == True
+                #print("Tried newArtiPreCheck.")
+            except:
+                evenTry = False
+                sdStr = "Artifact for file = " + dictIn['file'] 
+                sdStr += " already exists, or file is not present in the specified path."
+                result = {'status':'failed','statusdetail':sdStr,'data':{'artifactid':''}}
+        else:
+            print("Skipping file pre-test because this is a tvseries")
+        pass
+        if evenTry == True:
+            try:
+                print("trying newSingleArtifact...")
+                artiData = {}
+                artiData['title'] = dictIn['file']
+                # if dictIn['majtype'] == 'tvseries':
+                    # artiData['file'] = ''
+                # else:
+                    # artiData['file'] = dictIn['file']
+                artiData['file'] = dictIn['file']
+                artiData['majtype'] = dictIn['majtype']
+                artiData['filepath'] = dictIn['filepath']
+                artiData['runmins'] = -1
+                artiData['season'] = -1
+                artiData['episode'] = -1
+                artiData['relyear'] = -1
+                artiData['director'] = '[]'
+                artiData['writer'] = '[]'
+                artiData['primcast'] = '[]'
+                artiData['relorg'] = '[]'
+                artiData['eidrid'] = 'string'
+                artiData['imdbid'] = 'string'
+                artiData['arbmeta'] = '{}'
+                # artiData['tags'] = str(dictIn['tags'])
+                #artiData[''] = '';
+                artifactid = self.createArtifact(artiData)
+                result = {'status':'success','statusdetail':dictIn['file'],'data':{'artifactid':artifactid}}
+            except:
+                print("newSingleArtifact EXCEPTION!")
+                detailStr = 'Attempt to insert failed with input values ' + json.dumps(dictIn) + ' and artifact values ' + json.dumps(artiData)
+                print(detailStr)
+                result = {'status':'failed','statusdetail':detailStr,'data':{'artifactid':artifactid}}
+                pass
+            pass
+        print(json.dumps(result))
+        return result
+        
 
 class MLCLI:
     def __init__(self):
@@ -2460,11 +2560,6 @@ def newSingleArtifact():
         assert "majtype" in diKeysList
         assert "file" in diKeysList
         assert "filepath" in diKeysList
-        #assert type(dictIn['artifactid']) == type("string")
-        #assert 32 < len(dictIn['artifactid']) < 40
-        
-        #assert 'values' in diKeysList
-        #assert type(dictIn['values']) == type({'key':'value'})
         pass
     except:
         print("What came in: " + request.json)
@@ -2472,61 +2567,8 @@ def newSingleArtifact():
         diKeysList = []
     pass
     ml = MediaLibraryDB()  
-    print(json.dumps(dictIn))
-    result = {'status':'failed','statusdetail':'did not even begin','data':{'artifactid':''}}
-    evenTry = True
-    if dictIn['majtype'] != 'tvepisode':
-        try:
-            print("Trying newArtiPreCheck...",dictIn['filepath'],dictIn['file'])
-            checkVal = ml.newArtiPreCheck(dictIn['filepath'],dictIn['file'])
-            print(checkVal)
-            assert checkVal == True
-            print("Tried newArtiPreCheck.")
-        except:
-            evenTry = False
-            sdStr = "Artifact for file = " + dictIn['file'] 
-            sdStr += " already exists, or file is not present in the specified path."
-            result = {'status':'failed','statusdetail':sdStr,'data':{'artifactid':''}}
-    else:
-        print("Skipping file pre-test because this is a tvepisode")
-    pass
-    if evenTry == True:
-        try:
-            print("trying newSingleArtifact...")
-            artiData = {}
-            artiData['title'] = dictIn['file']
-            if dictIn['majtype'] == 'tvepisode':
-                artiData['file'] = ''
-            else:
-                artiData['file'] = dictIn['file']
-            artiData['majtype'] = dictIn['majtype']
-            artiData['filepath'] = dictIn['filepath']
-            artiData['runmins'] = -1
-            artiData['season'] = -1
-            artiData['episode'] = -1
-            artiData['relyear'] = -1
-            artiData['director'] = '[]'
-            artiData['writer'] = '[]'
-            artiData['primcast'] = '[]'
-            artiData['relorg'] = '[]'
-            artiData['eidrid'] = 'string'
-            artiData['imdbid'] = 'string'
-            artiData['arbmeta'] = '{}'
-            # artiData['tags'] = str(dictIn['tags'])
-            #artiData[''] = '';
-            artifactid = ml.createArtifact(artiData)
-            
-            #  addTagtoArtifact(self,tagStrIn,artifactIdIn)
-            ml.addTagtoArtifact(dictIn['tags'][0],artifactid)
-            
-            result = {'status':'success','statusdetail':dictIn['file'],'data':{'artifactid':artifactid}}
-        except:
-            print("newSingleArtifact EXCEPTION!")
-            print(json.dumps(artiData))
-            result = {'status':'failed','statusdetail':'Attempt to insert failed','data':{'artifactid':''}}
-            pass
-        pass
-    print(json.dumps(result))
+    result = ml.apiCreateSingleArtifact(dictIn)
+    # print(json.dumps(result))
     return json.dumps(result)
     pass
     
@@ -2602,6 +2644,7 @@ def addArtisToSeries():
     retobj = ml.addEpisodesToSeries(dictIn['seriesaid'],dictIn['filepath'],dictIn['filefrag'])
     return json.dumps(retobj)
     pass
+    
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Optional app description')
     # Switch

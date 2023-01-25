@@ -775,7 +775,7 @@ class RMVodWebApp {
         // These version bits will eventually need to involve polling 
         // the API and DB for their versions
         this.apiFetchRemoteVersions();
-        this.postJSVer("0.5.0");
+        this.postJSVer("0.5.3");
     }
     postCSSVer(verStrIn){  // <<==== DEPRECATED
         const methNm = 'postCSSVer';
@@ -1432,6 +1432,17 @@ class RMVodWebApp {
             var wa = new RMVodWebApp();
             const colList = ['title','majtype','relyear','tags','synopsis','runmins','director','writer','primcast','relorg','season','episode','file','filepath','eidrid','imdbid','arbmeta','artifactid'];
             var dValStr = "" ;
+            
+            try {
+                console.log("Trying to work with poster value");
+                if ((objIn['poster'] != '') && (objIn['imdbid'] != 'string') && (objIn['imdbid'] != 'none') && (objIn['imdbid'] != '')){
+                    //dValStr += '<img src="'  + objIn['poster'] + '" width="150" height="230"><br>';
+                    dValStr += '<img src="'  + objIn['poster'] + '" width="300" height="460"><br>';
+                }
+            } catch (e) {
+                console.log("Tried to include poster image, but failed: " + e + "\n" + objIn['poster']);
+            }
+            
             for ( var idx=0; idx<colList.length; idx++ ) {
                 dValStr += '<b>' + colList[idx] + ": </b>"; // + objIn[colList[idx]] + '<br>';
                 switch (colList[idx]) {
@@ -2024,6 +2035,9 @@ class RMVodWebApp {
         const payload = {'artifactid':wrkArtiId,'values':updateObj};
         this.genericApiCall(payload,endpoint,cbFunc);
     }
+    renderUnifiedNewArtifactForm(ModeStrIn){ // Someday
+        // Someday
+    }
     renderNewSingleArtiForm(){
         //Web UI for Create a Single Artifact:
         //You put in filepath, file, majtype
@@ -2031,6 +2045,12 @@ class RMVodWebApp {
         //filename as title, and send the artifactid back to the UI.  
         //UI initiates "Edit" on returned artifactid
         var tmpHtml = "";
+        tmpHtml += '<p>';
+        tmpHtml += 'Create a single Artifact by providing the filepath component and filename which will identify files in the video storage location.<br>';
+        tmpHtml += 'You will also need to provide the Major Type for the artifact.<br>';
+        tmpHtml += '<b>Note:</b>If you are creating a "tvseries" artifact, set the filename to the leading part of the filename which is common to all the filenames of the "tvepisode" artifacts to be added subsequently';
+        tmpHtml += '</p>';
+        
         tmpHtml += '<span id="" class="" style="font-weight:bold">Path:  </span>';
         tmpHtml += '<input id="nafilepath" type="text" class="">';
         tmpHtml += '<br>';
@@ -2050,6 +2070,7 @@ class RMVodWebApp {
         
         var div = document.createElement('div');
         div.className = "";
+        div.style.overflow = 'auto';
         div.id = "";
         div.innerHTML = tmpHtml;
         
@@ -2062,15 +2083,17 @@ class RMVodWebApp {
         document.getElementById('tabspan2').dispatchEvent(ev);
     }
     renderSeriesEpisodeAddForm(argObjIn){
-        //Web UI for Create a Single Artifact:
+        //Web UI for Associate Episodes with Series:
         //You put in filepath, file, majtype
         //API Call => If file exists, create bare-bones Artifact with 
         //filename as title, and send the artifactid back to the UI.  
         //UI initiates "Edit" on returned artifactid
         var tmpHtml = "";
         tmpHtml += '<p>';
-        tmpHtml += 'Add Episodes to TV Series <b>' + argObjIn['title'] + '</b> by providing the filepath component and filename fragment which will identify files in the video storage location.';
+        tmpHtml += 'Add Episodes to TV Series <b>' + argObjIn['title'] + '</b> by providing the filepath component and filename fragment which will identify files in the video storage location.<br>';
+        tmpHtml += 'This requires that the Artifacts for the Episodes have already been created.';
         tmpHtml += '</p>';
+        
         tmpHtml += '<span id="" class="" style="font-weight:bold">File path:  </span>';
         tmpHtml += '<input id="nafilepath" type="text" class="">';
         tmpHtml += '<br>';
@@ -2093,6 +2116,7 @@ class RMVodWebApp {
         
         var div = document.createElement('div');
         div.className = "";
+        div.style.overflow = 'auto';
         div.id = "";
         div.innerHTML = tmpHtml;
         
@@ -2115,6 +2139,11 @@ class RMVodWebApp {
         //filename as title, and send the artifactid back to the UI.  
         //UI initiates "Edit" on returned artifactid
         var tmpHtml = "";
+        tmpHtml += '<p>';
+        tmpHtml += 'Create multiple Artifacts by providing the filepath component and a newline-separated list of filenames which will identify files in the video storage location.<br>';
+        tmpHtml += 'You will also need to provide the Major Type for the artifacts and an initial Tag to be assigned.';
+        tmpHtml += '</p>';
+        
         tmpHtml += '<span id="" class="" style="font-weight:bold">Path:  </span>';
         tmpHtml += '<input id="nafilepath" type="text" class="">';
         tmpHtml += '<br>';
@@ -2127,7 +2156,7 @@ class RMVodWebApp {
         tmpHtml += '<select name="namajtype" id="namajtype" class="">';
         tmpHtml += '<option value="none"></option>';
         tmpHtml += '<option value="movie">movie</option>';
-        tmpHtml += '<option value="tvseries">tvseries</option>';
+        //tmpHtml += '<option value="tvseries">tvseries</option>';
         tmpHtml += '<option value="tvepisode">tvepisode</option>';
         tmpHtml += '</select>';
         tmpHtml += '<br>';
@@ -2162,6 +2191,7 @@ class RMVodWebApp {
         
         var div = document.createElement('div');
         div.className = "";
+        div.style.overflow = 'auto';
         div.id = "";
         div.innerHTML = tmpHtml;
         
@@ -2530,6 +2560,7 @@ function addChoice(deIdIn) {
         var de = document.getElementById(deIdIn);
         var newDeId = deIdIn.replace(re,'_new_option');
         de.parentElement.innerHTML = '<input id="' + newDeId + '" type="text" onchange="addChoice(this.id)">';
+        document.getElementById(newDeId).focus();
     } else {
         switchboard('listAction',deIdIn,{'action':'add-choice'});
     }
