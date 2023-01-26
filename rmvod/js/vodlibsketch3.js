@@ -775,7 +775,7 @@ class RMVodWebApp {
         // These version bits will eventually need to involve polling 
         // the API and DB for their versions
         this.apiFetchRemoteVersions();
-        this.postJSVer("0.5.3");
+        this.postJSVer("0.5.4");
     }
     postCSSVer(verStrIn){  // <<==== DEPRECATED
         const methNm = 'postCSSVer';
@@ -867,19 +867,24 @@ class RMVodWebApp {
         xhttp.send(bodyDataStr);
         return contentRet;
     }
-    apiFetchRemoteVersions(){
+    apiFetchRemoteVersions(){ //UPDATED FOR NEW RETURN OBJECT MODEL
         //console.log("This is where we get API and DB versions");
         var cbFunc = function (objIn) {
             var da = new RMVWADOMActions();
-            da.updateVersions(objIn);
+            //da.updateVersions(objIn);
+            //console.log(JSON.stringify(objIn));
+            da.updateVersions(objIn['data'][0]);
         }
         const payloadObj = {};
         const endpoint = '/rmvid/api/apiversion/get';
         var result = this.genericApiCall(payloadObj,endpoint,cbFunc);
     }
-    apiFetchPersonsList(){
-        var cbFunc = function (dataObjIn) {
-            // Write to Session Store
+    apiFetchPersonsList(){ //UPDATED FOR NEW RETURN OBJECT MODEL
+        //var cbFunc = function (dataObjIn) {
+            //// Write to Session Store
+        var cbFunc = function (objIn) {
+            var dataObjIn = objIn['data'];
+            //console.log('apiFetchPersonsList.cbFunc: ' + JSON.stringify(dataObjIn));
             var sse = new RMSSSEnhanced();
             var theBlob = sse.ssRead('blob');
             theBlob['persons'] = dataObjIn;
@@ -889,9 +894,12 @@ class RMVodWebApp {
         const endpoint = '/rmvid/api/suplist/get';
         var result = this.genericApiCall(payloadObj,endpoint,cbFunc);
     }
-    apiFetchCompaniesList(){
-        var cbFunc = function (dataObjIn) {
-            // Write to Session Store
+    apiFetchCompaniesList(){ //UPDATED FOR NEW RETURN OBJECT MODEL
+        //var cbFunc = function (dataObjIn) {
+            //// Write to Session Store
+        var cbFunc = function (objIn) {
+            var dataObjIn = objIn['data'];
+            //console.log('apiFetchCompaniesList.cbFunc: ' + JSON.stringify(dataObjIn));
             var sse = new RMSSSEnhanced();
             var theBlob = sse.ssRead('blob');
             theBlob['companies'] = dataObjIn;
@@ -901,8 +909,10 @@ class RMVodWebApp {
         const endpoint = '/rmvid/api/suplist/get';
         var result = this.genericApiCall(payloadObj,endpoint,cbFunc);
     }
-    apiFetchTagsList(){
-        var cbFunc = function (dataObjIn) {
+    apiFetchTagsList(){ //UPDATED FOR NEW RETURN OBJECT MODEL
+        var cbFunc = function (objIn) {
+            var dataObjIn = objIn['data'];
+            //console.log('apiFetchTagsList.cbFunc: ' + JSON.stringify(dataObjIn));
             // Write to Session Store
             var sse = new RMSSSEnhanced();
             var theBlob = sse.ssRead('blob');
@@ -913,7 +923,7 @@ class RMVodWebApp {
         const endpoint = '/rmvid/api/suplist/get';
         var result = this.genericApiCall(payloadObj,endpoint,cbFunc);
     }
-    apiExecListAction(deIdIn, actionIn){
+    apiExecListAction(deIdIn, actionIn){ //UPDATED FOR NEW RETURN OBJECT MODEL
         
         var listName = deIdIn.split('_')[0];
         var artiId = document.getElementById(listName + '_DocId').innerText;
@@ -943,7 +953,10 @@ class RMVodWebApp {
         }
         // console.log('apiExecListAction - endpoint: ' + endpoint);
         // console.log('apiExecListAction - payload: ' + JSON.stringify(payloadObj));
-        var cbFunc = function(objIn){
+        var cbFunc = function(dataObjIn){
+            console.log('apiExecListAction.cbFunc: dataObjIn = ' + JSON.stringify(dataObjIn));
+            var objIn = dataObjIn['data'][0];
+            //console.log('apiExecListAction.cbFunc: objIn = ' + JSON.stringify(objIn));
             // console.log('apiExecListAction.cbfunc');
             // console.log(JSON.stringify(objIn))
             var fieldNm = Object.keys(objIn)[0];
@@ -953,8 +966,11 @@ class RMVodWebApp {
         }
         var result = this.genericApiCall(payloadObj,endpoint,cbFunc);
     }
-    vodPlayTitleApi3(artiIdIn){
-        var cbFunc = function (dataObjIn) {
+    vodPlayTitleApi3(artiIdIn){ //UPDATED FOR NEW RETURN OBJECT MODEL
+        var cbFunc = function (objIn) {
+            
+            var dataObjIn = objIn['data'][0];
+            
             var wa = new RMVodWebApp();
             wa.cc.setCookie('playing_aid',dataObjIn['artifactid'],365);
             try {
@@ -1003,13 +1019,15 @@ class RMVodWebApp {
         const payload = {'artifactid':artiIdIn};
         this.genericApiCall(payload,apiEndpoint,cbFunc);
     }
-    vodPlayNextTitle(artiIdIn){
+    vodPlayNextTitle(artiIdIn){ //UPDATED FOR NEW RETURN OBJECT MODEL
         //// Confirm checkbox is checked
         if (document.getElementById('serplaynext').checked == false) {
             console.log('serplaynext not checked');
             return;
         }
-        var cbFunc = function(objIn){
+        var cbFunc = function(dataObjIn){
+            //console.log('vodPlayNextTitle.cbFunc: ' + JSON.stringify(dataObjIn));
+            var objIn = dataObjIn['data'][0];
             var wa = new RMVodWebApp();
             //wa.vodPlayTitleApi2(objIn['artifactid']);
             wa.vodPlayTitleApi3(objIn['artifactid']);
@@ -1104,7 +1122,7 @@ class RMVodWebApp {
         
         this.tagSelListRefresh();
     }
-    tagSelListRefresh(){ //  NEEDS TO BE BETTER - maybe involve apiFetchTagsList
+    tagSelListRefresh(){ //UPDATED FOR NEW RETURN OBJECT MODEL  //  NEEDS TO BE BETTER - maybe involve apiFetchTagsList
         var tsl = document.getElementById('tag-search-select');
         // Clear the current list of options
         while (tsl.length > 0) {
@@ -1117,7 +1135,8 @@ class RMVodWebApp {
         tsl.appendChild(noneOpt);
         // Fetch Tags from API and repopulate
         
-        var cbFunc = function (objIn) {
+        var cbFunc = function (dataObjIn) {
+            var objIn = dataObjIn['data'];
             var tsl = document.getElementById('tag-search-select');
             var lLen = objIn.length;
             if ( lLen > 0 ) {
@@ -1129,8 +1148,10 @@ class RMVodWebApp {
                 }
             }
         }
-        const endpoint = '/rmvid/api/taglist/get';
-        const payload = {};
+        //const endpoint = '/rmvid/api/taglist/get';
+        //const payload = {};
+        const endpoint = '/rmvid/api/suplist/get';
+        const payload = {'table':'tags'};
         this.genericApiCall(payload,endpoint,cbFunc);
     }
     // Render Page Layouts
@@ -1230,6 +1251,7 @@ class RMVodWebApp {
     }
     // SIDE LIST HANDLING
     renderSALByIdList(artiIdListIn){
+        //console.log('renderSALByIdList.artiIdListIn: ' + JSON.stringify(artiIdListIn));
         // Whole List -- No details or episodes
         var allowedMajTypes = ['tvseries','movie'];
         var tmpDiv = document.createElement('div');
@@ -1408,13 +1430,17 @@ class RMVodWebApp {
         
         return listElContainer;
     }
-    populateSeriesEpisodes(seriesArtiIdIn){
+    populateSeriesEpisodes(seriesArtiIdIn){ //UPDATED FOR NEW RETURN OBJECT MODEL
         const cbFunc = function (objIn) {
+            // console.log('populateSeriesEpisodes.cbFunc: ' + JSON.stringify(objIn))
             var epListDEID = seriesArtiIdIn += '-sidelist-episode-list-outer';
             document.getElementById(epListDEID).innerHTML = '';
             var wa = new RMVodWebApp();
-            for (var idx = 0; idx < objIn.length; idx++) {
-                var listDiv = wa.renderSALElementById(objIn[idx]);
+            //for (var idx = 0; idx < objIn.length; idx++) {
+            for (var idx = 0; idx < objIn['data'].length; idx++) {
+                //var listDiv = wa.renderSALElementById(objIn[idx]);
+                //document.getElementById(epListDEID).appendChild(listDiv);
+                var listDiv = wa.renderSALElementById(objIn['data'][idx]);
                 document.getElementById(epListDEID).appendChild(listDiv);
             }
         }
@@ -1422,19 +1448,22 @@ class RMVodWebApp {
         const payloadObj = {'artifactid':seriesArtiIdIn};
         this.genericApiCall(payloadObj,endpoint,cbFunc);
     }
-    populateArtifactDetails(artiIdIn){
+    populateArtifactDetails(artiIdIn){ //UPDATED FOR NEW RETURN OBJECT MODEL
         
         this.apiFetchPersonsList();
         this.apiFetchCompaniesList();
         this.apiFetchTagsList();
                 
-        const cbFunc = function (objIn) {
+        const cbFunc = function (dataObjIn) {
+            
+            var objIn = dataObjIn['data'][0];
+            
             var wa = new RMVodWebApp();
             const colList = ['title','majtype','relyear','tags','synopsis','runmins','director','writer','primcast','relorg','season','episode','file','filepath','eidrid','imdbid','arbmeta','artifactid'];
             var dValStr = "" ;
             
             try {
-                console.log("Trying to work with poster value");
+                //console.log("Trying to work with poster value");
                 if ((objIn['poster'] != '') && (objIn['imdbid'] != 'string') && (objIn['imdbid'] != 'none') && (objIn['imdbid'] != '')){
                     //dValStr += '<img src="'  + objIn['poster'] + '" width="150" height="230"><br>';
                     dValStr += '<img src="'  + objIn['poster'] + '" width="300" height="460"><br>';
@@ -1513,13 +1542,13 @@ class RMVodWebApp {
         deetDiv.innerHTML = innerHtml;       
          
     }
-    execSearchSingleFactor2(factorStrIn,srchValObjIn) {
+    execSearchSingleFactor2(factorStrIn,srchValObjIn) { // UPDATED FOR NEW RETURN OBJECT MODEL
         try{ // React correctly to MultiFactor Search Y/N
             var mfsyn = document.getElementById('mfsearchyn');
-            console.log(document.getElementById('mfsearchyn').id);
-            console.log("mfsyn: " + mfsyn.checked.toString());
+            //console.log(document.getElementById('mfsearchyn').id);
+            //console.log("mfsyn: " + mfsyn.checked.toString());
             if (mfsyn.checked == true) {
-                console.log("Multi-Factor Search enabled.  Single search Factor " + factorStrIn + " ignored.");
+                //console.log("Multi-Factor Search enabled.  Single search Factor " + factorStrIn + " ignored.");
                 return;
             } 
         } catch (e) {
@@ -1530,8 +1559,10 @@ class RMVodWebApp {
         var endpoint = '';
         var cbFunc = function(){};
         switch (factorStrIn) {
-            case "tag":
-                cbFunc = function (objIn){
+            case "tag":  //UPDATED FOR NEW RETURN OBJECT MODEL
+                cbFunc = function (dataObjIn){
+                    //console.log('execSearchSingleFactor2.dataObjIn: ' + JSON.stringify(dataObjIn));
+                    var objIn = dataObjIn['data'];
                     var wa = new RMVodWebApp();
                     var artiTitleIdList = wa.sse.ssRead('titleidlist');
                     var tmpDiv = wa.renderSALByIdList(objIn);
@@ -1543,8 +1574,9 @@ class RMVodWebApp {
                 } 
                 endpoint = "/rmvid/api/titleidlist/get";
                 break;
-            case "text":
-                cbFunc = function (objIn){
+            case "text":  //UPDATED FOR NEW RETURN OBJECT MODEL
+                cbFunc = function (dataObjIn){
+                    var objIn = dataObjIn['data'];
                     var wa = new RMVodWebApp();
                     var artiTitleIdList = wa.sse.ssRead('titleidlist');
                     if (objIn.length > 0) {
@@ -1558,8 +1590,10 @@ class RMVodWebApp {
                 }
                 var endpoint = "/rmvid/api/simpletxtsrch/get";
                 break;
-            case "majtype":
-                cbFunc = function (objIn){
+            case "majtype":  //UPDATED FOR NEW RETURN OBJECT MODEL
+                cbFunc = function (dataObjIn){
+                    var objIn = dataObjIn['data'];
+                    //console.log('execSearchSingleFactor2.majtype.dataObjIn: ' + JSON.stringify(dataObjIn));
                     var wa = new RMVodWebApp();
                     var artiTitleIdList = wa.sse.ssRead('titleidlist');
                     var tmpDiv = wa.renderSALByIdList(objIn);
@@ -1571,8 +1605,9 @@ class RMVodWebApp {
                 }
                 endpoint = "/rmvid/api/titleidlist/get";
                 break;
-            case "relyear":
-                cbFunc = function (objIn){
+            case "relyear":  //UPDATED FOR NEW RETURN OBJECT MODEL
+                cbFunc = function (dataObjIn){
+                    var objIn = dataObjIn['data'];
                     var wa = new RMVodWebApp();
                     var artiTitleIdList = wa.sse.ssRead('titleidlist');
                     var tmpDiv = wa.renderSALByIdList(objIn);
@@ -1584,9 +1619,10 @@ class RMVodWebApp {
                 }
                 endpoint = "/rmvid/api/titleidlist/get";
                 break;
-            case "whereclause":
-                console.log("execSearchSingleFactor: " + factorStrIn + ": " + srchValObjIn[factorStrIn]);
-                cbFunc = function (objIn){
+            case "whereclause":  //UPDATED FOR NEW RETURN OBJECT MODEL
+                //console.log("execSearchSingleFactor: " + factorStrIn + ": " + srchValObjIn[factorStrIn]);
+                cbFunc = function (dataObjIn){
+                    var objIn = dataObjIn['data'];
                     var wa = new RMVodWebApp();
                     var artiTitleIdList = wa.sse.ssRead('titleidlist');
                     if (objIn.length > 0) {
@@ -1611,10 +1647,10 @@ class RMVodWebApp {
         try { // Try to reset the Search Factors on the form
             this.resetSearchFactors();
         } catch (e) {
-            console.log("Ignoring this error: " + e);
+            console.log("Ignoring this error: " + e.toString());
         }
     }
-    execSearchMultiFactor(){
+    execSearchMultiFactor(){ // UPDATED FOR NEW RETURN OBJECT MODEL
         var sfValsObj = {}
         // Get TAG value:
         sfValsObj['tag'] =  document.getElementById('tag-search-select').value;
@@ -1628,9 +1664,10 @@ class RMVodWebApp {
         // Get SQL WHERE value
         sfValsObj['sqlwhere'] =  document.getElementById('sql-where-srch').value;// sql-where-srch
         
-        console.log('execSearchMultiFactor: ' + JSON.stringify(sfValsObj));
+        //console.log('execSearchMultiFactor: ' + JSON.stringify(sfValsObj));
         
-        var cbFunc = function(objIn){
+        var cbFunc = function(dataObjIn){
+            var objIn = dataObjIn['data'];
             //console.log(JSON.stringify(objIn));
             var wa = new RMVodWebApp();
             //var artiTitleIdList = wa.sse.ssRead('titleidlist');
@@ -1690,6 +1727,7 @@ class RMVodWebApp {
         document.getElementById('header-cast').innerHTML = 'Cast: ' + castStr;
     }
     refreshFieldListWidget(fieldNmIn,valuesListIn){
+        //console.log('refreshFieldListWidget: ' + fieldNmIn + ': ' + JSON.stringify(valuesListIn));
         var blobKey = '';
         switch (fieldNmIn) {
             case 'tags':
@@ -1721,10 +1759,13 @@ class RMVodWebApp {
         boxDiv.innerHTML = lewDE.children[1].innerHTML;        
         
     }
-    renderArtifactEdit(artiIdIn){
+    renderArtifactEdit(artiIdIn){ //UPDATED FOR NEW RETURN OBJECT MODEL
         console.log('renderArtifactEdit: ' + artiIdIn);
-        var cbFunc = function (dataObjIn) {
+        var cbFunc = function (objIn) {
             //var wa = new RMVodWebApp();
+            
+            var dataObjIn = objIn['data'][0];
+            
             var sse = new RMSSSEnhanced();
             
             // Maybe move these renderers out to RMVWAHtmlGenerator... someday?
@@ -1968,7 +2009,7 @@ class RMVodWebApp {
         this.genericApiCall(payloadObj,endpoint,cbFunc);
         //END OF renderArtifactEdit
     }
-    postArtifactFieldEdit(deidIn,argObjIn){
+    postArtifactFieldEdit(deidIn,argObjIn){  //UPDATED FOR NEW RETURN OBJECT MODEL
         console.log('postArtifactFieldEdit ' + deidIn + ': ' + JSON.stringify(argObjIn));
         var wrkArtiId = deidIn.substring(0,36);
         var wrkFieldName = argObjIn['field'];
@@ -2203,7 +2244,23 @@ class RMVodWebApp {
         const ev = new Event('click');
         document.getElementById('tabspan2').dispatchEvent(ev);
     }
-    apiSubmitNewSingleArtiForm(){
+    apiSubmitNewSingleArtiForm(){ //UPDATED FOR NEW RETURN OBJECT MODEL
+
+        //{
+            //"method": "apiCreateSingleArtifact", 
+            //"params": [
+                //{"filepath": "boats/Chernobyl", "file": "Chernobyl_S01E02.m4v", "majtype": "tvepisode"}
+            //], 
+            //"status": {
+                //"success": false, 
+                //"detail": "Artifact for file = Chernobyl_S01E02.m4v already exists, or file is not present in the specified path.", 
+                //"log": []
+            //}, 
+            //"data": [
+                //{"artifactid": ""}
+            //]
+        //}
+        
         var nafp = document.getElementById('nafilepath').value;
         var nafn = document.getElementById('nafilename').value;
         var namt = document.getElementById('namajtype').value;
@@ -2217,7 +2274,7 @@ class RMVodWebApp {
                 document.getElementById('tabspan2').dispatchEvent(ev); 
             } else {
                 // Add failed
-                window.alert("Sumbit failed.  Correct the problem listed below and try again.\n" + dataObjIn['statusdetail'])
+                window.alert("Sumbit failed.  Correct the problem listed below and try again.\n" + dataObjIn['status']['detail'])
             }
         }
         var payload = {'filepath':nafp,'file':nafn,'majtype':namt};
@@ -2225,7 +2282,23 @@ class RMVodWebApp {
         this.genericApiCall(payload,endpoint,cbFunc);
         
     }
-    apiSubmitNewMultiArtiForm(){
+    apiSubmitNewMultiArtiForm(){ //UPDATED FOR NEW RETURN OBJECT MODEL
+        
+        //{
+            //"method": "apiCreateSingleArtifact", 
+            //"params": [
+                //{"filepath": "boats/Chernobyl", "file": "Chernobyl_S01E02.m4v", "majtype": "tvepisode"}
+            //], 
+            //"status": {
+                //"success": false, 
+                //"detail": "Artifact for file = Chernobyl_S01E02.m4v already exists, or file is not present in the specified path.", 
+                //"log": []
+            //}, 
+            //"data": [
+                //{"artifactid": ""}
+            //]
+        //}
+        
         var nafp = document.getElementById('nafilepath').value;
         var nafn = document.getElementById('nafilename').value;
         var namt = document.getElementById('namajtype').value;     
@@ -2236,15 +2309,16 @@ class RMVodWebApp {
             var cbFunc = function(dataObjIn){
                 // dataObjIn is the result object returned from the API
                 var ml =  new RMVodWebApp();
-                if (dataObjIn['status'] == 'success') {
+                //if (dataObjIn['status'] == 'success') {
+                if (dataObjIn['status']['success'] == true) {
                     // Add succeeded
                     var tmpDiv = document.createElement('div');
-                    tmpDiv.innerHTML = ' > ' + dataObjIn['statusdetail'] + ' Succeeded! ';
+                    tmpDiv.innerHTML = ' > ' + dataObjIn['status']['detail'] + ' Succeeded! ';
                     document.getElementById('mutiaddresult').appendChild(tmpDiv);
                 } else {
                     // Add failed
                     var tmpDiv = document.createElement('div');
-                    tmpDiv.innerHTML = ' > Add Failed: ' + dataObjIn['statusdetail'];
+                    tmpDiv.innerHTML = ' > Add Failed: ' + dataObjIn['status']['detail'];
                     document.getElementById('mutiaddresult').appendChild(tmpDiv);
                 }
             }
@@ -2254,12 +2328,12 @@ class RMVodWebApp {
         }
     }
     handleMFSCBStateChange(checkedBoolIn){
-        console.log("mfSetCheck state = "  + checkedBoolIn);
+        //console.log("mfSetCheck state = "  + checkedBoolIn);
         if (checkedBoolIn == true) {
-            console.log("We should be exposing a 'Search' button.");
+            //console.log("We should be exposing a 'Search' button.");
             document.getElementById('mfsexeccontainer').style.display = 'block';
         } else {
-            console.log("We should be hiding the 'Search' button.");
+            //console.log("We should be hiding the 'Search' button.");
             document.getElementById('mfsexeccontainer').style.display = 'none';
         }
     }
@@ -2338,7 +2412,7 @@ function switchboard(actionIn,objIdIn,argObjIn) {
             break;
 
         case 'simpleNamesList':  
-            console.log("Getting simple list with tag " + objIdIn.toString());
+            //console.log("Getting simple list with tag " + objIdIn.toString());
             var tmpDiv = ml.renderArtifactBlocksByTag(objIdIn);
             document.getElementById('div01').appendChild(tmpDiv);
             break;        
@@ -2393,32 +2467,32 @@ function switchboard(actionIn,objIdIn,argObjIn) {
             break;   
             
         case 'execTxtSrch' :
-            console.log("Trying to execTxtSrch: " + objIdIn);
+            //console.log("Trying to execTxtSrch: " + objIdIn);
             var srchBoxDE = document.getElementById(objIdIn);
-            console.log("execTxtSrch for " + srchBoxDE.value);
+            //console.log("execTxtSrch for " + srchBoxDE.value);
             ml.execSearchSingleFactor2('text',{'text':srchBoxDE.value});
             // srchBoxDE.value = "";
             break;
             
         case 'execMajTypSrch':
-            console.log("Trying to " + actionIn + ": " + objIdIn, JSON.stringify(argObjIn)); 
+            //console.log("Trying to " + actionIn + ": " + objIdIn, JSON.stringify(argObjIn)); 
             var mtVal = document.getElementById(objIdIn).value;
-            console.log(objIdIn + " has value " + mtVal);
+            //console.log(objIdIn + " has value " + mtVal);
             ml.execSearchSingleFactor2('majtype',{'majtype':mtVal});
             break;
             
         case 'execRelyearSrch':
-            console.log("Trying to " + actionIn + ": " + objIdIn, JSON.stringify(argObjIn)); 
+            //console.log("Trying to " + actionIn + ": " + objIdIn, JSON.stringify(argObjIn)); 
             var ryVal2 = document.getElementById(objIdIn).value;
             //document.getElementById(objIdIn).value = "";
             var ryVal1 = document.getElementById('relyear-srch-start').value;
             //document.getElementById('relyear-srch-start').value = "";
-            console.log('Dates captured: ', ryVal1, ryVal2); 
+            //console.log('Dates captured: ', ryVal1, ryVal2); 
             ml.execSearchSingleFactor2('relyear',{'relyear1':ryVal1,'relyear2':ryVal2});
             break;
             
         case 'execWhereClauseSrch':
-            console.log("Trying to " + actionIn + ": " + objIdIn, JSON.stringify(argObjIn)); 
+            //console.log("Trying to " + actionIn + ": " + objIdIn, JSON.stringify(argObjIn)); 
             const re = /'/g;
             var rawWCStr = document.getElementById(objIdIn).value.replace(re,"\'");
             ml.execSearchSingleFactor2('whereclause',{'whereclause':rawWCStr});

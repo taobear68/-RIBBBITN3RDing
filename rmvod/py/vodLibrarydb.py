@@ -37,7 +37,7 @@ import requests
 # see <https://www.gnu.org/licenses/>.
 
 fileStr = "vodLibrarydb.py"
-versionStr = "0.2.4"
+versionStr = "0.2.5"
 
 # moving to "proper" deployment via WSGI:  https://flask.palletsprojects.com/en/2.0.x/deploying/mod_wsgi/
 class VodLibDB:
@@ -603,13 +603,14 @@ class VodLibDB:
         return resList
     def getNextEpisodeArtifact(self,sEpiIdIn):
         retDict = {}
-        selSql = "SELECT a.artifactid "
+        selSql = "SELECT DISTINCT a.artifactid "
         selSql += "FROM artifacts a "
         selSql += "JOIN s2e s ON a.artifactid = s.episodeaid "
         selSql += "WHERE s.seriesaid = (select seriesaid from s2e where episodeaid = '"
         selSql += sEpiIdIn
-        selSql += "') " #a7470c75-0514-40ad-8c37-821eda8ccd92')
-        selSql += "ORDER BY a.title;"    
+        selSql += "' LIMIT 1) " #a7470c75-0514-40ad-8c37-821eda8ccd92')
+        selSql += "ORDER BY a.title;"  
+        #print('getNextEpisodeArtifact - selSql: ' + selSql)  
         rowsTuple = self._stdRead(selSql)
         idList = []
         for rowTuple in rowsTuple:
@@ -619,9 +620,10 @@ class VodLibDB:
         retList = []
         # if lastEpIdx < (len(idList) - 2) :
         if lastEpIdx < (len(idList) - 1) :
-            nextEpId = idList[lastEpIdx+1]
+            nextEpId = idList[lastEpIdx + 1]
             retList = self.getArtifactById(nextEpId,False)
         pass
+        #print(json.dumps(retList))
         return retList
     def getEpisodeTIMListBySeriesId(self,sEpiIdIn):
         # epiArtiIdList = self.getEpisodeListBySeriesId(sEpiIdIn)
@@ -1135,6 +1137,11 @@ class MediaLibraryDB:
         #  See function __normalizeTagStr for all the deets
         self.libMeta = {}
         self.libMeta['libstore'] = {'path':'/home/tourvilp/Desktop/vodlib/DBSCRATCH/data','file':'vml_test.json'}
+        self.libMeta['retdicttempl'] = {'method':'','params':[],'status':{},'data':[]}
+        self.libMeta['retdicttempl']['status']['success'] = False
+        self.libMeta['retdicttempl']['status']['detail'] = ''
+        self.libMeta['retdicttempl']['status']['log'] = []
+        
         pass
     def __normalizeTagStr(self,tagStrIn):
         istr0 = tagStrIn.lower()
@@ -1150,14 +1157,14 @@ class MediaLibraryDB:
         # print("newArtiPreCheck exist " + fileIn, exist)
         return  exist    
     def newArtiPreCheck(self,pathIn,fileIn):
-        print("newArtiPreCheck " + pathIn + ", " +fileIn)
+        #print("newArtiPreCheck " + pathIn + ", " +fileIn)
         basePath = '/var/www/html/rmvid/vidsrc/'
         exist = os.path.exists(basePath + pathIn + '/' + fileIn)
-        print("newArtiPreCheck exist " + fileIn, exist)
+        #print("newArtiPreCheck exist " + fileIn, exist)
         
         vldb = VodLibDB()
         count = vldb.getArtifactCountByFieldValue('file',fileIn)
-        print("newArtiPreCheck count " + fileIn, count)
+        #print("newArtiPreCheck count " + fileIn, count)
         
         retval = False
         if (exist == True) and (count == 0):
@@ -1369,19 +1376,30 @@ class MediaLibraryDB:
             retval = -1
         pass
         return retval
-    def getSupportList(self,tableNameIn):
+    def getSupportList(self,tableNameIn): # UPDATED FOR NEW RETURN OBJECT MODEL
+        
+        tmpRetObj = copy.deepcopy(self.libMeta['retdicttempl'])
+        tmpRetObj['method'] = 'getSupportList'
+        tmpRetObj['params'] = [tableNameIn]
+        # tmpRetObj['status']['success'] = True        
+        
+        
+        
         retval = None
         try:
             assert tableNameIn in ['persons','companies','tags']
             # ntag = self.__normalizeTagStr(tagStrIn)
             vldb = VodLibDB()
-            retval = vldb.getSupportList(tableNameIn)
+            # retval = vldb.getSupportList(tableNameIn)
+            tmpRetObj['data'] = vldb.getSupportList(tableNameIn)
+            tmpRetObj['status']['success'] = True 
             # retval = True
         except:
-            retval = False
+            # retval = False
+            pass
             pass
         pass
-        return retval
+        return tmpRetObj
     def createArtifact(self,artifactDictIn):
         # We should be confirming that the title doesn't already exist
         try:
@@ -1412,28 +1430,45 @@ class MediaLibraryDB:
         vldb = VodLibDB()
         vldb.createArtifact(inserDict)
         return aId
-    def modifyArtifact(self,artifactIdIn,artifactDictIn):
-        retval = False
+    def modifyArtifact(self,artifactIdIn,artifactDictIn): # UPDATED FOR NEW RETURN OBJECT MODEL
+        #retval = False
+        
+        tmpRetObj = copy.deepcopy(self.libMeta['retdicttempl'])
+        tmpRetObj['method'] = 'modifyArtifact'
+        tmpRetObj['params'] = [artifactIdIn, artifactDictIn]
+        # tmpRetObj['status']['success'] = True
+        
         # artifactDictIn = self.titleLibTweak(artifactDictIn)
         try:
             vldb = VodLibDB()
             foo = vldb.updateArtifactByIdAndDict(artifactIdIn,artifactDictIn)
-            retval = True
+            # retval = True
+            tmpRetObj['status']['success'] = True
         except:
-            retval = False
+            # retval = False
             print('Artifact update failed')
         pass
-        return retval
-    def artifactListFieldAction(self,paramObjIn):
+        return tmpRetObj
+    def artifactListFieldAction(self,paramObjIn): # UPDATED FOR NEW RETURN OBJECT MODEL
+        
+        tmpRetObj = copy.deepcopy(self.libMeta['retdicttempl'])
+        tmpRetObj['method'] = 'artifactListFieldAction'
+        tmpRetObj['params'] = [paramObjIn]
+        # tmpRetObj['status']['success'] = True
+        
         # {"action": "remove-member", "field": "tags", "artifactid": "b013a2e4-a681-4312-bba0-2e476782fe1b", "value": "animation"}
         artiObj = self.getArtifactById(paramObjIn['artifactid'])
         wrkList = artiObj[paramObjIn['field']]
-        retObj = {paramObjIn['field']:wrkList}
+        #retObj = {paramObjIn['field']:wrkList}
+        tmpRetObj['data'].append({paramObjIn['field']:wrkList})
+        tmpRetObj['status']['log'].append(json.dumps(tmpRetObj['data'][0]))
         if paramObjIn['action'] == 'remove-member':
             try:
                 wrkList.remove(paramObjIn['value'])
                 self.modifyArtifact(artiObj['artifactid'],{paramObjIn['field']:wrkList})
-                retObj[paramObjIn['field']] = wrkList
+                #retObj[paramObjIn['field']] = wrkList
+                tmpRetObj['data'][0][paramObjIn['field']] = wrkList
+                tmpRetObj['status']['success'] = True
             except:
                 print('artifactListFieldAction: ' +  paramObjIn['value'] + ' is not a valid ' + paramObjIn['field'])
             pass
@@ -1441,7 +1476,9 @@ class MediaLibraryDB:
             if not (paramObjIn['value'] in wrkList):
                 wrkList.append(paramObjIn['value'])
                 self.modifyArtifact(artiObj['artifactid'],{paramObjIn['field']:wrkList})
-                retObj[paramObjIn['field']] = wrkList
+                #retObj[paramObjIn['field']] = wrkList
+                tmpRetObj['data'][0][paramObjIn['field']] = wrkList
+                tmpRetObj['status']['success'] = True
             else:
                 print('artifactListFieldAction: ' +  paramObjIn['value'] + ' is already a member of ' + paramObjIn['field'])
             pass
@@ -1450,13 +1487,15 @@ class MediaLibraryDB:
             wrkList.append(paramObjIn['value']);
             self.modifyArtifact(artiObj['artifactid'],{paramObjIn['field']:wrkList})
             artiObj2 = self.getArtifactById(paramObjIn['artifactid'])
-            retObj[paramObjIn['field']] = artiObj2[paramObjIn['field']]
+            #retObj[paramObjIn['field']] = artiObj2[paramObjIn['field']]
+            tmpRetObj['data'][0][paramObjIn['field']] = artiObj2[paramObjIn['field']]
+            tmpRetObj['status']['success'] = True
             
         else:
             print('artifactListFieldAction: ' +  "Don't know what to do with this: " + paramObjIn['action'])
             print(str(paramObjIn))
         pass
-        return retObj
+        return tmpRetObj
                 
         pass
     def modifyArtifactTitle(self,oldTitleIn,newTitleIn,artifactIdIn):
@@ -1477,6 +1516,33 @@ class MediaLibraryDB:
         vldb = VodLibDB()
         retval = vldb.getTagList()
         return retval
+    def getArtifactByIdNew(self,artiIdIn): # UPDATED FOR NEW RETURN OBJECT MODEL
+        retval = None
+        
+        tmpRetObj = copy.deepcopy(self.libMeta['retdicttempl'])
+        tmpRetObj['method'] = 'getArtifactByIdNew'
+        tmpRetObj['params'] = [artiIdIn]
+        tmpRetObj['status']['success'] = True
+                
+        try:
+            vldb = VodLibDB()
+            retval = vldb.getArtifactById(artiIdIn,False)[0]
+            retval = self.titleLibTweak(retval)
+            #tmpRetObj['data'] = [retval]
+            tmpRetObj['data'].append(retval)
+        except:
+            tmpRetObj['status']['success'] = False
+            tmpRetObj['status']['detail'] = "getArtifactById for " + artiIdIn + " FAILED"
+            print("getArtifactById for " + artiIdIn + " FAILED")
+        pass
+        try:
+            #retval['poster'] = self.fetchPosterFile(retval['imdbid'])
+            tmpRetObj['data'][0]['poster'] = self.fetchPosterFile(retval['imdbid'])
+        except:
+            print("getArtifactById couldn't get the poster file.  Sad.")
+            
+        
+        return tmpRetObj
     def getArtifactById(self,artiIdIn):
         retval = None
         try:
@@ -1491,14 +1557,24 @@ class MediaLibraryDB:
         except:
             print("getArtifactById couldn't get the poster file.  Sad.")
         return retval
-    def getNextEpisodeArtifactById(self,artiIdIn):
+    def getNextEpisodeArtifactById(self,artiIdIn): # UPDATED FOR NEW RETURN OBJECT MODEL
+        
+        tmpRetObj = copy.deepcopy(self.libMeta['retdicttempl'])
+        tmpRetObj['method'] = 'getNextEpisodeArtifactById'
+        tmpRetObj['params'] = [artiIdIn]
+        tmpRetObj['status']['success'] = True
+                
         retval = None
         try:
             vldb = VodLibDB()
-            retval = vldb.getNextEpisodeArtifact(artiIdIn)[0]
+            #retval = vldb.getNextEpisodeArtifact(artiIdIn)[0]
+            tmpres = vldb.getNextEpisodeArtifact(artiIdIn)[0]
+            #print(json.dumps(tmpres))
+            tmpRetObj['data'] = vldb.getNextEpisodeArtifact(artiIdIn)
+            #print(json.dumps(tmpRetObj))
         except:
             print("getNextEpisodeArtifactById for " + artiIdIn + " FAILED")
-        return retval
+        return tmpRetObj # retval
     def getArtifactByName(self,artiNameIn):
         retval = False
         try:
@@ -1564,20 +1640,33 @@ class MediaLibraryDB:
             pass
         pass
         return retobj  
-    def findArtifactsBySrchStr(self,srchStrIn):  ####  NEW NEW NEW  # getArtifactListByPersTitleStr(self,titleFragIn)
+    def findArtifactsBySrchStr(self,srchStrIn): # UPDATED FOR NEW RETURN OBJECT MODEL 
         #ntag = self.__normalizeTagStr(srchStrIn)
+        tmpRetObj = copy.deepcopy(self.libMeta['retdicttempl'])
+        tmpRetObj['method'] = 'findArtifactsBySrchStr'
+        tmpRetObj['params'] = [srchStrIn]
+        #tmpRetObj['status']['success'] = True
+        
         retobj = []
         # print ('findArtifactsBySrchStr: ' + str(type(srchStrIn)) + str(srchStrIn))
         try:
             vldb = VodLibDB()
             retobj = vldb.getArtifactListByPersTitleStr(str(srchStrIn))
+            tmpRetObj['data'] = retobj
+            tmpRetObj['status']['success'] = True
         except:
             print('findArtifactsBysrchStr  BARF')
             pass
         pass
-        return retobj
-    def getArtifactsByMultiFactorSrch(self,mfSrchObjIn):
+        return tmpRetObj
+    def getArtifactsByMultiFactorSrch(self,mfSrchObjIn): # UPDATED FOR NEW RETURN OBJECT MODEL 
         # {"tag":"science_fiction","string":"star","majtype":"movie","relyearstart":"","relyearend":"","sqlwhere":""}
+        
+        tmpRetObj = copy.deepcopy(self.libMeta['retdicttempl'])
+        tmpRetObj['method'] = 'getArtifactsByMultiFactorSrch'
+        tmpRetObj['params'] = [mfSrchObjIn]
+        #tmpRetObj['status']['success'] = True        
+        
         retobj = []
         idList = []
         tmpResObj = {"tag":[],"string":[],"majtype":[],'relyear':[],'sqlwhere':[]}
@@ -1618,7 +1707,9 @@ class MediaLibraryDB:
         pass
         vldb = VodLibDB()
         retobj = vldb.getArtifactListByIdList(idList);
-        return retobj        
+        tmpRetObj['status']['success'] = True 
+        tmpRetObj['data'] = retobj
+        return tmpRetObj        
     def getArtifactsByArbWhereClause(self,whereClauseStrIn):
          # getArtifactListByArbWhereClause
         retobj = []
@@ -1636,10 +1727,14 @@ class MediaLibraryDB:
         vldb = VodLibDB()
         resList = vldb.getArtifactListByTitleFrag(artiNameFragStrIn)
         return resList
-    def getIdTitleListBySeriesArtiId(self,atriIdIn):
+    def getIdTitleListBySeriesArtiId(self,atriIdIn): # UPDATED FOR NEW RETURN OBJECT MODEL
+        tmpRetObj = copy.deepcopy(self.libMeta['retdicttempl'])
+        tmpRetObj['method'] = 'getIdTitleListBySeriesArtiId'
+        tmpRetObj['params'] = [atriIdIn]
+        tmpRetObj['status']['success'] = True
         vldb = VodLibDB()
-        resList = vldb.getEpisodeTIMListBySeriesId(atriIdIn)
-        return resList
+        tmpRetObj['data'] = vldb.getEpisodeTIMListBySeriesId(atriIdIn)
+        return tmpRetObj
     def getTagsByArtifact(self,artifactIdIn):
         retval = False
         try:
@@ -1772,7 +1867,7 @@ class MediaLibraryDB:
         arbmetaDict['titlelibrary'] = libTitle
         artiObjIn['arbmeta'] = json.dumps(arbmetaDict)
         return artiObjIn
-    def addEpisodesToSeries(self,seriesArtiIdIn,filePathIn,fnFragIn):
+    def addEpisodesToSeries(self,seriesArtiIdIn,filePathIn,fnFragIn): # UPDATED FOR NEW RETURN OBJECT MODEL
         vldb = VodLibDB()
 
         #retDict = {'method':addEpisodesToSeries,'params':[seriesArtiIdIn,filePathIn,fnFragIn],'result':[]}
@@ -1839,11 +1934,21 @@ class MediaLibraryDB:
         if failCount == 0:
             retDict['status']['success'] = True
         return retDict
-    def apiCreateSingleArtifact(self,argDictIn):
+    def apiCreateSingleArtifact(self,argDictIn): # UPDATED FOR NEW RETURN OBJECT MODEL
+        
+        tmpRetObj = copy.deepcopy(self.libMeta['retdicttempl'])
+        tmpRetObj['method'] = 'apiCreateSingleArtifact'
+        tmpRetObj['params'] = [argDictIn]
+        # tmpRetObj['status']['success'] = True        
+        
         assert type(argDictIn) == type({'this':'that'})
         dictIn = argDictIn
-        result = {'status':'failed','statusdetail':'did not even begin','data':{'artifactid':''}}
+        # result = {'status':'failed','statusdetail':'did not even begin','data':{'artifactid':''}}
+        tmpRetObj['status']['success'] = False
+        tmpRetObj['status']['detail'] = 'did not even begin'
+        tmpRetObj['data'] = [{'artifactid':''}]
         evenTry = True
+        # print('apiCreateSingleArtifact: ' + json.dumps(tmpRetObj))
         if dictIn['majtype'] != 'tvseries':
             try:
                 #print("Trying newArtiPreCheck...",dictIn['filepath'],dictIn['file'])
@@ -1855,9 +1960,13 @@ class MediaLibraryDB:
                 evenTry = False
                 sdStr = "Artifact for file = " + dictIn['file'] 
                 sdStr += " already exists, or file is not present in the specified path."
-                result = {'status':'failed','statusdetail':sdStr,'data':{'artifactid':''}}
+                #result = {'status':'failed','statusdetail':sdStr,'data':{'artifactid':''}}
+                tmpRetObj['status']['success'] = False
+                tmpRetObj['status']['detail'] = sdStr
+                tmpRetObj['data'] = [{'artifactid':''}]
         else:
-            print("Skipping file pre-test because this is a tvseries")
+            #print("Skipping file pre-test because this is a tvseries")
+            pass
         pass
         if evenTry == True:
             try:
@@ -1884,17 +1993,24 @@ class MediaLibraryDB:
                 artiData['arbmeta'] = '{}'
                 # artiData['tags'] = str(dictIn['tags'])
                 #artiData[''] = '';
-                artifactid = self.createArtifact(artiData)
-                result = {'status':'success','statusdetail':dictIn['file'],'data':{'artifactid':artifactid}}
+                # artifactid = self.createArtifact(artiData)
+                # result = {'status':'success','statusdetail':dictIn['file'],'data':{'artifactid':artifactid}}
+                tmpRetObj['status']['success'] = True
+                tmpRetObj['status']['detail'] = dictIn['file']
+                tmpRetObj['data'] = [{'artifactid':artifactid}]
+
             except:
                 print("newSingleArtifact EXCEPTION!")
                 detailStr = 'Attempt to insert failed with input values ' + json.dumps(dictIn) + ' and artifact values ' + json.dumps(artiData)
-                print(detailStr)
-                result = {'status':'failed','statusdetail':detailStr,'data':{'artifactid':artifactid}}
+                # print(detailStr)
+                # result = {'status':'failed','statusdetail':detailStr,'data':{'artifactid':artifactid}}
+                tmpRetObj['status']['success'] = False
+                tmpRetObj['status']['detail'] = detailStr
+                tmpRetObj['data'] = [{'artifactid':artifactid}]
                 pass
             pass
-        print(json.dumps(result))
-        return result
+        # print(json.dumps(tmpRetObj))
+        return tmpRetObj
         
 
 class MLCLI:
@@ -2361,15 +2477,32 @@ def blobRead():
     return ml.extractJsonLibrary()
 
 @app.route('/apiversion/get',methods = ['POST','GET'])
-def apiVersion():
+def apiVersion():  # UPDATED FOR NEW RETURN OBJECT MODEL
     ml = MediaLibraryDB()
     cssVerStr = ml.readCssFile('../css/vodlib.css')
     htmlVerStr = ml.readHtmlFile('../vodlib_static_3.html')
-    tmpRetObj = {'api_version':versionStr,'api_file':fileStr,'db_version':ml.getDBVersion(),'css_version':cssVerStr,'html_version':htmlVerStr}
+    
+    tmpRetObj = copy.deepcopy(ml.libMeta['retdicttempl'])
+    tmpRetObj['method'] = 'apiVersion'
+    tmpRetObj['status']['success'] = True
+    tmpRetObj['data'] = [{'api_version':versionStr,'api_file':fileStr,'db_version':ml.getDBVersion(),'css_version':cssVerStr,'html_version':htmlVerStr}]
+    
+    
+    # tmpRetObj = {'api_version':versionStr,'api_file':fileStr,'db_version':ml.getDBVersion(),'css_version':cssVerStr,'html_version':htmlVerStr}
     return json.dumps(tmpRetObj)
 
 @app.route('/titleidlist/get',methods=['POST','GET'])
-def getListTitleId():
+def getListTitleId():  # UPDATED FOR NEW RETURN OBJECT MODEL
+    
+    ###  THIS Model should really be pushed upstream, but
+    ###  this configuration just gets us working sooner.
+    ml = MediaLibraryDB()
+    tmpRetObj = copy.deepcopy(ml.libMeta['retdicttempl'])
+    tmpRetObj['method'] = 'getListTitleId'
+    #tmpRetObj['status']['success'] = True
+    #tmpRetObj['data'] = [{'api_version':versionStr,'api_file':fileStr,'db_version':ml.getDBVersion(),'css_version':cssVerStr,'html_version':htmlVerStr}]
+        
+    
     dictIn = {}
     diKeysList = []
     try:
@@ -2380,7 +2513,7 @@ def getListTitleId():
         dictIn = {}
         diKeysList = []
     pass
-    ml = MediaLibraryDB()
+    #ml = MediaLibraryDB()
     if "title" in diKeysList:
         # Let's search for artifacts based on a title fragment
         result = ml.findArtifactsByName(dictIn['title'])
@@ -2405,32 +2538,26 @@ def getListTitleId():
     else:
         result = ml.findArtifactsByName('')
         pass
-    return json.dumps(result)
+    tmpRetObj['data'] = result;
+    tmpRetObj['status']['success'] = True
+    return json.dumps(tmpRetObj)
 
 @app.route('/seriestidlist/get',methods=['POST'])
-def getSeriesEpisodesTIDList():
+def getSeriesEpisodesTIDList():  # UPDATED FOR NEW RETURN OBJECT MODEL
+    ml = MediaLibraryDB()
     dictIn = {}
-    diKeysList = []
+    result = {}
     try:
         dictIn = yaml.safe_load(json.dumps(request.json))
-        diKeysList = list(dictIn.keys())
-        pass
+        result = ml.getIdTitleListBySeriesArtiId(dictIn['artifactid'])
     except:
         dictIn = {}
-        diKeysList = []
-    pass
-    result = []
-    if "artifactid" in diKeysList:
-        ml = MediaLibraryDB()
-        tmpRes = ml.getIdTitleListBySeriesArtiId(dictIn['artifactid'])
-        if (type(tmpRes) == type([1,2])) and (len(tmpRes) > 0):
-            result = tmpRes
-        pass
-    pass
+        result = copy.deepcopy(ml.libMeta['retdicttempl'])
+    pass    
     return json.dumps(result)
 
 @app.route('/artifact/get',methods=['POST','GET'])
-def getArtifactObj():
+def getArtifactObj(): # UPDATED FOR NEW RETURN OBJECT MODEL
     dictIn = {}
     diKeysList = []
     reqJson = request.json
@@ -2446,11 +2573,12 @@ def getArtifactObj():
         diKeysList = []
     pass
     ml = MediaLibraryDB()
-    artiDict = ml.getArtifactById(dictIn['artifactid'])
+    #artiDict = ml.getArtifactById(dictIn['artifactid']) # getArtifactByIdNew
+    artiDict = ml.getArtifactByIdNew(dictIn['artifactid']) # getArtifactByIdNew
     return json.dumps(artiDict)
 
 @app.route('/nextepisode/get',methods=['POST','GET'])
-def getNxtEpArtifactObj():
+def getNxtEpArtifactObj(): # UPDATED FOR NEW RETURN OBJECT MODEL
     dictIn = {}
     diKeysList = []
     reqJson = request.json
@@ -2469,13 +2597,15 @@ def getNxtEpArtifactObj():
     artiDict = ml.getNextEpisodeArtifactById(dictIn['artifactid'])
     return json.dumps(artiDict)
 
-@app.route('/taglist/get',methods=['POST','GET'])
-def getTagList():
-    ml = MediaLibraryDB()
-    return json.dumps(ml.getTagList())
+###### DEPRECATED
+# @app.route('/taglist/get',methods=['POST','GET'])
+# def getTagList():
+    # print('>>> HEY HEY HEY >>> getTagList <<<< HEY HEY HEY <<<')
+    # ml = MediaLibraryDB()
+    # return json.dumps(ml.getTagList())
 
 @app.route('/suplist/get',methods=['POST','GET'])
-def getSupportList():
+def getSupportList(): # UPDATED FOR NEW RETURN OBJECT MODEL
     
     dictIn = {}
     diKeysList = []
@@ -2501,7 +2631,7 @@ def getSupportList():
     pass
 
 @app.route('/artifact/listfield/update',methods=['POST'])
-def updateArtifactListField():
+def updateArtifactListField(): # UPDATED FOR NEW RETURN OBJECT MODEL
     dictIn = {}
     diKeysList = []
     reqJson = request.json
@@ -2522,7 +2652,7 @@ def updateArtifactListField():
     return json.dumps(response)
 
 @app.route('/artifact/update',methods=['POST'])
-def updateArtifact():
+def updateArtifact():  # UPDATED FOR NEW RETURN OBJECT MODEL
     dictIn = {}
     diKeysList = []
     reqJson = request.json
@@ -2544,13 +2674,13 @@ def updateArtifact():
     # print('updateArtifact: ' + json.dumps(dictIn))
     result = ml.modifyArtifact(dictIn['artifactid'],dictIn['values']) # sartifactIdIn,artifactDictIn)
     # print(result)
-    return json.dumps({'return':result})
+    return json.dumps(result)
     # artiDict = ml.getArtifactById(dictIn['artifactid'])
     # return json.dumps(artiDict)
     pass
 
 @app.route('/artifact/newsingle',methods=['POST'])
-def newSingleArtifact():
+def newSingleArtifact(): # UPDATED FOR NEW RETURN OBJECT MODEL
     dictIn = {}
     diKeysList = []
     reqJson = request.json
@@ -2573,7 +2703,7 @@ def newSingleArtifact():
     pass
     
 @app.route('/mfsearch/get',methods=['POST'])
-def multiFactorSearch():
+def multiFactorSearch(): # UPDATED FOR NEW RETURN OBJECT MODEL 
     dictIn = {}
     diKeysList = []
     reqJson = request.json
@@ -2592,7 +2722,7 @@ def multiFactorSearch():
     pass
 
 @app.route('/simpletxtsrch/get',methods=['POST','GET'])   ####  NEW NEW NEW  
-def simpleTextSearch():
+def simpleTextSearch(): # UPDATED FOR NEW RETURN OBJECT MODEL
     print('BEGIN simpleTextSearch ====>>')
     dictIn = {}
     diKeysList = []
@@ -2624,7 +2754,7 @@ def simpleTextSearch():
     return json.dumps(result)
 
 @app.route('/series/artifacts/add',methods=['POST'])
-def addArtisToSeries():
+def addArtisToSeries(): # UPDATED FOR NEW RETURN OBJECT MODEL
     #  addEpisodesToSeries(self,seriesArtiIdIn,filePathIn,fnFragIn)
     print('BEGIN addArtisToSeries ====>>')
     dictIn = {}
