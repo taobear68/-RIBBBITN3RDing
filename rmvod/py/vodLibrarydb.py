@@ -2470,11 +2470,12 @@ def index():
 """
     return retval
 
-@app.route('/blob/get',methods=['POST'])
-def blobRead():
-    ml = MediaLibraryDB()
-    ml.loadLibraryFromFile()
-    return ml.extractJsonLibrary()
+###### DEPRECATED
+# @app.route('/blob/get',methods=['POST'])
+# def blobRead():
+    # ml = MediaLibraryDB()
+    # ml.loadLibraryFromFile()
+    # return ml.extractJsonLibrary()
 
 @app.route('/apiversion/get',methods = ['POST','GET'])
 def apiVersion():  # UPDATED FOR NEW RETURN OBJECT MODEL

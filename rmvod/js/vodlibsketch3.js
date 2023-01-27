@@ -632,6 +632,98 @@ class RMVWAHtmlGenerator {
         
         return newSrchWidget;
     }
+    renderStackFormRow(argsObjIn){
+        var argsObj = {};
+        var defaultValuesObj = {};
+        defaultValuesObj['rowDivClassName'] = "";
+        defaultValuesObj['labelDivClassName'] = "";
+        defaultValuesObj['contentDivClassName'] = "";
+        defaultValuesObj['labelSpanClassName'] = "";
+        defaultValuesObj['contentSpanClassName'] = "";
+        defaultValuesObj['rowWidth'] = "260px";
+        defaultValuesObj['labelWidth'] = "80px";
+        defaultValuesObj['fieldWidth'] = "160px";
+        defaultValuesObj['labelContentHtml'] = "Label:";
+        defaultValuesObj['fieldContentHtml'] = "Field edit content";
+        
+        var dvoKeys = Object.keys(defaultValuesObj);
+        var aoiKeys = Object.keys(argsObjIn);
+        for (var i = 0; i < dvoKeys.length; i++ ) {
+            if (aoiKeys.indexOf(dvoKeys[i]) > -1) {
+                argsObj[dvoKeys[i]] = argsObjIn[dvoKeys[i]];
+            } else {
+                argsObj[dvoKeys[i]] = defaultValuesObj[dvoKeys[i]];
+            }
+        }
+        
+        var rowOuterDiv = document.createElement('div');
+        if (argsObj['rowDivClassName'] != "") {
+            rowOuterDiv.className = argsObj['rowDivClassName'];
+        } else {
+            var styleStr = "";
+            styleStr += "width:" + argsObj['rowWidth'] + ";";
+            styleStr += 'display:block;';
+            styleStr += 'border:2px;border-style:solid;border-color:#000000;';
+            styleStr += 'margin:2px;padding:2px;';
+            //styleStr += '';
+            
+            rowOuterDiv.style = styleStr;
+        }
+        
+        var labelDiv = document.createElement('div');
+        if (argsObj['labelDivClassName'] != "") {
+            labelDiv.className = argsObj['labelDivClassName'];
+        } else {
+            var styleStr = "";
+            styleStr += "width:" + argsObj['labelWidth'] + ";";
+            styleStr += 'justify-content:right;display:inline-flex;';
+            styleStr += 'vertical-align:top;';
+            styleStr += 'border:2px;border-style:solid;border-color:#000000;';
+            styleStr += 'margin:2px;padding:2px;';
+            //styleStr += '';
+            
+            labelDiv.style = styleStr;
+        }
+        
+        var labelSpan = document.createElement('span');
+        if (argsObj['labelSpanClassName'] != "") {
+            labelSpan.className = argsObj['labelSpanClassName'];
+        } else {
+            labelSpan.style = "font-weight:bold;";
+        }
+        labelSpan.innerHTML = argsObj['labelContentHtml'];
+        
+        var contentDiv = document.createElement('div');
+        if (argsObj['contentDivClassName'] != "") {
+            contentDiv.className = argsObj['contentDivClassName'];
+        } else {
+            var styleStr = "";
+            styleStr += "width:" + argsObj['fieldWidth'] + ";";
+            styleStr += 'justify-content:left;display:inline-flex;';
+            styleStr += 'vertical-align:top;';
+            styleStr += 'border:2px;border-style:solid;border-color:#000000;';
+            styleStr += 'margin:2px;padding:2px;';
+            //styleStr += '';
+
+            contentDiv.style = styleStr;
+        }
+            
+        var contentSpan = document.createElement('span');
+        if (argsObj['contentSpanClassName'] != "") {
+            contentSpan.className = argsObj['contentSpanClassName'];
+        } else {
+            contentSpan.style = "";
+        }
+        contentSpan.innerHTML = argsObj['fieldContentHtml'];
+        
+        labelDiv.appendChild(labelSpan);
+        contentDiv.appendChild(contentSpan);
+        
+        rowOuterDiv.appendChild(labelDiv);
+        rowOuterDiv.appendChild(contentDiv);
+        
+        return rowOuterDiv;
+    }
     renderHTMLSettingsTab(){
         
         var tmpHtml = '';
@@ -867,6 +959,9 @@ class RMVodWebApp {
         xhttp.send(bodyDataStr);
         return contentRet;
     }
+    
+    
+    // METHODS MAKE API CALL
     apiFetchRemoteVersions(){ //UPDATED FOR NEW RETURN OBJECT MODEL
         //console.log("This is where we get API and DB versions");
         var cbFunc = function (objIn) {
@@ -1036,92 +1131,6 @@ class RMVodWebApp {
         const endpoint = '/rmvid/api/nextepisode/get';
         this.genericApiCall(payloadObj,endpoint,cbFunc);
     }
-    srchSpan(strIn) {
-        // Takes a simple string in, and wraps it in a span with onclick
-        // set to do execDirectStringSrch in the switchboard
-        var retStr = '';
-        retStr += '<span onclick="switchboard(\'execDirectStringSrch\',\'\',{\'srchstr\':\'';
-        retStr += strIn;
-        retStr += '\'})" style="text-decoration:underline;">';
-        retStr += strIn;
-        retStr += '</span>'
-        return retStr;
-    }
-    l2s(arrayIn){
-        // This just turns an Array object into a String list with 
-        // commas between the elements.
-        var listStr = '';
-        var aLen = arrayIn.length;
-        for (var i = 0; i < aLen; i++) {
-            listStr += arrayIn[i];
-            //listStr += srchSpan(arrayIn[i]);
-            if (i < (aLen - 1)) {
-                listStr += ', ';
-            }
-        }
-        return listStr
-    }
-    l2sSrch(arrayIn){
-        // This just turns an Array object into a HTML list of 
-        // "searchable" elements with commas between the elements.
-        
-        var plainValList = ['string','none',''];
-        var listStr = '';
-        var aLen = arrayIn.length;
-        for (var i = 0; i < aLen; i++) {
-            //listStr += arrayIn[i];
-            if (plainValList.indexOf(arrayIn[i]) == -1) {
-                listStr += this.srchSpan(arrayIn[i]);
-            } else {
-                listStr += arrayIn[i];
-            }
-            if (i < (aLen - 1)) {
-                listStr += ', ';
-            }
-        }
-        return listStr
-    }
-    onloadOptions(){
-        // serplaynext
-        // resumeplay
-        
-        var optList = ['serplaynext','resumeplay'];
-        
-        for (var idx=0; idx < optList.length; idx++ ) {
-            var optNm = optList[idx];
-            var tmpCookie = this.cc.getCookie('opt_' + optNm);
-            var cbDE = document.getElementById(optNm);
-            //console.log('onloadOptions: ' + optNm + ' - ' + document.getElementById(optNm).name + ' -  ' + cbDE.checked );
-            switch (tmpCookie) {
-                case true:
-                case 'true':
-                    cbDE.checked = true;
-                    break;
-                case false:
-                case "false":
-                    cbDE.checked = false;
-                    break;
-                default:
-                    console.log('onloadOptions - No cookie value for ' + optNm);
-                    cbDE.checked = false;
-                    break;
-            }
-            var tmpFunc = function(){switchboard('checkboxChange',this.id ,{});}
-            
-            cbDE.addEventListener("change", tmpFunc);
-            
-        }
-    }
-    renderStaticModernSearchWidget(){
-        var hr = new RMVWAHtmlGenerator();
-        var newSrchWidget = hr.renderDESearchWidgetContainer();
-        
-        var targDiv = document.getElementById('headerblock2');
-        targDiv.innerHTML = '';
-        targDiv.appendChild(newSrchWidget);
-        
-        this.tagSelListRefresh();
-    }
     tagSelListRefresh(){ //UPDATED FOR NEW RETURN OBJECT MODEL  //  NEEDS TO BE BETTER - maybe involve apiFetchTagsList
         var tsl = document.getElementById('tag-search-select');
         // Clear the current list of options
@@ -1153,282 +1162,6 @@ class RMVodWebApp {
         const endpoint = '/rmvid/api/suplist/get';
         const payload = {'table':'tags'};
         this.genericApiCall(payload,endpoint,cbFunc);
-    }
-    // Render Page Layouts
-    basePageLayout02(){  //  BASE PAGE LAYOUT FOR vodlib_static_3.html
-        var hr = new RMVWAHtmlGenerator();
-        var masterCont = document.getElementById('mastercont');
-        masterCont.innerHTML = '';
-        masterCont.appendChild(hr.renderDEThreeCellHeader());
-        masterCont.appendChild(hr.renderDETabContainer());
-        masterCont.appendChild(hr.renderDEFooterContainer());
-    }
-    contCookieOnLoad() {
-        // OnLoad, if "Resume Playback" is checked, check to see if 3 
-        // "Continue" cookies are set.  If so, get the values of the 
-        // 3 cookies, clear the 3 cookies, and begin playback of the 
-        // SRC URI at the "Progress" Point
-        
-        //  We're going to fake checking the chekcbox for now
-        
-        var cbFunc = function () {
-            
-            // resumeplay
-            
-            try {
-                var playerDE = document.getElementById('actualvideoplayer');
-                var wa = new RMVodWebApp();
-                playerDE.currentTime = wa.cc.getCookie('playback_offset');
-                if (playerDE.currentSrc == wa.cc.getCookie('artifact_source_uri')) {
-                    clearInterval(intervHandle);
-                } else {
-                    if ((playerDE.currentSrc != "") & (wa.cc.getCookie('artifact_source_uri') == "")) {
-                        wa.cc.setCookie('artifact_source_uri', playerDE.currentSrc,5);
-                        if (playerDE.currentSrc == wa.cc.getCookie('artifact_source_uri')) {
-                            clearInterval(intervHandle);
-                        }
-                    } else {
-                        console.log("contCookieOnLoad.cbFunc - Still waiting for Cookie artifact_source_uri to match what's in the player");
-                        console.log('contCookieOnLoad.cbFunc - playerDE.currentSrc: ' + playerDE.currentSrc);
-                        console.log("contCookieOnLoad.cbFunc - wa.cc.getCookie('artifact_source_uri'): " + wa.cc.getCookie('artifact_source_uri'));
-                    }
-                }
-            } catch (e) {
-                console.log("contCookieOnLoad.cbFunc - Resume Play Position failed because " + e);
-            }
-        }
-        
-        var cbDE = document.getElementById('resumeplay');
-        if (cbDE.checked == true) {
-            var playAID = this.cc.getCookie('playing_aid');
-            this.vodPlayTitleApi3(playAID);
-            var intervHandle = setInterval(cbFunc,1000);
-            this.cc.setCookie('cont_play_sample_int_handle',intervHandle,5);
-        }
-    }
-    contCookiePostInterval(delayMsIn){
-        // On Start of "Normal" Playback, an Interval is started (6000ms, 
-        // for example) which periodically writes cookies to track the 
-        // progress of playback of the current video. Initially 3 cookies 
-        // are written:  The handle of the Interval, the SRC URI for 
-        // the artifact, and the Integer "Progress" of the playback, 
-        // in seconds.
-        
-        // On each running of the Interval, the Handle and SRC URI are 
-        // confirmed to be correct, and the Progress is written
-        
-        // On natural conclusion of playback, the 3 "Continue" cookies 
-        // are cleared
-        var delayMs = 60000;
-        if (delayMsIn != undefined){
-            if(typeof delayMsIn == 'number') {
-                delayMs = parseInt(delayMsIn);
-            }
-        }
-        
-        var cbFunc = function () {
-            var wa = new RMVodWebApp();
-            var playerDE = document.getElementById('actualvideoplayer');
-            if (playerDE.paused == false) {
-                var currTime = parseInt(playerDE.currentTime);
-                var currSrc = playerDE.currentSrc;
-                wa.cc.setCookie('artifact_source_uri',currSrc);
-                wa.cc.setCookie('playback_offset',currTime);
-            }
-        }
-        
-        var intervalHandle = setInterval(cbFunc,delayMs);
-        this.cc.setCookie('cont_play_sample_int_handle',intervalHandle,5);
-        return intervalHandle;
-    }
-    contCookieNaturalEnd () {
-        var intHandleIn = this.cc.getCookie('cont_play_sample_int_handle');
-        clearInterval(intHandleIn);
-        this.cc.clearCookie('artifact_source_uri');
-        this.cc.clearCookie('playback_offset');
-        this.cc.clearCookie('cont_play_sample_int_handle');
-        this.cc.clearCookie('play_aid');
-    }
-    // SIDE LIST HANDLING
-    renderSALByIdList(artiIdListIn){
-        //console.log('renderSALByIdList.artiIdListIn: ' + JSON.stringify(artiIdListIn));
-        // Whole List -- No details or episodes
-        var allowedMajTypes = ['tvseries','movie'];
-        var tmpDiv = document.createElement('div');
-        for (var idx = 0; idx<artiIdListIn.length; idx++ ) {
-            if (allowedMajTypes.indexOf(artiIdListIn[idx]['majtype']) > -1){
-                tmpDiv.appendChild(this.renderSALElementById(artiIdListIn[idx]));
-            }
-        }
-        return tmpDiv;
-    }
-    renderSALElementById(artiTitleIdObjIn){
-        var elementDiv = undefined;
-        switch (artiTitleIdObjIn['majtype']) {
-            case 'movie' :
-                // This is how we do a "movie" row
-                elementDiv = this.renderSideListMovie(artiTitleIdObjIn);
-                break;
-                
-            case 'tvepisode' :
-                // This is how we do an episode of a tv series
-                elementDiv = this.renderSideListTvEpisode(artiTitleIdObjIn);
-                break;
-                
-            case 'tvseries' :
-                // This is how we do a tv series header/container
-                elementDiv = this.renderSideListTvSeries(artiTitleIdObjIn);
-                break;
-            
-            default :
-                // this is where we punt.
-                break;
-        }
-        return elementDiv;
-    }
-    renderSideListMovie(artiTIDobjIn){
-        var rplStr = this.cc.getCookie('recentPlays');
-        if (rplStr == undefined) {
-            rplStr = '';
-        }
-        var titleSpanStyle = "";
-        var tdSpanClass = "listtitleunseen";
-        if (rplStr.indexOf(artiTIDobjIn['artifactid']) > -1) {
-            tdSpanClass = "listtitleseen";
-        }
-        const spanId = artiTIDobjIn['artifactid'] + '_list-title-span';
-        var tdSpanOnclick = "switchboard('vodPlayTitle','" + artiTIDobjIn['artifactid'] + "',{})"; //artiTIDobjIn['artifactid'];
-        var tdTitle = artiTIDobjIn['title'];
-        var titleDiv = document.createElement('div');
-        titleDiv.className = "listelconttitle";
-        var trunclength = 42;
-        if (tdTitle.length > trunclength) {
-            titleDiv.innerHTML = '<span id="' + spanId + '" class="' + tdSpanClass + '" onclick="' + tdSpanOnclick + '"><b><u>' + tdTitle.substring(0,(trunclength-3)) + '...</u></b></span>';
-        } else {
-            titleDiv.innerHTML = '<span id="' + spanId + '" class="' + tdSpanClass + '" onclick="' + tdSpanOnclick + '"><b><u>' + tdTitle + '</u></b></span>';
-        }
-        
-        // Expand Button DIV
-        var bdSpanClass = '';
-        var bdSpanOnclick = "switchboard('xpopsldetail','" + artiTIDobjIn['artifactid'] + "',{})"; //artiTIDobjIn['artifactid']
-        var buttDiv = document.createElement('div');
-        buttDiv.className = "listelcontxpbutt";
-        buttDiv.innerHTML = '<span class="' + bdSpanClass + '" onclick="' + bdSpanOnclick + '"><u>Det</u></span>';
-        
-        // Container for Title and Button
-        var titleRowDiv = document.createElement('div');
-        titleRowDiv.className = "listelconttitlelink";
-        titleRowDiv.appendChild(titleDiv);
-        titleRowDiv.appendChild(buttDiv);
-        
-        // Container/placeholder for Artifact Detail
-        var detailOuterDiv = document.createElement('div');
-        detailOuterDiv.id = artiTIDobjIn['artifactid'] + '-sidelist-detail-outer';
-        detailOuterDiv.className = "listeldetailouter";
-        detailOuterDiv.style.display = 'none';
-        
-        // Container for whole List element
-        var listElContainer =  document.createElement('div');
-        listElContainer.className = "listelcontainer";
-        listElContainer.id = artiTIDobjIn['artifactid'] + '-sidelist-element';
-        listElContainer.appendChild(titleRowDiv);
-        listElContainer.appendChild(detailOuterDiv);
-        
-        return listElContainer;
-    }
-    renderSideListTvSeries(artiTIDobjIn){
-        var tdSpanClass = "";
-        var tdSpanOnclick = "switchboard('tvsExpandEpisodes','" + artiTIDobjIn['artifactid'] + "',{})"; //artiTIDobjIn['artifactid'];
-        var tdTitle = artiTIDobjIn['title']; // + "(series)";
-        var titleDiv = document.createElement('div');
-        titleDiv.className = "listelconttitle";
-        
-        var trunclength = 38;
-        if (tdTitle.length >= trunclength) {
-            //titleDiv.innerHTML = '<span class="' + tdSpanClass + '" onclick="' + tdSpanOnclick + '"><b><u>' + tdTitle.substring(0,(trunclength-3)) + '...(series)</u></b></span>';
-            titleDiv.innerHTML = '<span class="' + tdSpanClass + '" onclick="' + tdSpanOnclick + '"><b><u>' + tdTitle.substring(0,(trunclength-3)) + '...<span style="color:#c0c080">(series)</span></u></b></span>';
-        } else {
-            //titleDiv.innerHTML = '<span class="' + tdSpanClass + '" onclick="' + tdSpanOnclick + '"><b><u>' + tdTitle + '(series)</u></b></span>';
-            titleDiv.innerHTML = '<span class="' + tdSpanClass + '" onclick="' + tdSpanOnclick + '"><b><u>' + tdTitle + '<span style="color:#c0c080">(series)</u></b></span>';
-        }
-        
-        // Container for Title and Button
-        var titleRowDiv = document.createElement('div');
-        titleRowDiv.className = "listelconttitlelink";
-        titleRowDiv.appendChild(titleDiv);
-        
-        // Container/placeholder for Artifact Detail  <<==== NEW
-        var detailOuterDiv = document.createElement('div');
-        detailOuterDiv.id = artiTIDobjIn['artifactid'] + '-sidelist-detail-outer';
-        detailOuterDiv.className = "listeldetailouter";
-        detailOuterDiv.style.display = 'none';
-        
-        // Container/placeholder for Episode List
-        var epListOuterDiv = document.createElement('div');
-        epListOuterDiv.id = artiTIDobjIn['artifactid'] + '-sidelist-episode-list-outer';
-        epListOuterDiv.className = "listelseriescollep";
-        
-        // Container for whole List element
-        var listElContainer =  document.createElement('div');
-        listElContainer.className = "listelcontainer";
-        listElContainer.id = artiTIDobjIn['artifactid'] + '-sidelist-element';
-        listElContainer.appendChild(titleRowDiv);
-        listElContainer.appendChild(detailOuterDiv);
-        listElContainer.appendChild(epListOuterDiv);
-        
-        return listElContainer;
-    }
-    renderSideListTvEpisode(artiTIDobjIn){
-        var rplStr = this.cc.getCookie('recentPlays');
-        if (rplStr == undefined) {
-            rplStr = '';
-        }
-        
-        const spanId = artiTIDobjIn['artifactid'] + '_list-title-span';
-        
-        var tdSpanClass = "listtitleunseen";
-        if (rplStr.indexOf(artiTIDobjIn['artifactid']) > -1) {
-            tdSpanClass = "listtitleseen";
-        }
-        var tdSpanOnclick = "switchboard('vodPlayTitle','" + artiTIDobjIn['artifactid'] + "',{})"; //artiTIDobjIn['artifactid'];
-        var tdTitle = artiTIDobjIn['title'];
-        var titleDiv = document.createElement('div');
-        titleDiv.className = "listelseriescolleptitle";
-        
-        var trunclength = 35;
-        if (tdTitle.length >= trunclength) {
-            titleDiv.innerHTML = '<span id="' + spanId + '" class="' + tdSpanClass + '" onclick="' + tdSpanOnclick + '"><b><u>' + tdTitle.substring(0,(trunclength-3)) + '...</u></b></span>'; //...(series)
-        } else {
-            titleDiv.innerHTML = '<span id="' + spanId + '" class="' + tdSpanClass + '" onclick="' + tdSpanOnclick + '"><b><u>' + tdTitle + '</u></b></span>'; // (series)
-        }
-        
-        // Expand Button DIV
-        var bdSpanClass = '';
-        var bdSpanOnclick = "switchboard('xpopsldetail','" + artiTIDobjIn['artifactid'] + "',{})"; //artiTIDobjIn['artifactid']
-        var buttDiv = document.createElement('div');
-        buttDiv.className = "listelcontxpbutt";
-        buttDiv.innerHTML = '<span class="' + bdSpanClass + '" onclick="' + bdSpanOnclick + '"><u>Det</u></span>';
-        
-        // Container for Title and Button
-        var titleRowDiv = document.createElement('div');
-        titleRowDiv.className = "listelseriescolleptitlelink";
-        titleRowDiv.appendChild(titleDiv);
-        titleRowDiv.appendChild(buttDiv);
-        
-        // Container/placeholder for Artifact Detail
-        var detailOuterDiv = document.createElement('div');
-        detailOuterDiv.id = artiTIDobjIn['artifactid'] + '-sidelist-detail-outer';
-        detailOuterDiv.className = "listelseriescollepdetail";
-        detailOuterDiv.style.display = 'none';
-        
-        // Container for whole List element
-        var listElContainer =  document.createElement('div');
-        listElContainer.className = "listelseriescollepcont";
-        listElContainer.id = artiTIDobjIn['artifactid'] + '-sidelist-episode-element';
-        listElContainer.appendChild(titleRowDiv);
-        listElContainer.appendChild(detailOuterDiv);
-        
-        return listElContainer;
     }
     populateSeriesEpisodes(seriesArtiIdIn){ //UPDATED FOR NEW RETURN OBJECT MODEL
         const cbFunc = function (objIn) {
@@ -1527,20 +1260,6 @@ class RMVodWebApp {
         const endpoint = '/rmvid/api/artifact/get';
         const payloadObj = {'artifactid':artiIdIn};
         this.genericApiCall(payloadObj,endpoint,cbFunc);
-    }
-    tvsDetailShowButton(artiIdIn) {
-        // "Show Details" button for a TV Series Artifact
-        var innerHtml = '';
-        innerHtml += '<span class="" id="" style="font-size:10px;"';
-        innerHtml += 'onclick="switchboard(\'xpopslseriesdetail\',\'' + artiIdIn + '\',{})" ';
-        innerHtml += '>';
-        innerHtml += '<u>Show Series Details</u>';
-        innerHtml += '</span>';
-        
-        var docElId = artiIdIn + '-sidelist-detail-outer';
-        var deetDiv = document.getElementById(docElId);
-        deetDiv.innerHTML = innerHtml;       
-         
     }
     execSearchSingleFactor2(factorStrIn,srchValObjIn) { // UPDATED FOR NEW RETURN OBJECT MODEL
         try{ // React correctly to MultiFactor Search Y/N
@@ -1685,78 +1404,6 @@ class RMVodWebApp {
         } catch (e) {
             console.log("Ignoring this error: " + e);
         }
-        
-    }
-    resetSearchFactors(){
-        // Clear Text Search
-        document.getElementById('txt-srch-str').value = '';
-        // Clear Dates
-        document.getElementById('relyear-srch-start').value = '';
-        document.getElementById('relyear-srch-end').value = '';
-        //Reset Tag Select List
-        document.getElementById('tag-search-select').value = 'None'; // tag-search-select
-        // Reset Major Type Select List
-        document.getElementById('majtype-search-select').value = 'All'; // majtype-search-select
-        // Reset SQL WHERE Clause
-        document.getElementById('sql-where-srch').value = '';// sql-where-srch
-        
-    }
-    renderArtifactDetailHeader(artiObj){
-        //console.log('renderArtifactDetailHeader');
-        var prodStr = '';
-        prodStr += 'Writer(s): ' + this.l2sSrch(artiObj['writer']) + ' | ';
-        prodStr += 'Director(s): ' + this.l2sSrch(artiObj['director']) + ' | ';
-        prodStr += 'Runtime: ' + artiObj['runmins'] + ' | ';
-        prodStr += 'Release Yr.: ' + artiObj['relyear'] + ' | ';
-        //console.log(prodStr);
-        
-        var castStr = '';
-        castStr +=  this.l2sSrch(artiObj['primcast']);
-        //console.log(castStr);
-        
-        var synoStr = '';
-        synoStr += 'Synopsis: ';
-        if (artiObj['majtype'] == "tvepisode") {
-            synoStr += '(Season ' + artiObj['season'] + ' Episode: ' + artiObj['episode'] + ') ';
-        }
-        synoStr += artiObj['synopsis'];
-        
-        document.getElementById('header-title').innerText = 'Now Playing: ' + artiObj['title'];
-        document.getElementById('header-synopsis').innerText = synoStr;
-        document.getElementById('header-production').innerHTML = 'Production: ' + prodStr;
-        document.getElementById('header-cast').innerHTML = 'Cast: ' + castStr;
-    }
-    refreshFieldListWidget(fieldNmIn,valuesListIn){
-        //console.log('refreshFieldListWidget: ' + fieldNmIn + ': ' + JSON.stringify(valuesListIn));
-        var blobKey = '';
-        switch (fieldNmIn) {
-            case 'tags':
-                blobKey = 'tags';
-                break;
-            case 'relorg':
-                blobKey = 'companies';
-                break;
-            case 'director':
-            case 'writer':
-            case 'primcast':
-                blobKey = 'persons';             
-                break;
-            default:
-                console.log('renderFieldListWidget: ' + fieldNmIn + ", " + JSON.stringify(valuesListIn));
-                return;
-        }
-        
-        var lew = new RNWAListFieldWidget();
-        lew.widgetName = fieldNmIn;
-        lew.recordId = "";
-        lew.choiceList = this.sse.ssRead('blob')[blobKey];
-        lew.listMembers = valuesListIn;
-        lew.addChoiceFunction = 'addChoice';
-        lew.removeMemberFunction = 'removeMember';
-        lew.addMemberFunction = 'addMember'; 
-        var lewDE = lew.renderWidget();
-        var boxDiv = document.getElementById(fieldNmIn + '_Box');
-        boxDiv.innerHTML = lewDE.children[1].innerHTML;        
         
     }
     renderArtifactEdit(artiIdIn){ //UPDATED FOR NEW RETURN OBJECT MODEL
@@ -2076,174 +1723,6 @@ class RMVodWebApp {
         const payload = {'artifactid':wrkArtiId,'values':updateObj};
         this.genericApiCall(payload,endpoint,cbFunc);
     }
-    renderUnifiedNewArtifactForm(ModeStrIn){ // Someday
-        // Someday
-    }
-    renderNewSingleArtiForm(){
-        //Web UI for Create a Single Artifact:
-        //You put in filepath, file, majtype
-        //API Call => If file exists, create bare-bones Artifact with 
-        //filename as title, and send the artifactid back to the UI.  
-        //UI initiates "Edit" on returned artifactid
-        var tmpHtml = "";
-        tmpHtml += '<p>';
-        tmpHtml += 'Create a single Artifact by providing the filepath component and filename which will identify files in the video storage location.<br>';
-        tmpHtml += 'You will also need to provide the Major Type for the artifact.<br>';
-        tmpHtml += '<b>Note:</b>If you are creating a "tvseries" artifact, set the filename to the leading part of the filename which is common to all the filenames of the "tvepisode" artifacts to be added subsequently';
-        tmpHtml += '</p>';
-        
-        tmpHtml += '<span id="" class="" style="font-weight:bold">Path:  </span>';
-        tmpHtml += '<input id="nafilepath" type="text" class="">';
-        tmpHtml += '<br>';
-        tmpHtml += '<span id="" class="" style="font-weight:bold">Filename:  </span>';
-        tmpHtml += '<input id="nafilename" type="text" class="">';
-        tmpHtml += '<br>';
-        tmpHtml += '<span id="" class="" style="font-weight:bold">Major Type:  </span>';
-        tmpHtml += '<select name="namajtype" id="namajtype" class="">';
-        tmpHtml += '<option value="none"></option>';
-        tmpHtml += '<option value="movie">movie</option>';
-        tmpHtml += '<option value="tvseries">tvseries</option>';
-        tmpHtml += '<option value="tvepisode">tvepisode</option>';
-        tmpHtml += '</select>';
-        tmpHtml += '<br>';
-        tmpHtml += '<div style="padding-left:200px;"><span style="font-weight:bold;text-decoration:underline;" onclick="switchboard(\'singleNewArtiSubmit\',\'\',{})">Submit</span></div>';
-        //tmpHtml += '';
-        
-        var div = document.createElement('div');
-        div.className = "";
-        div.style.overflow = 'auto';
-        div.id = "";
-        div.innerHTML = tmpHtml;
-        
-        var targetDiv = document.getElementById('structfeatureedit');
-        targetDiv.innerHTML = "";
-        targetDiv.appendChild(div);
-        
-        // tabspan2
-        const ev = new Event('click');
-        document.getElementById('tabspan2').dispatchEvent(ev);
-    }
-    renderSeriesEpisodeAddForm(argObjIn){
-        //Web UI for Associate Episodes with Series:
-        //You put in filepath, file, majtype
-        //API Call => If file exists, create bare-bones Artifact with 
-        //filename as title, and send the artifactid back to the UI.  
-        //UI initiates "Edit" on returned artifactid
-        var tmpHtml = "";
-        tmpHtml += '<p>';
-        tmpHtml += 'Add Episodes to TV Series <b>' + argObjIn['title'] + '</b> by providing the filepath component and filename fragment which will identify files in the video storage location.<br>';
-        tmpHtml += 'This requires that the Artifacts for the Episodes have already been created.';
-        tmpHtml += '</p>';
-        
-        tmpHtml += '<span id="" class="" style="font-weight:bold">File path:  </span>';
-        tmpHtml += '<input id="nafilepath" type="text" class="">';
-        tmpHtml += '<br>';
-        tmpHtml += '<span id="" class="" style="font-weight:bold">Filename fragment:  </span>';
-        tmpHtml += '<input id="nafilename" type="text" class="">';
-        tmpHtml += '<br>';
-        tmpHtml += '<span id="" class="" style="font-weight:bold">Artifact ID:  </span>';
-        tmpHtml += '<input id="naartifactid" type="text" class="" value="' + argObjIn['artifactid'] + '">';
-        tmpHtml += '<br>';
-        //tmpHtml += '<span id="" class="" style="font-weight:bold">Major Type:  </span>';
-        //tmpHtml += '<select name="namajtype" id="namajtype" class="">';
-        //tmpHtml += '<option value="none"></option>';
-        //tmpHtml += '<option value="movie">movie</option>';
-        //tmpHtml += '<option value="tvseries">tvseries</option>';
-        //tmpHtml += '<option value="tvepisode">tvepisode</option>';
-        //tmpHtml += '</select>';
-        //tmpHtml += '<br>';
-        tmpHtml += '<div style="padding-left:200px;"><span style="font-weight:bold;text-decoration:underline;" onclick="switchboard(\'seriesEpisodeAddSubmit\',\'\',{})">Submit</span></div>';
-        //tmpHtml += '';
-        
-        var div = document.createElement('div');
-        div.className = "";
-        div.style.overflow = 'auto';
-        div.id = "";
-        div.innerHTML = tmpHtml;
-        
-        var targetDiv = document.getElementById('structfeatureedit');
-        targetDiv.innerHTML = "";
-        targetDiv.appendChild(div);
-        
-        document.getElementById('nafilepath').value = argObjIn['filepath'];
-        document.getElementById('nafilename').value = argObjIn['file'];
-        
-        
-        // tabspan2
-        const ev = new Event('click');
-        document.getElementById('tabspan2').dispatchEvent(ev);
-    }
-    renderNewMultiArtiForm(){
-        //Web UI for Create a Single Artifact:
-        //You put in filepath, file, majtype
-        //API Call => If file exists, create bare-bones Artifact with 
-        //filename as title, and send the artifactid back to the UI.  
-        //UI initiates "Edit" on returned artifactid
-        var tmpHtml = "";
-        tmpHtml += '<p>';
-        tmpHtml += 'Create multiple Artifacts by providing the filepath component and a newline-separated list of filenames which will identify files in the video storage location.<br>';
-        tmpHtml += 'You will also need to provide the Major Type for the artifacts and an initial Tag to be assigned.';
-        tmpHtml += '</p>';
-        
-        tmpHtml += '<span id="" class="" style="font-weight:bold">Path:  </span>';
-        tmpHtml += '<input id="nafilepath" type="text" class="">';
-        tmpHtml += '<br>';
-        
-        tmpHtml += '<span id="" class="" style="font-weight:bold">Filename:  </span>';
-        tmpHtml += '<textarea id="nafilename" cols="40" rows="12" class=""></textarea>';
-        tmpHtml += '<br>';
-        
-        tmpHtml += '<span id="" class="" style="font-weight:bold">Major Type:  </span>';
-        tmpHtml += '<select name="namajtype" id="namajtype" class="">';
-        tmpHtml += '<option value="none"></option>';
-        tmpHtml += '<option value="movie">movie</option>';
-        //tmpHtml += '<option value="tvseries">tvseries</option>';
-        tmpHtml += '<option value="tvepisode">tvepisode</option>';
-        tmpHtml += '</select>';
-        tmpHtml += '<br>';
-        
-        
-        const tagList = this.sse.ssRead('blob')['tags'];
-        
-        tmpHtml += '<span id="" class="" style="font-weight:bold">Starting Tag:  </span>';
-        //tmpHtml += '<textarea id="nafilename" cols="40" rows="12" class="">';
-        tmpHtml += '<select name="natag" id="natag" class="">';
-        tmpHtml += '<option value="none">None</option>';
-        
-        for (var i = 0; i < tagList.length; i++ ){
-            tmpHtml += '<option value="' + tagList[i] + '">' + tagList[i] + '</option>';
-            //var opt = document.createElement('option');
-            //opt.value = objIn[i];
-            //opt.innerHTML = objIn[i];
-            //tsl.appendChild(opt);
-        }        
-
-        //tmpHtml += '<option value="comedy">comedy</option>';
-        //tmpHtml += '<option value="drama">drama</option>';
-        //tmpHtml += '<option value="action">action</option>';
-        tmpHtml += '</select>';
-        tmpHtml += '<br>';
-        
-        tmpHtml += '<div style="padding-left:200px;"><span style="font-weight:bold;text-decoration:underline;" onclick="switchboard(\'multiNewArtiSubmit\',\'\',{})">Submit</span></div>';
-        //tmpHtml += '';
-        tmpHtml += '<div id="mutiaddresult">';
-        
-        tmpHtml += '</div>';
-        
-        var div = document.createElement('div');
-        div.className = "";
-        div.style.overflow = 'auto';
-        div.id = "";
-        div.innerHTML = tmpHtml;
-        
-        var targetDiv = document.getElementById('structfeatureedit');
-        targetDiv.innerHTML = "";
-        targetDiv.appendChild(div);
-        
-        // tabspan2
-        const ev = new Event('click');
-        document.getElementById('tabspan2').dispatchEvent(ev);
-    }
     apiSubmitNewSingleArtiForm(){ //UPDATED FOR NEW RETURN OBJECT MODEL
 
         //{
@@ -2327,15 +1806,633 @@ class RMVodWebApp {
             this.genericApiCall(payload,endpoint,cbFunc);
         }
     }
+    
+    
+    // DOM Util
+    onloadOptions(){
+        // serplaynext
+        // resumeplay
+        
+        var optList = ['serplaynext','resumeplay'];
+        
+        for (var idx=0; idx < optList.length; idx++ ) {
+            var optNm = optList[idx];
+            var tmpCookie = this.cc.getCookie('opt_' + optNm);
+            var cbDE = document.getElementById(optNm);
+            //console.log('onloadOptions: ' + optNm + ' - ' + document.getElementById(optNm).name + ' -  ' + cbDE.checked );
+            switch (tmpCookie) {
+                case true:
+                case 'true':
+                    cbDE.checked = true;
+                    break;
+                case false:
+                case "false":
+                    cbDE.checked = false;
+                    break;
+                default:
+                    console.log('onloadOptions - No cookie value for ' + optNm);
+                    cbDE.checked = false;
+                    break;
+            }
+            var tmpFunc = function(){switchboard('checkboxChange',this.id ,{});}
+            
+            cbDE.addEventListener("change", tmpFunc);
+            
+        }
+    }
     handleMFSCBStateChange(checkedBoolIn){
-        //console.log("mfSetCheck state = "  + checkedBoolIn);
         if (checkedBoolIn == true) {
-            //console.log("We should be exposing a 'Search' button.");
             document.getElementById('mfsexeccontainer').style.display = 'block';
         } else {
-            //console.log("We should be hiding the 'Search' button.");
             document.getElementById('mfsexeccontainer').style.display = 'none';
         }
+    }
+
+    
+    // HTML Util
+    srchSpan(strIn) {
+        // Takes a simple string in, and wraps it in a span with onclick
+        // set to do execDirectStringSrch in the switchboard
+        var retStr = '';
+        retStr += '<span onclick="switchboard(\'execDirectStringSrch\',\'\',{\'srchstr\':\'';
+        retStr += strIn;
+        retStr += '\'})" style="text-decoration:underline;">';
+        retStr += strIn;
+        retStr += '</span>'
+        return retStr;
+    }
+    l2s(arrayIn){
+        // This just turns an Array object into a String list with 
+        // commas between the elements.
+        var listStr = '';
+        var aLen = arrayIn.length;
+        for (var i = 0; i < aLen; i++) {
+            listStr += arrayIn[i];
+            //listStr += srchSpan(arrayIn[i]);
+            if (i < (aLen - 1)) {
+                listStr += ', ';
+            }
+        }
+        return listStr
+    }
+    l2sSrch(arrayIn){
+        // This just turns an Array object into a HTML list of 
+        // "searchable" elements with commas between the elements.
+        
+        var plainValList = ['string','none',''];
+        var listStr = '';
+        var aLen = arrayIn.length;
+        for (var i = 0; i < aLen; i++) {
+            //listStr += arrayIn[i];
+            if (plainValList.indexOf(arrayIn[i]) == -1) {
+                listStr += this.srchSpan(arrayIn[i]);
+            } else {
+                listStr += arrayIn[i];
+            }
+            if (i < (aLen - 1)) {
+                listStr += ', ';
+            }
+        }
+        return listStr
+    }
+    renderStaticModernSearchWidget(){
+        var hr = new RMVWAHtmlGenerator();
+        var newSrchWidget = hr.renderDESearchWidgetContainer();
+        
+        var targDiv = document.getElementById('headerblock2');
+        targDiv.innerHTML = '';
+        targDiv.appendChild(newSrchWidget);
+        
+        this.tagSelListRefresh();
+    }
+    renderSALByIdList(artiIdListIn){
+        //console.log('renderSALByIdList.artiIdListIn: ' + JSON.stringify(artiIdListIn));
+        // Whole List -- No details or episodes
+        var allowedMajTypes = ['tvseries','movie'];
+        var tmpDiv = document.createElement('div');
+        for (var idx = 0; idx<artiIdListIn.length; idx++ ) {
+            if (allowedMajTypes.indexOf(artiIdListIn[idx]['majtype']) > -1){
+                tmpDiv.appendChild(this.renderSALElementById(artiIdListIn[idx]));
+            }
+        }
+        return tmpDiv;
+    }
+    renderSALElementById(artiTitleIdObjIn){
+        var elementDiv = undefined;
+        switch (artiTitleIdObjIn['majtype']) {
+            case 'movie' :
+                // This is how we do a "movie" row
+                elementDiv = this.renderSideListMovie(artiTitleIdObjIn);
+                break;
+                
+            case 'tvepisode' :
+                // This is how we do an episode of a tv series
+                elementDiv = this.renderSideListTvEpisode(artiTitleIdObjIn);
+                break;
+                
+            case 'tvseries' :
+                // This is how we do a tv series header/container
+                elementDiv = this.renderSideListTvSeries(artiTitleIdObjIn);
+                break;
+            
+            default :
+                // this is where we punt.
+                break;
+        }
+        return elementDiv;
+    }
+    renderSideListMovie(artiTIDobjIn){
+        var rplStr = this.cc.getCookie('recentPlays');
+        if (rplStr == undefined) {
+            rplStr = '';
+        }
+        
+        var titleSpanStyle = "";
+        var tdSpanClass = "listtitleunseen";
+        if (rplStr.indexOf(artiTIDobjIn['artifactid']) > -1) {
+            tdSpanClass = "listtitleseen";
+        }
+        const spanId = artiTIDobjIn['artifactid'] + '_list-title-span';
+        var tdSpanOnclick = "switchboard('vodPlayTitle','" + artiTIDobjIn['artifactid'] + "',{})"; //artiTIDobjIn['artifactid'];
+        var tdTitle = artiTIDobjIn['title'];
+        var titleDiv = document.createElement('div');
+        titleDiv.className = "listelconttitle";
+        var trunclength = 42;
+        if (tdTitle.length > trunclength) {
+            titleDiv.innerHTML = '<span id="' + spanId + '" class="' + tdSpanClass + '" onclick="' + tdSpanOnclick + '"><b><u>' + tdTitle.substring(0,(trunclength-3)) + '...</u></b></span>';
+        } else {
+            titleDiv.innerHTML = '<span id="' + spanId + '" class="' + tdSpanClass + '" onclick="' + tdSpanOnclick + '"><b><u>' + tdTitle + '</u></b></span>';
+        }
+        
+        // Expand Button DIV
+        var bdSpanClass = '';
+        var bdSpanOnclick = "switchboard('xpopsldetail','" + artiTIDobjIn['artifactid'] + "',{})"; //artiTIDobjIn['artifactid']
+        var buttDiv = document.createElement('div');
+        buttDiv.className = "listelcontxpbutt";
+        buttDiv.innerHTML = '<span class="' + bdSpanClass + '" onclick="' + bdSpanOnclick + '"><u>Det</u></span>';
+        
+        // Container for Title and Button
+        var titleRowDiv = document.createElement('div');
+        titleRowDiv.className = "listelconttitlelink";
+        titleRowDiv.appendChild(titleDiv);
+        titleRowDiv.appendChild(buttDiv);
+        
+        // Container/placeholder for Artifact Detail
+        var detailOuterDiv = document.createElement('div');
+        detailOuterDiv.id = artiTIDobjIn['artifactid'] + '-sidelist-detail-outer';
+        detailOuterDiv.className = "listeldetailouter";
+        detailOuterDiv.style.display = 'none';
+        
+        // Container for whole List element
+        var listElContainer =  document.createElement('div');
+        listElContainer.className = "listelcontainer";
+        listElContainer.id = artiTIDobjIn['artifactid'] + '-sidelist-element';
+        listElContainer.appendChild(titleRowDiv);
+        listElContainer.appendChild(detailOuterDiv);
+        
+        return listElContainer;
+    }
+    renderSideListTvSeries(artiTIDobjIn){
+        var tdSpanClass = "";
+        var tdSpanOnclick = "switchboard('tvsExpandEpisodes','" + artiTIDobjIn['artifactid'] + "',{})"; //artiTIDobjIn['artifactid'];
+        var tdTitle = artiTIDobjIn['title']; // + "(series)";
+        var titleDiv = document.createElement('div');
+        titleDiv.className = "listelconttitle";
+        
+        var trunclength = 38;
+        if (tdTitle.length >= trunclength) {
+            //titleDiv.innerHTML = '<span class="' + tdSpanClass + '" onclick="' + tdSpanOnclick + '"><b><u>' + tdTitle.substring(0,(trunclength-3)) + '...(series)</u></b></span>';
+            titleDiv.innerHTML = '<span class="' + tdSpanClass + '" onclick="' + tdSpanOnclick + '"><b><u>' + tdTitle.substring(0,(trunclength-3)) + '...<span style="color:#c0c080">(series)</span></u></b></span>';
+        } else {
+            //titleDiv.innerHTML = '<span class="' + tdSpanClass + '" onclick="' + tdSpanOnclick + '"><b><u>' + tdTitle + '(series)</u></b></span>';
+            titleDiv.innerHTML = '<span class="' + tdSpanClass + '" onclick="' + tdSpanOnclick + '"><b><u>' + tdTitle + '<span style="color:#c0c080">(series)</u></b></span>';
+        }
+        
+        // Container for Title and Button
+        var titleRowDiv = document.createElement('div');
+        titleRowDiv.className = "listelconttitlelink";
+        titleRowDiv.appendChild(titleDiv);
+        
+        // Container/placeholder for Artifact Detail  <<==== NEW
+        var detailOuterDiv = document.createElement('div');
+        detailOuterDiv.id = artiTIDobjIn['artifactid'] + '-sidelist-detail-outer';
+        detailOuterDiv.className = "listeldetailouter";
+        detailOuterDiv.style.display = 'none';
+        
+        // Container/placeholder for Episode List
+        var epListOuterDiv = document.createElement('div');
+        epListOuterDiv.id = artiTIDobjIn['artifactid'] + '-sidelist-episode-list-outer';
+        epListOuterDiv.className = "listelseriescollep";
+        
+        // Container for whole List element
+        var listElContainer =  document.createElement('div');
+        listElContainer.className = "listelcontainer";
+        listElContainer.id = artiTIDobjIn['artifactid'] + '-sidelist-element';
+        listElContainer.appendChild(titleRowDiv);
+        listElContainer.appendChild(detailOuterDiv);
+        listElContainer.appendChild(epListOuterDiv);
+        
+        return listElContainer;
+    }
+    renderSideListTvEpisode(artiTIDobjIn){
+        var rplStr = this.cc.getCookie('recentPlays');
+        if (rplStr == undefined) {
+            rplStr = '';
+        }
+        
+        const spanId = artiTIDobjIn['artifactid'] + '_list-title-span';
+        
+        var tdSpanClass = "listtitleunseen";
+        if (rplStr.indexOf(artiTIDobjIn['artifactid']) > -1) {
+            tdSpanClass = "listtitleseen";
+        }
+        var tdSpanOnclick = "switchboard('vodPlayTitle','" + artiTIDobjIn['artifactid'] + "',{})"; //artiTIDobjIn['artifactid'];
+        var tdTitle = artiTIDobjIn['title'];
+        var titleDiv = document.createElement('div');
+        titleDiv.className = "listelseriescolleptitle";
+        
+        var trunclength = 35;
+        if (tdTitle.length >= trunclength) {
+            titleDiv.innerHTML = '<span id="' + spanId + '" class="' + tdSpanClass + '" onclick="' + tdSpanOnclick + '"><b><u>' + tdTitle.substring(0,(trunclength-3)) + '...</u></b></span>'; //...(series)
+        } else {
+            titleDiv.innerHTML = '<span id="' + spanId + '" class="' + tdSpanClass + '" onclick="' + tdSpanOnclick + '"><b><u>' + tdTitle + '</u></b></span>'; // (series)
+        }
+        
+        // Expand Button DIV
+        var bdSpanClass = '';
+        var bdSpanOnclick = "switchboard('xpopsldetail','" + artiTIDobjIn['artifactid'] + "',{})"; //artiTIDobjIn['artifactid']
+        var buttDiv = document.createElement('div');
+        buttDiv.className = "listelcontxpbutt";
+        buttDiv.innerHTML = '<span class="' + bdSpanClass + '" onclick="' + bdSpanOnclick + '"><u>Det</u></span>';
+        
+        // Container for Title and Button
+        var titleRowDiv = document.createElement('div');
+        titleRowDiv.className = "listelseriescolleptitlelink";
+        titleRowDiv.appendChild(titleDiv);
+        titleRowDiv.appendChild(buttDiv);
+        
+        // Container/placeholder for Artifact Detail
+        var detailOuterDiv = document.createElement('div');
+        detailOuterDiv.id = artiTIDobjIn['artifactid'] + '-sidelist-detail-outer';
+        detailOuterDiv.className = "listelseriescollepdetail";
+        detailOuterDiv.style.display = 'none';
+        
+        // Container for whole List element
+        var listElContainer =  document.createElement('div');
+        listElContainer.className = "listelseriescollepcont";
+        listElContainer.id = artiTIDobjIn['artifactid'] + '-sidelist-episode-element';
+        listElContainer.appendChild(titleRowDiv);
+        listElContainer.appendChild(detailOuterDiv);
+        
+        return listElContainer;
+    }
+    basePageLayout02(){  //  BASE PAGE LAYOUT FOR vodlib_static_3.html
+        var hr = new RMVWAHtmlGenerator();
+        var masterCont = document.getElementById('mastercont');
+        masterCont.innerHTML = '';
+        masterCont.appendChild(hr.renderDEThreeCellHeader());
+        masterCont.appendChild(hr.renderDETabContainer());
+        masterCont.appendChild(hr.renderDEFooterContainer());
+    }
+    tvsDetailShowButton(artiIdIn) {
+        // "Show Details" button for a TV Series Artifact
+        var innerHtml = '';
+        innerHtml += '<span class="" id="" style="font-size:10px;"';
+        innerHtml += 'onclick="switchboard(\'xpopslseriesdetail\',\'' + artiIdIn + '\',{})" ';
+        innerHtml += '>';
+        innerHtml += '<u>Show Series Details</u>';
+        innerHtml += '</span>';
+        
+        var docElId = artiIdIn + '-sidelist-detail-outer';
+        var deetDiv = document.getElementById(docElId);
+        deetDiv.innerHTML = innerHtml;       
+         
+    }
+    resetSearchFactors(){
+        // Clear Text Search
+        document.getElementById('txt-srch-str').value = '';
+        // Clear Dates
+        document.getElementById('relyear-srch-start').value = '';
+        document.getElementById('relyear-srch-end').value = '';
+        //Reset Tag Select List
+        document.getElementById('tag-search-select').value = 'None'; // tag-search-select
+        // Reset Major Type Select List
+        document.getElementById('majtype-search-select').value = 'All'; // majtype-search-select
+        // Reset SQL WHERE Clause
+        document.getElementById('sql-where-srch').value = '';// sql-where-srch
+        
+    }
+    renderArtifactDetailHeader(artiObj){
+        //console.log('renderArtifactDetailHeader');
+        var prodStr = '';
+        prodStr += 'Writer(s): ' + this.l2sSrch(artiObj['writer']) + ' | ';
+        prodStr += 'Director(s): ' + this.l2sSrch(artiObj['director']) + ' | ';
+        prodStr += 'Runtime: ' + artiObj['runmins'] + ' | ';
+        prodStr += 'Release Yr.: ' + artiObj['relyear'] + ' | ';
+        //console.log(prodStr);
+        
+        var castStr = '';
+        castStr +=  this.l2sSrch(artiObj['primcast']);
+        //console.log(castStr);
+        
+        var synoStr = '';
+        synoStr += 'Synopsis: ';
+        if (artiObj['majtype'] == "tvepisode") {
+            synoStr += '(Season ' + artiObj['season'] + ' Episode: ' + artiObj['episode'] + ') ';
+        }
+        synoStr += artiObj['synopsis'];
+        
+        document.getElementById('header-title').innerText = 'Now Playing: ' + artiObj['title'];
+        document.getElementById('header-synopsis').innerText = synoStr;
+        document.getElementById('header-production').innerHTML = 'Production: ' + prodStr;
+        document.getElementById('header-cast').innerHTML = 'Cast: ' + castStr;
+    }
+    refreshFieldListWidget(fieldNmIn,valuesListIn){
+        //console.log('refreshFieldListWidget: ' + fieldNmIn + ': ' + JSON.stringify(valuesListIn));
+        var blobKey = '';
+        switch (fieldNmIn) {
+            case 'tags':
+                blobKey = 'tags';
+                break;
+            case 'relorg':
+                blobKey = 'companies';
+                break;
+            case 'director':
+            case 'writer':
+            case 'primcast':
+                blobKey = 'persons';             
+                break;
+            default:
+                console.log('renderFieldListWidget: ' + fieldNmIn + ", " + JSON.stringify(valuesListIn));
+                return;
+        }
+        
+        var lew = new RNWAListFieldWidget();
+        lew.widgetName = fieldNmIn;
+        lew.recordId = "";
+        lew.choiceList = this.sse.ssRead('blob')[blobKey];
+        lew.listMembers = valuesListIn;
+        lew.addChoiceFunction = 'addChoice';
+        lew.removeMemberFunction = 'removeMember';
+        lew.addMemberFunction = 'addMember'; 
+        var lewDE = lew.renderWidget();
+        var boxDiv = document.getElementById(fieldNmIn + '_Box');
+        boxDiv.innerHTML = lewDE.children[1].innerHTML;        
+        
+    }
+    renderUnifiedNewArtifactForm(ModeStrIn){ // Someday
+        // Someday
+    }
+    renderNewSingleArtiForm(){ // Reworked to use hg.renderStackFormRow
+        //Web UI for Create a Single Artifact:
+        //You put in filepath, file, majtype
+        //API Call => If file exists, create bare-bones Artifact with 
+        //filename as title, and send the artifactid back to the UI.  
+        //UI initiates "Edit" on returned artifactid
+        var tmpHtml = "";
+        
+        tmpHtml += '<p>';
+        tmpHtml += 'Create a single Artifact by providing the filepath component and filename which will identify files in the video storage location.<br>';
+        tmpHtml += 'You will also need to provide the Major Type for the artifact.<br>';
+        tmpHtml += '<b>Note:</b>If you are creating a "tvseries" artifact, set the filename to the leading part of the filename which is common to all the filenames of the "tvepisode" artifacts to be added subsequently';
+        tmpHtml += '</p>';
+        
+        var hg = new RMVWAHtmlGenerator();
+        
+        var argsObj = {};
+        argsObj['labelContentHtml'] = 'Path: ';
+        argsObj['fieldContentHtml'] = '<input id="nafilepath" type="text" class="">';
+        argsObj['rowWidth'] = '800px';
+        argsObj['labelWidth'] = '190px';
+        argsObj['fieldWidth'] = '480px';
+        //argsObj[''] = '';
+        
+        var row1 = hg.renderStackFormRow(argsObj);
+        
+        argsObj['labelContentHtml'] = 'Filename: ';
+        argsObj['fieldContentHtml'] = '<input id="nafilename" type="text" class="">';
+        var row2 = hg.renderStackFormRow(argsObj);
+        
+        var tmpHtml2 = '<select name="namajtype" id="namajtype" class="">';
+        tmpHtml2 += '<option value="none"></option>';
+        tmpHtml2 += '<option value="movie">movie</option>';
+        tmpHtml2 += '<option value="tvseries">tvseries</option>';
+        tmpHtml2 += '<option value="tvepisode">tvepisode</option>';
+        tmpHtml2 += '</select>';
+        
+        argsObj['labelContentHtml'] = 'Major Type: ';
+        argsObj['fieldContentHtml'] = tmpHtml2;
+        var row3 = hg.renderStackFormRow(argsObj);
+        
+        var fooDiv = document.createElement('div');
+        fooDiv.style = 'display:block;';
+        fooDiv.appendChild(row1);
+        fooDiv.appendChild(row2);
+        fooDiv.appendChild(row3);
+        //fooDiv.appendChild();
+        tmpHtml += fooDiv.outerHTML;
+        
+        tmpHtml += '<div style="padding-left:200px;"><span style="font-weight:bold;text-decoration:underline;" onclick="switchboard(\'singleNewArtiSubmit\',\'\',{})">Submit</span></div>';
+        
+        var div = document.createElement('div');
+        div.className = "";
+        div.style.overflow = 'auto';
+        div.id = "";
+        div.innerHTML = tmpHtml;
+        
+        var targetDiv = document.getElementById('structfeatureedit');
+        targetDiv.innerHTML = "";
+        targetDiv.appendChild(div);
+        
+        // tabspan2
+        const ev = new Event('click');
+        document.getElementById('tabspan2').dispatchEvent(ev);
+    }
+    renderSeriesEpisodeAddForm(argObjIn){ // Reworked to use hg.renderStackFormRow
+        //Web UI for Associate Episodes with Series:
+        //You put in filepath, file, majtype
+        //API Call => If file exists, create bare-bones Artifact with 
+        //filename as title, and send the artifactid back to the UI.  
+        //UI initiates "Edit" on returned artifactid
+        var tmpHtml = "";
+        tmpHtml += '<p>';
+        tmpHtml += 'Add Episodes to TV Series <b>' + argObjIn['title'] + '</b> by providing the filepath component and filename fragment which will identify files in the video storage location.<br>';
+        tmpHtml += 'This requires that the Artifacts for the Episodes have already been created.';
+        tmpHtml += '</p>';
+        
+        var hg = new RMVWAHtmlGenerator();
+        
+        var argsObj = {};
+        argsObj['labelContentHtml'] = 'Path: ';
+        argsObj['fieldContentHtml'] = '<input id="nafilepath" type="text" class="">';
+        argsObj['rowWidth'] = '800px';
+        argsObj['labelWidth'] = '190px';
+        argsObj['fieldWidth'] = '480px';
+        //argsObj[''] = '';
+        var row1 = hg.renderStackFormRow(argsObj);
+        
+        argsObj['labelContentHtml'] = 'Filename fragment: ';
+        argsObj['fieldContentHtml'] = '<input id="nafilename" type="text" class="">';
+        var row2 = hg.renderStackFormRow(argsObj);        
+        
+        argsObj['labelContentHtml'] = 'Artifact ID: ';
+        argsObj['fieldContentHtml'] = '<input id="naartifactid" type="text" class="" value="' + argObjIn['artifactid'] + '">';
+        var row3 = hg.renderStackFormRow(argsObj);        
+                
+        var fooDiv = document.createElement('div');
+        fooDiv.style = 'display:block;';
+        fooDiv.appendChild(row1);
+        fooDiv.appendChild(row2);
+        fooDiv.appendChild(row3);
+        //fooDiv.appendChild();
+        tmpHtml += fooDiv.outerHTML;
+        
+        tmpHtml += '<div style="padding-left:200px;"><span style="font-weight:bold;text-decoration:underline;" onclick="switchboard(\'seriesEpisodeAddSubmit\',\'\',{})">Submit</span></div>';
+        
+        var div = document.createElement('div');
+        div.className = "";
+        div.style.overflow = 'auto';
+        div.id = "";
+        div.innerHTML = tmpHtml;
+        
+        var targetDiv = document.getElementById('structfeatureedit');
+        targetDiv.innerHTML = "";
+        targetDiv.appendChild(div);
+        
+        document.getElementById('nafilepath').value = argObjIn['filepath'];
+        document.getElementById('nafilename').value = argObjIn['file'];
+        
+        // tabspan2
+        const ev = new Event('click');
+        document.getElementById('tabspan2').dispatchEvent(ev);
+    }
+    renderNewMultiArtiForm(){ // Reworked to use hg.renderStackFormRow
+        //Web UI for Create a Single Artifact:
+        //You put in filepath, file, majtype
+        //API Call => If file exists, create bare-bones Artifact with 
+        //filename as title, and send the artifactid back to the UI.  
+        //UI initiates "Edit" on returned artifactid
+        var tmpHtml = "";
+        tmpHtml += '<p>';
+        tmpHtml += 'Create multiple Artifacts by providing the filepath component and a newline-separated list of filenames which will identify files in the video storage location.<br>';
+        tmpHtml += 'You will also need to provide the Major Type for the artifacts and an initial Tag to be assigned.';
+        tmpHtml += '</p>';
+        
+        
+        var hg = new RMVWAHtmlGenerator();
+        //defaultValuesObj['rowDivClassName'] = "";
+        //defaultValuesObj['labelDivClassName'] = "";
+        //defaultValuesObj['contentDivClassName'] = "";
+        //defaultValuesObj['labelSpanClassName'] = "";
+        //defaultValuesObj['contentSpanClassName'] = "";
+        //defaultValuesObj['rowWidth'] = "260px";
+        //defaultValuesObj['labelWidth'] = "80px";
+        //defaultValuesObj['fieldWidth'] = "160px";
+        //defaultValuesObj['labelContentHtml'] = "Label:";
+        //defaultValuesObj['fieldContentHtml'] = "Field edit content";        
+        
+        var argsObj = {};
+        argsObj['labelContentHtml'] = 'Path: ';
+        argsObj['fieldContentHtml'] = '<input id="nafilepath" type="text" class="">';
+        argsObj['rowWidth'] = '800px';
+        argsObj['labelWidth'] = '190px';
+        argsObj['fieldWidth'] = '490px';
+        //argsObj[''] = '';
+        
+        var row1 = hg.renderStackFormRow(argsObj);
+        
+        
+        
+        //tmpHtml += '<span id="" class="" style="font-weight:bold">Path:  </span>';
+        //tmpHtml += '<input id="nafilepath" type="text" class="">';
+        //tmpHtml += '<br>';
+        
+        
+        argsObj['labelContentHtml'] = 'Filename: ';
+        argsObj['fieldContentHtml'] = '<textarea id="nafilename" cols="40" rows="12" class=""></textarea>';
+        var row2 = hg.renderStackFormRow(argsObj);
+                
+        
+        
+        
+        //tmpHtml += '<span id="" class="" style="font-weight:bold">Filename:  </span>';
+        //tmpHtml += '<textarea id="nafilename" cols="40" rows="12" class=""></textarea>';
+        //tmpHtml += '<br>';
+        
+        
+        
+        
+        var tmpHtml2 = '<select name="namajtype" id="namajtype" class="">';
+        tmpHtml2 += '<option value="none"></option>';
+        tmpHtml2 += '<option value="movie">movie</option>';
+        tmpHtml2 += '<option value="tvseries">tvseries</option>';
+        tmpHtml2 += '<option value="tvepisode">tvepisode</option>';
+        tmpHtml2 += '</select>';
+        
+        argsObj['labelContentHtml'] = 'Major Type: ';
+        argsObj['fieldContentHtml'] = tmpHtml2;
+        var row3 = hg.renderStackFormRow(argsObj);
+        
+        //tmpHtml += '<span id="" class="" style="font-weight:bold">Major Type:  </span>';
+        //tmpHtml += '<select name="namajtype" id="namajtype" class="">';
+        //tmpHtml += '<option value="none"></option>';
+        //tmpHtml += '<option value="movie">movie</option>';
+        //tmpHtml += '<option value="tvepisode">tvepisode</option>';
+        //tmpHtml += '</select>';
+        //tmpHtml += '<br>';
+        
+        
+        
+        
+        
+        
+        const tagList = this.sse.ssRead('blob')['tags'];
+        
+        //tmpHtml += '<span id="" class="" style="font-weight:bold">Starting Tag:  </span>';
+        var tmpHtml3 = '<select name="natag" id="natag" class="">';
+        tmpHtml3 += '<option value="none">None</option>';
+        
+        for (var i = 0; i < tagList.length; i++ ){
+            tmpHtml3 += '<option value="' + tagList[i] + '">' + tagList[i] + '</option>';
+        }
+        tmpHtml3 += '</select>';
+        //tmpHtml3 += '<br>';
+        
+        
+        
+        argsObj['labelContentHtml'] = 'Starting Tag: ';
+        argsObj['fieldContentHtml'] = tmpHtml3;
+        var row4 = hg.renderStackFormRow(argsObj);
+        
+        
+        var fooDiv = document.createElement('div');
+        fooDiv.style = 'display:block;';
+        fooDiv.appendChild(row1);
+        fooDiv.appendChild(row2);
+        fooDiv.appendChild(row3);
+        fooDiv.appendChild(row4);
+        //fooDiv.appendChild();
+        tmpHtml += fooDiv.outerHTML;        
+        
+        
+        tmpHtml += '<div style="padding-left:200px;"><span style="font-weight:bold;text-decoration:underline;" onclick="switchboard(\'multiNewArtiSubmit\',\'\',{})">Submit</span></div>';
+        tmpHtml += '<div id="mutiaddresult">';
+        
+        tmpHtml += '</div>';
+        
+        var div = document.createElement('div');
+        div.className = "";
+        div.style.overflow = 'auto';
+        div.id = "";
+        div.innerHTML = tmpHtml;
+        
+        var targetDiv = document.getElementById('structfeatureedit');
+        targetDiv.innerHTML = "";
+        targetDiv.appendChild(div);
+        
+        // tabspan2
+        const ev = new Event('click');
+        document.getElementById('tabspan2').dispatchEvent(ev);
     }
     execAddSeriesEpisodes(seriesaidIn,filepathIn,filefragIn){
         var cbFunc = function(dataObjIn) {
@@ -2365,35 +2462,104 @@ class RMVodWebApp {
                     }                    
                 }     
             }
-            
-            // structfeatureedit
-            
             var tmpDiv = document.createElement('div');
             tmpDiv.innerHTML = tmpHtml;
             document.getElementById('structfeatureedit').appendChild(tmpDiv);
-            
-            //{
-                //"method":"addEpisodesToSeries",
-                //"params":["4298bd88-0cc1-42a1-9e4a-1fa2a3993d6a","boats/Chernobyl","Chernobyl_S"],
-                //"status":{
-                    //"success":true,
-                    //"detail":"",
-                    //"log":[
-                        //"Artifact is already an associated episode: 157358c0-6830-4a40-b8b1-98b57ee75016",
-                        //"Artifact is already an associated episode: 247e52dd-af26-4fc4-9cf2-86a269c063fd",
-                        //"Artifact is already an associated episode: 807f56fa-7c69-469e-b124-bc5045b8b36d",
-                        //"Artifact added to series: c0c01476-b641-47dc-be52-50a8fd2923ba",
-                        //"Artifact is already an associated episode: c4dc9d25-cedb-4dba-899c-506d5cc90be0"
-                    //]
-                //},
-                //"data":["c0c01476-b641-47dc-be52-50a8fd2923ba"]
-            //}
         }
-        // dictIn['seriesaid'],dictIn['filepath'],dictIn['filefrag']
         var payloadObj = {'seriesaid': seriesaidIn, 'filepath':filepathIn, 'filefrag':filefragIn};
         var endpoint = '/rmvid/api/series/artifacts/add';
         this.genericApiCall(payloadObj,endpoint,cbFunc)
     }
+    
+    
+    // Cookie Handling
+    contCookieOnLoad() {
+        // OnLoad, if "Resume Playback" is checked, check to see if 3 
+        // "Continue" cookies are set.  If so, get the values of the 
+        // 3 cookies, clear the 3 cookies, and begin playback of the 
+        // SRC URI at the "Progress" Point
+        
+        //  We're going to fake checking the chekcbox for now
+        
+        var cbFunc = function () {
+            
+            // resumeplay
+            
+            try {
+                var playerDE = document.getElementById('actualvideoplayer');
+                var wa = new RMVodWebApp();
+                playerDE.currentTime = wa.cc.getCookie('playback_offset');
+                if (playerDE.currentSrc == wa.cc.getCookie('artifact_source_uri')) {
+                    clearInterval(intervHandle);
+                } else {
+                    if ((playerDE.currentSrc != "") & (wa.cc.getCookie('artifact_source_uri') == "")) {
+                        wa.cc.setCookie('artifact_source_uri', playerDE.currentSrc,5);
+                        if (playerDE.currentSrc == wa.cc.getCookie('artifact_source_uri')) {
+                            clearInterval(intervHandle);
+                        }
+                    } else {
+                        console.log("contCookieOnLoad.cbFunc - Still waiting for Cookie artifact_source_uri to match what's in the player");
+                        console.log('contCookieOnLoad.cbFunc - playerDE.currentSrc: ' + playerDE.currentSrc);
+                        console.log("contCookieOnLoad.cbFunc - wa.cc.getCookie('artifact_source_uri'): " + wa.cc.getCookie('artifact_source_uri'));
+                    }
+                }
+            } catch (e) {
+                console.log("contCookieOnLoad.cbFunc - Resume Play Position failed because " + e);
+            }
+        }
+        
+        var cbDE = document.getElementById('resumeplay');
+        if (cbDE.checked == true) {
+            var playAID = this.cc.getCookie('playing_aid');
+            this.vodPlayTitleApi3(playAID);
+            var intervHandle = setInterval(cbFunc,1000);
+            this.cc.setCookie('cont_play_sample_int_handle',intervHandle,5);
+        }
+    }
+    contCookiePostInterval(delayMsIn){
+        // On Start of "Normal" Playback, an Interval is started (6000ms, 
+        // for example) which periodically writes cookies to track the 
+        // progress of playback of the current video. Initially 3 cookies 
+        // are written:  The handle of the Interval, the SRC URI for 
+        // the artifact, and the Integer "Progress" of the playback, 
+        // in seconds.
+        
+        // On each running of the Interval, the Handle and SRC URI are 
+        // confirmed to be correct, and the Progress is written
+        
+        // On natural conclusion of playback, the 3 "Continue" cookies 
+        // are cleared
+        var delayMs = 60000;
+        if (delayMsIn != undefined){
+            if(typeof delayMsIn == 'number') {
+                delayMs = parseInt(delayMsIn);
+            }
+        }
+        
+        var cbFunc = function () {
+            var wa = new RMVodWebApp();
+            var playerDE = document.getElementById('actualvideoplayer');
+            if (playerDE.paused == false) {
+                var currTime = parseInt(playerDE.currentTime);
+                var currSrc = playerDE.currentSrc;
+                wa.cc.setCookie('artifact_source_uri',currSrc);
+                wa.cc.setCookie('playback_offset',currTime);
+            }
+        }
+        
+        var intervalHandle = setInterval(cbFunc,delayMs);
+        this.cc.setCookie('cont_play_sample_int_handle',intervalHandle,5);
+        return intervalHandle;
+    }
+    contCookieNaturalEnd () {
+        var intHandleIn = this.cc.getCookie('cont_play_sample_int_handle');
+        clearInterval(intHandleIn);
+        this.cc.clearCookie('artifact_source_uri');
+        this.cc.clearCookie('playback_offset');
+        this.cc.clearCookie('cont_play_sample_int_handle');
+        this.cc.clearCookie('play_aid');
+    }
+
 }
 
 function switchboard(actionIn,objIdIn,argObjIn) {
