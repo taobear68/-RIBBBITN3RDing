@@ -1,5 +1,5 @@
 
-//vodlibsketch3.js  Copyright 2022 Paul Tourville
+//rmvod_wa_core.js  Copyright 2022 Paul Tourville
 
 //This file is part of RIBBBITmedia VideoOnDemand (a.k.a. "rmvod").
 
@@ -867,7 +867,7 @@ class RMVodWebApp {
         // These version bits will eventually need to involve polling 
         // the API and DB for their versions
         this.apiFetchRemoteVersions();
-        this.postJSVer("0.5.5");
+        this.postJSVer("0.5.6");
     }
     postCSSVer(verStrIn){  // <<==== DEPRECATED
         const methNm = 'postCSSVer';
