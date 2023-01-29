@@ -33,6 +33,7 @@ apache2 - Apache HTTP Server
 mariadb-server - MariaDB database server (metapackage depending on the latest version)
 python3-flask - micro web framework based on Werkzeug and Jinja2 - Python 3.x
 python3-pymysql - Pure-Python MySQL Driver
+python3-yaml - YAML parser and emitter for Python3
 
 Note: Package names may be different, or packages may be unavilable on other systems.  The reader should be able to either reconcile these packages to equivalents on their system, or download and compile from source if needed.
 
@@ -47,8 +48,16 @@ This will report that additional packages will be installed.  Feel free to revie
 Filesystem Changes
 
 As a sufficiently privileged user, issue the following commands:
-pushd /var/www/html && mkdir rmvod && cd rmvod && mkdir api css data dl img js vidsrc; popd
-pushd /var/lib/ && mkdir rmvod && cd rmvod && mkdir py; popd
+pushd /var/www/html && \
+mkdir rmvod && \
+cd rmvod && \
+mkdir api css data dl img js vidsrc; \
+popd
+pushd /var/lib/ && \
+mkdir rmvod && \
+cd rmvod && \
+mkdir py; \
+popd
 
 
 Deploy rmvod Components
@@ -64,8 +73,36 @@ cp img/* /var/www/html/rmvod/img/
 cp html/* /var/www/html/rmvod/
 cp css/* /var/www/html/rmvod/css/
 cp py/* /var/lib/rmvod/py/
+cp apache/sites-available/*  /etc/apache2/sites-available/
 
 
+Web Server Configuration
+
+a2enmod proxy_http2 proxy_http proxy && \
+pushd /etc/apache2/sites-enabled && \
+rm ./* && \
+ln -s ../sites-available/001-api-proxy.conf && \
+popd && \
+systemctl restart apache2
+
+
+
+
+Database Setup
+
+First, deploy the skeleton database.  As a sufficiently privileged user, from the base directory of the tarball (as above) execute the following command:
+
+mariadb <  sql/vodlib_setup.sql 
+
+
+
+
+
+
+lrwxrwxrwx 1 root root 28 Sep 13 11:05 proxy.conf -> ../mods-available/proxy.conf
+lrwxrwxrwx 1 root root 34 Sep 13 11:05 proxy_http2.load -> ../mods-available/proxy_http2.load
+lrwxrwxrwx 1 root root 33 Sep 13 11:05 proxy_http.load -> ../mods-available/proxy_http.load
+lrwxrwxrwx 1 root root 28 Sep 13 11:05 proxy.load -> ../mods-available/proxy.load
 
 
 
