@@ -1078,7 +1078,7 @@ class RMVodWebApp {
             // Setup HTML for the "actual player"
             var artiDir = dataObjIn['filepath'];
             var artiFil = dataObjIn['file'];
-            var srcURI = '/rmvid/vidsrc/' + artiDir + '/' + artiFil ;
+            var srcURI = '/rmvod/vidsrc/' + artiDir + '/' + artiFil ;
             var hr = new RMVWAHtmlGenerator();
             document.getElementById('structfeatureplayer').innerHTML = hr.renderHTMLVideoPlayer(srcURI);
             var avpDE = document.getElementById('actualvideoplayer');
@@ -2467,7 +2467,7 @@ class RMVodWebApp {
             document.getElementById('structfeatureedit').appendChild(tmpDiv);
         }
         var payloadObj = {'seriesaid': seriesaidIn, 'filepath':filepathIn, 'filefrag':filefragIn};
-        var endpoint = '/rmvid/api/series/artifacts/add';
+        var endpoint = '/rmvod/api/series/artifacts/add';
         this.genericApiCall(payloadObj,endpoint,cbFunc)
     }
     
