@@ -333,7 +333,7 @@ class RMVWAHtmlGenerator {
         cell1Div.style.height = "100px";
         var tmpHtml = '';
         tmpHtml += '<a href="./vodlib_static_3.html">';
-        tmpHtml += '<img src="./img/rmvod_badge_center.png" height="75" width="75" style="height:75px;width:75px;">';
+        tmpHtml += '<img src="/rmvod/img/rmvod_badge_center.png" height="75" width="75" style="height:75px;width:75px;">';
         tmpHtml += '</a>';
         cell1Div.innerHTML = tmpHtml;
         
@@ -764,7 +764,7 @@ class RMVWAHtmlGenerator {
         tmpHtml += '<div style="width:1100px;height:500px;vertical-align:center;horizontal-align:center;margin:20px;">';
         tmpHtml += '<div style="margin-left:200px; margin-right:80px;">';
         tmpHtml += '&nbsp;<br>';
-        tmpHtml += '<img src="./img/rmvod_badge_center.png" height=450 width=450>';
+        tmpHtml += '<img src="/rmvid/img/rmvod_badge_center.png" height=450 width=450>';
         tmpHtml += '</div>';
         tmpHtml += '</div>';    
         return tmpHtml;    
@@ -773,7 +773,7 @@ class RMVWAHtmlGenerator {
         var tmpHtml = '';
         tmpHtml += '<div style="margin-left:375px; margin-right:80px;">';
         tmpHtml += '&nbsp;<br>';
-        tmpHtml += '<img src="./img/rmvod_badge_center.png" height=450 width=450>';
+        tmpHtml += '<img src="/rmvid/img/rmvod_badge_center.png" height=450 width=450>';
         tmpHtml += '</div>';     
         return tmpHtml;   
     }
