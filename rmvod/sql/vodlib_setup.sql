@@ -116,8 +116,9 @@ CREATE UNIQUE INDEX IF NOT EXISTS artitexts_comp_pk ON artitexts (
 
 
 CREATE USER IF NOT EXISTS vodlibapi IDENTIFIED BY 'vodlibapipw';
-GRANT vodlib.* ON vodlib to vodlibapi;
 flush privileges;
+-- GRANT vodlib.* ON vodlib to vodlibapi;
+-- flush privileges;
 GRANT ALL PRIVILEGES ON vodlib.* TO 'vodlibapi'@'localhost' IDENTIFIED BY 'vodlibapipw';
 
 

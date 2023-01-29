@@ -332,7 +332,7 @@ class RMVWAHtmlGenerator {
         cell1Div.style.width = "100px";
         cell1Div.style.height = "100px";
         var tmpHtml = '';
-        tmpHtml += '<a href="./vodlib_static_3.html">';
+        tmpHtml += '<a href="/rmvod/rmvod.html">';
         tmpHtml += '<img src="/rmvod/img/rmvod_badge_center.png" height="75" width="75" style="height:75px;width:75px;">';
         tmpHtml += '</a>';
         cell1Div.innerHTML = tmpHtml;
