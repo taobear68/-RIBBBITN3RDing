@@ -38,7 +38,7 @@ import requests
 
 #fileStr = "vodLibrarydb.py"
 fileStr = "rmvod_api.py"
-versionStr = "0.2.5"
+versionStr = "0.2.6"
 
 # moving to "proper" deployment via WSGI:  https://flask.palletsprojects.com/en/2.0.x/deploying/mod_wsgi/
 class VodLibDB:
@@ -1153,13 +1153,13 @@ class MediaLibraryDB:
         vldb = VodLibDB()
         return vldb.getDBVersion()
     def artifactFileCheck(self,pathIn,fileIn):
-        basePath = '/var/www/html/rmvid/vidsrc/'
+        basePath = '/var/www/html/rmvod/vidsrc/'
         exist = os.path.exists(basePath + pathIn + '/' + fileIn)
         # print("newArtiPreCheck exist " + fileIn, exist)
         return  exist    
     def newArtiPreCheck(self,pathIn,fileIn):
         #print("newArtiPreCheck " + pathIn + ", " +fileIn)
-        basePath = '/var/www/html/rmvid/vidsrc/'
+        basePath = '/var/www/html/rmvod/vidsrc/'
         exist = os.path.exists(basePath + pathIn + '/' + fileIn)
         #print("newArtiPreCheck exist " + fileIn, exist)
         
@@ -1836,7 +1836,7 @@ class MediaLibraryDB:
             print("fetchPosterFile - Got a bad imdbid: " + str(imdbidIn))
             return ''
         baseDir = '/var/www/html'
-        uriPath = '/rmvid/img/poster_00/' + imdbidIn + '.jpg'
+        uriPath = '/rmvod/img/poster_00/' + imdbidIn + '.jpg'
         filnm = baseDir + uriPath
         if not (os.path.exists(filnm)):
             # print("fetchPosterFile - Apparently " + filnm + " does not exist locally.  Trying to fetch it ")
@@ -2486,8 +2486,8 @@ def apiVersion():  # UPDATED FOR NEW RETURN OBJECT MODEL
     ml = MediaLibraryDB()
     # cssVerStr = ml.readCssFile('../css/vodlib.css')
     # htmlVerStr = ml.readHtmlFile('../vodlib_static_3.html')
-    cssVerStr = ml.readCssFile('../css/rmvod_core.css')
-    htmlVerStr = ml.readHtmlFile('../rmvod.html')
+    cssVerStr = ml.readCssFile('/var/www/html/rmvod/css/rmvod_core.css')
+    htmlVerStr = ml.readHtmlFile('/var/www/html/rmvod/rmvod.html')
     
     tmpRetObj = copy.deepcopy(ml.libMeta['retdicttempl'])
     tmpRetObj['method'] = 'apiVersion'

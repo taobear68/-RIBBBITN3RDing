@@ -867,7 +867,7 @@ class RMVodWebApp {
         // These version bits will eventually need to involve polling 
         // the API and DB for their versions
         this.apiFetchRemoteVersions();
-        this.postJSVer("0.5.6");
+        this.postJSVer("0.5.7");
     }
     postCSSVer(verStrIn){  // <<==== DEPRECATED
         const methNm = 'postCSSVer';
@@ -971,7 +971,7 @@ class RMVodWebApp {
             da.updateVersions(objIn['data'][0]);
         }
         const payloadObj = {};
-        const endpoint = '/rmvid/api/apiversion/get';
+        const endpoint = '/rmvod/api/apiversion/get';
         var result = this.genericApiCall(payloadObj,endpoint,cbFunc);
     }
     apiFetchPersonsList(){ //UPDATED FOR NEW RETURN OBJECT MODEL
@@ -986,7 +986,7 @@ class RMVodWebApp {
             sse.ssWrite('blob',theBlob);
         }
         const payloadObj = {'table':'persons'};
-        const endpoint = '/rmvid/api/suplist/get';
+        const endpoint = '/rmvod/api/suplist/get';
         var result = this.genericApiCall(payloadObj,endpoint,cbFunc);
     }
     apiFetchCompaniesList(){ //UPDATED FOR NEW RETURN OBJECT MODEL
@@ -1001,7 +1001,7 @@ class RMVodWebApp {
             sse.ssWrite('blob',theBlob);
         }
         const payloadObj = {'table':'companies'};
-        const endpoint = '/rmvid/api/suplist/get';
+        const endpoint = '/rmvod/api/suplist/get';
         var result = this.genericApiCall(payloadObj,endpoint,cbFunc);
     }
     apiFetchTagsList(){ //UPDATED FOR NEW RETURN OBJECT MODEL
@@ -1015,14 +1015,14 @@ class RMVodWebApp {
             sse.ssWrite('blob',theBlob);
         }
         const payloadObj = {'table':'tags'};
-        const endpoint = '/rmvid/api/suplist/get';
+        const endpoint = '/rmvod/api/suplist/get';
         var result = this.genericApiCall(payloadObj,endpoint,cbFunc);
     }
     apiExecListAction(deIdIn, actionIn){ //UPDATED FOR NEW RETURN OBJECT MODEL
         
         var listName = deIdIn.split('_')[0];
         var artiId = document.getElementById(listName + '_DocId').innerText;
-        var endpoint = "/rmvid/api/artifact/listfield/update";
+        var endpoint = "/rmvod/api/artifact/listfield/update";
         var payloadObj = {};
         payloadObj['action'] = actionIn;
         payloadObj['field'] = listName;
@@ -1110,7 +1110,7 @@ class RMVodWebApp {
             console.log('vodPlayTitleApi2 - Setting the classname for the playing artifact failed');
         }
         // Do the API call.
-        const apiEndpoint = '/rmvid/api/artifact/get'; 
+        const apiEndpoint = '/rmvod/api/artifact/get'; 
         const payload = {'artifactid':artiIdIn};
         this.genericApiCall(payload,apiEndpoint,cbFunc);
     }
@@ -1128,7 +1128,7 @@ class RMVodWebApp {
             wa.vodPlayTitleApi3(objIn['artifactid']);
         }
         const payloadObj = {'artifactid':artiIdIn};
-        const endpoint = '/rmvid/api/nextepisode/get';
+        const endpoint = '/rmvod/api/nextepisode/get';
         this.genericApiCall(payloadObj,endpoint,cbFunc);
     }
     tagSelListRefresh(){ //UPDATED FOR NEW RETURN OBJECT MODEL  //  NEEDS TO BE BETTER - maybe involve apiFetchTagsList
@@ -1159,7 +1159,7 @@ class RMVodWebApp {
         }
         //const endpoint = '/rmvid/api/taglist/get';
         //const payload = {};
-        const endpoint = '/rmvid/api/suplist/get';
+        const endpoint = '/rmvod/api/suplist/get';
         const payload = {'table':'tags'};
         this.genericApiCall(payload,endpoint,cbFunc);
     }
@@ -1177,7 +1177,7 @@ class RMVodWebApp {
                 document.getElementById(epListDEID).appendChild(listDiv);
             }
         }
-        const endpoint = '/rmvid/api/seriestidlist/get';
+        const endpoint = '/rmvod/api/seriestidlist/get';
         const payloadObj = {'artifactid':seriesArtiIdIn};
         this.genericApiCall(payloadObj,endpoint,cbFunc);
     }
@@ -1257,7 +1257,7 @@ class RMVodWebApp {
             var deetDiv = document.getElementById(docElId);
             deetDiv.innerHTML = innerHtml;
         }
-        const endpoint = '/rmvid/api/artifact/get';
+        const endpoint = '/rmvod/api/artifact/get';
         const payloadObj = {'artifactid':artiIdIn};
         this.genericApiCall(payloadObj,endpoint,cbFunc);
     }
@@ -1291,7 +1291,7 @@ class RMVodWebApp {
                 if (srchValObjIn['tag'].length > 0){
                     payloadObj = {'tag':srchValObjIn['tag']}; // srchValObjIn['tag']
                 } 
-                endpoint = "/rmvid/api/titleidlist/get";
+                endpoint = "/rmvod/api/titleidlist/get";
                 break;
             case "text":  //UPDATED FOR NEW RETURN OBJECT MODEL
                 cbFunc = function (dataObjIn){
@@ -1307,7 +1307,7 @@ class RMVodWebApp {
                 if (srchValObjIn['text'].length > 0){
                     payloadObj = {'srchstr':srchValObjIn['text']}; // srchValObjIn['text']
                 }
-                var endpoint = "/rmvid/api/simpletxtsrch/get";
+                var endpoint = "/rmvod/api/simpletxtsrch/get";
                 break;
             case "majtype":  //UPDATED FOR NEW RETURN OBJECT MODEL
                 cbFunc = function (dataObjIn){
@@ -1322,7 +1322,7 @@ class RMVodWebApp {
                 if (srchValObjIn['majtype'].length > 0){
                     payloadObj = {'majtype':srchValObjIn['majtype']};
                 }
-                endpoint = "/rmvid/api/titleidlist/get";
+                endpoint = "/rmvod/api/titleidlist/get";
                 break;
             case "relyear":  //UPDATED FOR NEW RETURN OBJECT MODEL
                 cbFunc = function (dataObjIn){
@@ -1336,7 +1336,7 @@ class RMVodWebApp {
                 if (srchValObjIn['relyear2'] > 1900){
                     payloadObj = {'relyear1':srchValObjIn['relyear1'],'relyear2':srchValObjIn['relyear2']};
                 }
-                endpoint = "/rmvid/api/titleidlist/get";
+                endpoint = "/rmvod/api/titleidlist/get";
                 break;
             case "whereclause":  //UPDATED FOR NEW RETURN OBJECT MODEL
                 //console.log("execSearchSingleFactor: " + factorStrIn + ": " + srchValObjIn[factorStrIn]);
@@ -1353,7 +1353,7 @@ class RMVodWebApp {
                 if (srchValObjIn[factorStrIn].length > 0){
                     payloadObj = {'whereclause':srchValObjIn[factorStrIn]};
                 }
-                endpoint = "/rmvid/api/titleidlist/get";
+                endpoint = "/rmvod/api/titleidlist/get";
                 break;
             default:
                 console.log("execSearchSingleFactor fell through: ", factorStrIn, JSON.stringify(srchValObjIn));
@@ -1395,7 +1395,7 @@ class RMVodWebApp {
             document.getElementById('sideartilistwidget').appendChild(tmpDiv);            
         }
         
-        const endpoint = '/rmvid/api/mfsearch/get';
+        const endpoint = '/rmvod/api/mfsearch/get';
         const payload = sfValsObj;
         this.genericApiCall(payload,endpoint,cbFunc);
         
@@ -1651,7 +1651,7 @@ class RMVodWebApp {
             
             //END of cbFunc 
         }
-        const endpoint = '/rmvid/api/artifact/get';
+        const endpoint = '/rmvod/api/artifact/get';
         const payloadObj = {'artifactid':artiIdIn};
         this.genericApiCall(payloadObj,endpoint,cbFunc);
         //END OF renderArtifactEdit
@@ -1719,7 +1719,7 @@ class RMVodWebApp {
         var cbFunc = function (dataObjIn) {
             console.log('postArtifactFieldEdit.cbFunc: ' + JSON.stringify(dataObjIn));
         }
-        const endpoint = '/rmvid/api/artifact/update';
+        const endpoint = '/rmvod/api/artifact/update';
         const payload = {'artifactid':wrkArtiId,'values':updateObj};
         this.genericApiCall(payload,endpoint,cbFunc);
     }
@@ -1757,7 +1757,7 @@ class RMVodWebApp {
             }
         }
         var payload = {'filepath':nafp,'file':nafn,'majtype':namt};
-        var endpoint = "/rmvid/api/artifact/newsingle";
+        var endpoint = "/rmvod/api/artifact/newsingle";
         this.genericApiCall(payload,endpoint,cbFunc);
         
     }
@@ -1802,7 +1802,7 @@ class RMVodWebApp {
                 }
             }
             var payload = {'filepath':nafp,'file':laFileList[i],'majtype':namt,'tags':[natag]};
-            var endpoint = "/rmvid/api/artifact/newsingle";
+            var endpoint = "/rmvod/api/artifact/newsingle";
             this.genericApiCall(payload,endpoint,cbFunc);
         }
     }

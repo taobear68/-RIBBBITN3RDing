@@ -1,0 +1,74 @@
+# rmvod_manual_setup.txt  Copyright 2023 Paul Tourville
+
+# This file is part of RIBBBITmedia VideoOnDemand (a.k.a. "rmvod").
+
+# RIBBBITmedia VideoOnDemand (a.k.a. "rmvod") is free software: you 
+# can redistribute it and/or modify it under the terms of the GNU \
+# General Public License as published by the Free Software Foundation, 
+# either version 3 of the License, or (at your option) any later 
+# version.
+
+# RIBBBITmedia VideoOnDemand (a.k.a. "rmvod") is distributed in the 
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even 
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+# PURPOSE. See the GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License 
+# along with RIBBBITmedia VideoOnDemand (a.k.a. "rmvod"). If not, 
+# see <https://www.gnu.org/licenses/>.
+
+
+This document provides guidance on deploying RIBBBITmedia Video On Demand (abbreviated as "rmvod") on a GNU/Linux host (or other UNIX-like system).  This document assumes the reader is sufficiently familiar with the target system to make any needed adjustments to the installation and configuration of the various packages on which rmvod is dependent.
+
+The example deployment described in this document is performed on a Debian GNU/Linux system ("Buster" release / Debian 10).  Other systems may have other package management systems and filesystem configurations.  It is left as an exercise for the reader to recognize and reconcile any differences.
+
+rmvod depends on several underlying packages.  In some cases, it may be possible to substitute other packages, and/or make customizations not described in this document, but the reader assumes all responsibility for integrating and troubleshooting any differences and/or customizations.
+
+
+Dependent Packages
+
+rmvod depends on the following (Debian APT) packages being installed:
+python3 - interactive high-level object-oriented language (default python3 version)
+apache2 - Apache HTTP Server
+mariadb-server - MariaDB database server (metapackage depending on the latest version)
+python3-flask - micro web framework based on Werkzeug and Jinja2 - Python 3.x
+python3-pymysql - Pure-Python MySQL Driver
+
+Note: Package names may be different, or packages may be unavilable on other systems.  The reader should be able to either reconcile these packages to equivalents on their system, or download and compile from source if needed.
+
+Note: Python3 is included in the normal install of Debian GNU/Linux "Buster".  On a Debian system, using 'apt', attempting to install a package which is already properly installed will simply report the package as already installed, and skip it.  It is included here for readers who are either working on a "minimal install" or some other system which may not include Python3 in its default install.
+
+As a sufficiently privileged user, issue the following command:
+apt-get install python3 apache2 mariadb-server python3-flask python3-pymysql
+
+This will report that additional packages will be installed.  Feel free to review the list of packages, and find out what each of them does, but understand that these are dependencies, and rejecting some or all of these dependencies will likely render rmvod inoperable.
+
+
+Filesystem Changes
+
+As a sufficiently privileged user, issue the following commands:
+pushd /var/www/html && mkdir rmvod && cd rmvod && mkdir api css data dl img js vidsrc; popd
+pushd /var/lib/ && mkdir rmvod && cd rmvod && mkdir py; popd
+
+
+Deploy rmvod Components
+
+Download and untar the rmvod components, and from the base directory of the tarball which should contain the following directories: 
+
+apache  bash  css  doc  html  img  js  license  py  sql
+
+Execute the following commands as a sufficiently privileged user:
+
+cp js/* /var/www/html/rmvod/js/
+cp img/* /var/www/html/rmvod/img/
+cp html/* /var/www/html/rmvod/
+cp css/* /var/www/html/rmvod/css/
+cp py/* /var/lib/rmvod/py/
+
+
+
+
+
+
+
+

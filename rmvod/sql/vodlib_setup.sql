@@ -98,6 +98,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS artitexts_comp_pk ON artitexts (
 
 CREATE USER IF NOT EXISTS vodlibapi IDENTIFIED BY 'vodlibapipw';
 GRANT vodlib.* ON vodlib to vodlibapi;
+flush privileges;
 GRANT ALL PRIVILEGES ON vodlib.* TO 'vodlibapi'@'localhost' IDENTIFIED BY 'vodlibapipw';
 
 
@@ -192,80 +193,6 @@ INSERT INTO t2a SET tag = 'intrigue', artifactid = '4cf2d6f7-f887-4a82-9b06-022b
 
 
  -- "action", "based_on_a_true_story", "behind_the_scenes", "cold_war", "comedy", "disaster", "documentary", "drama", "foreign", "holiday", "horror", "intrigue", "mockumentary", "music", "mystery", "nobbly", "post-apocalypse", "science_fiction", "vietnam_war", "world_war_2"
-
-
-
-
-["",""],
-
-
-
-
-{
-    "artifactid":"4cf2d6f7-f887-4a82-9b06-022bd2a88f7d",
-    "title":"Good Night, And Good Luck",
-    "majtype":"movie",
-    "runmins":93,
-    "season":-1,
-    "episode":-1,
-    "file":"GoodNightAndGoodLuck.m4v",
-    "filepath":"boats",
-    "director":["George Clooney"],
-    "writer":["George Clooney","Grant Heslov"],
-    "primcast":["David Strathairn","Patricia Clarkson","George Clooney","Jeff Daniels","Robert Downey, Jr.","Frank Langella","Tate Donovan","Ray Wise"],
-    "relorg":["2929 Entertainment","Participant Productions","Section Eight Productions","Davis Films","Redbus Pictures","Tohokushinsha"],
-    "relyear":2005,
-    "eidrid":"string",
-    "imdbid":"tt0433383",
-    "arbmeta":{"string":"string"}
-}
-
-
-
-
-        -- self.libDict = {}
-        -- self.libDict['n2a'] = {}
-        -- self.libDict['artifacts'] = {}
-        -- self.libDict['tags'] = []
-        -- self.libDict['a2t'] = {}
-        -- self.libDict['t2a'] = {}
-        -- self.libDict['series'] = []
-
-
-            -- self.artifactProto = {}
-        -- self.artifactProto['artifactid'] = 'string'
-        -- self.artifactProto['title'] = 'string'
-        -- self.artifactProto['majtype'] = 'string'
-        -- self.artifactProto['runmins'] = -1
-        -- self.artifactProto['season'] = -1
-        -- self.artifactProto['episode'] = -1
-        -- self.artifactProto['file'] = 'string'
-        -- self.artifactProto['filepath'] = 'string'
-        -- self.artifactProto['director'] = ['string']
-        -- self.artifactProto['writer'] = ['string']
-        -- self.artifactProto['primcast'] = ['string']
-        -- self.artifactProto['relorg'] = ['string'] 
-        -- self.artifactProto['relyear'] = -1
-        -- self.artifactProto['eidrid'] = 'string'
-        -- self.artifactProto['imdbid'] = 'string'
-        -- self.artifactProto['arbmeta'] = {'string':'string'}
-        
-        -- pass
-    -- e5f439d8-ff70-45df-b2eb-2cd475ebfbe5
-
-        
-        -- self.libDict = {}
-        -- self.libDict['n2a'] = {}
-        -- self.libDict['artifacts'] = {}
-        -- self.libDict['tags'] = []
-        -- self.libDict['a2t'] = {}
-        -- self.libDict['t2a'] = {}
-        -- self.libDict['series'] = []
-        
-       
-
--- apt-get install mariadb-client mariadb-server python3-mysqldb python3-pymysql
-
 
 
 
