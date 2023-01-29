@@ -18,11 +18,14 @@
 # see <https://www.gnu.org/licenses/>.
 
 
-This document provides guidance on deploying RIBBBITmedia Video On Demand (abbreviated as "rmvod") on a GNU/Linux host (or other UNIX-like system).  This document assumes the reader is sufficiently familiar with the target system to make any needed adjustments to the installation and configuration of the various packages on which rmvod is dependent.
+Introduction
+
+This document provides guidance on deploying RIBBBITmedia VideoOnDemand (abbreviated as "rmvod") on a GNU/Linux host (or other UNIX-like system).  This document assumes the reader is sufficiently familiar with the target system to make any needed adjustments to the installation and configuration of the various packages on which rmvod is dependent.
 
 The example deployment described in this document is performed on a Debian GNU/Linux system ("Buster" release / Debian 10).  Other systems may have other package management systems and filesystem configurations.  It is left as an exercise for the reader to recognize and reconcile any differences.
 
 rmvod depends on several underlying packages.  In some cases, it may be possible to substitute other packages, and/or make customizations not described in this document, but the reader assumes all responsibility for integrating and troubleshooting any differences and/or customizations.
+
 
 
 Dependent Packages
@@ -45,6 +48,7 @@ apt-get install python3 apache2 mariadb-server python3-flask python3-pymysql
 This will report that additional packages will be installed.  Feel free to review the list of packages, and find out what each of them does, but understand that these are dependencies, and rejecting some or all of these dependencies will likely render rmvod inoperable.
 
 
+
 Filesystem Changes
 
 As a sufficiently privileged user, issue the following commands:
@@ -58,6 +62,7 @@ mkdir rmvod && \
 cd rmvod && \
 mkdir py; \
 popd
+
 
 
 Deploy rmvod Components
@@ -76,15 +81,15 @@ cp py/* /var/lib/rmvod/py/
 cp apache/sites-available/*  /etc/apache2/sites-available/
 
 
+
 Web Server Configuration
 
-a2enmod proxy_http2 proxy_http proxy && \
+a2enmod proxy_http2 proxy_http proxy ssl && \
 pushd /etc/apache2/sites-enabled && \
 rm ./* && \
 ln -s ../sites-available/001-api-proxy.conf && \
 popd && \
 systemctl restart apache2
-
 
 
 
@@ -96,16 +101,13 @@ mariadb <  sql/vodlib_setup.sql
 
 
 
+Video Filestore
 
+By default, rmvod expects the video files available for playback to be in /var/www/html/rmvod/vidsrc .
 
+Beyond the vidsrc directory, the "filepath" attribute of the individual artifacts should be reflected in the vidsrc directory.  For example, if an artifact has a filepath attribute of "drama", then the video file should be in /var/www/html/rmvod/vidsrc/drama/ .
 
-lrwxrwxrwx 1 root root 28 Sep 13 11:05 proxy.conf -> ../mods-available/proxy.conf
-lrwxrwxrwx 1 root root 34 Sep 13 11:05 proxy_http2.load -> ../mods-available/proxy_http2.load
-lrwxrwxrwx 1 root root 33 Sep 13 11:05 proxy_http.load -> ../mods-available/proxy_http.load
-lrwxrwxrwx 1 root root 28 Sep 13 11:05 proxy.load -> ../mods-available/proxy.load
-
-
-
+Normal *nix filesystem tricks apply.  The files could be stored on a remote file server and mounted via NFS or SMB.  The files could be stored on another local filesystem on the local machine.  Symbolic links should be followed with the Apache site configuration provided with rmvod
 
 
 

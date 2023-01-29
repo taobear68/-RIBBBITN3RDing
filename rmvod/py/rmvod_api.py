@@ -17,7 +17,7 @@ import yaml
 import requests
 
 
-# vod_api.py  Copyright 2022 Paul Tourville
+# vod_api.py  Copyright 2022, 2023 Paul Tourville
 
 # This file is part of RIBBBITmedia VideoOnDemand (a.k.a. "rmvod").
 
@@ -2424,53 +2424,96 @@ def index():
     ## THE FOLLOWING HTML SHOULD PROBABLY NOT BE HERE FOR FUTURE USE.
     ## IT IS INTENDED PRIMARILY FOR DEVELOPMENT AND TESTING OF THE 
     ## WEB SERVICE FOR RMPC
-    retval = """<html>
-    <head>
-        <style>
+    
+    # retval = """<html>
+    # <head>
+        # <style>
             
            
-            body {
-                font-family: arial;
-                font-size: small;
-                color: #cccccc;
-                background-color: #222222;
-            }
-            div {
-                margin: 0px;
-                margin-left: 0px;
-                margin-right: 0px;
-                margin-top: 0px;
-                margin-bottom: 0px;
-                padding: 0px;
-                border: 1px solid gray;
-                /* border: 0px; */
-            }            
+            # body {
+                # font-family: arial;
+                # font-size: small;
+                # color: #cccccc;
+                # background-color: #222222;
+            # }
+            # div {
+                # margin: 0px;
+                # margin-left: 0px;
+                # margin-right: 0px;
+                # margin-top: 0px;
+                # margin-bottom: 0px;
+                # padding: 0px;
+                # border: 1px solid gray;
+                # /* border: 0px; */
+            # }            
             
-            div.artifact-default-disp-cell {
-                display:inline-flex;
-                border-width: 1px;
-                border-color: #000000;
-                border-style: solid;
-                padding:3px;
-            }
+            # div.artifact-default-disp-cell {
+                # display:inline-flex;
+                # border-width: 1px;
+                # border-color: #000000;
+                # border-style: solid;
+                # padding:3px;
+            # }
+        # </style>
+        # <script type="text/javascript" src="http://freezer/freezer/js/RMWebAppCoreUtil.js"></script>
+        # <script type="text/javascript" src="http://localhost/vodlib/js/vodlibsketch.js"></script>
+    # </head>
+    # <body onload="switchboard('firstthing','',{})">
+        # <div id="vodlibworld" style="width:720px;height:720;overflow:auto;">
+            # <div id="titletop"  style="width:700px; height:50px;">
+                # <b>RIBBBITVOD</b><br>
+            # </div>
+            # <div id='big-search-container' style="width:700px; height:400px; display:none;"></div>
+            # <div id="div00"  style="width:700px; height:400px;">
+                # <div id="playercontainer">a player might go here</div>
+            # </div>
+            # <div id="div01" style="width:700px;height:250px;overflow:auto;"></div>
+        # </div>
+        # <!-- text after div01 -->
+    # </body>
+# </html>
+# """
+    retval = """<!DOCTYPE html>
+
+<!-- rmvod.html version 0.4.3  -->
+
+<!--
+rmvod.html  Copyright 2022, 2023 Paul Tourville
+
+This file is part of RIBBBITmedia VideoOnDemand (a.k.a. "rmvod").
+
+RIBBBITmedia VideoOnDemand (a.k.a. "rmvod") is free software: you 
+can redistribute it and/or modify it under the terms of the GNU 
+General Public License as published by the Free Software 
+Foundation, either version 3 of the License, or (at your option) 
+any later version.
+
+RIBBBITmedia VideoOnDemand (a.k.a. "rmvod") is distributed in the 
+hope that it will be useful, but WITHOUT ANY WARRANTY; without 
+even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+PARTICULAR PURPOSE. See the GNU General Public License for more 
+details.
+
+You should have received a copy of the GNU General Public License 
+along with RIBBBITmedia VideoOnDemand (a.k.a. "rmvod"). If not, 
+see <https://www.gnu.org/licenses/>.
+-->
+
+<html>
+    <head>
+        <link rel="stylesheet" href="/rmvod/css/rmvod_core.css">
+        <style>
         </style>
-        <script type="text/javascript" src="http://freezer/freezer/js/RMWebAppCoreUtil.js"></script>
-        <script type="text/javascript" src="http://localhost/vodlib/js/vodlibsketch.js"></script>
+        <script type="text/javascript" src="/rmvod/js/RMWebAppCoreUtil.js"></script> 
+        <script type="text/javascript" src="/rmvod/js/rmvod_wa_core.js"></script> 
     </head>
     <body onload="switchboard('firstthing','',{})">
-        <div id="vodlibworld" style="width:720px;height:720;overflow:auto;">
-            <div id="titletop"  style="width:700px; height:50px;">
-                <b>RIBBBITVOD</b><br>
-            </div>
-            <div id='big-search-container' style="width:700px; height:400px; display:none;"></div>
-            <div id="div00"  style="width:700px; height:400px;">
-                <div id="playercontainer">a player might go here</div>
-            </div>
-            <div id="div01" style="width:700px;height:250px;overflow:auto;"></div>
+        <div class="mastercont" id="mastercont" style="width:1210px;height:760px;"> <!-- 710px; -->
         </div>
-        <!-- text after div01 -->
     </body>
 </html>
+    
+    
 """
     return retval
 

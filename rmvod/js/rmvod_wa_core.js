@@ -1,5 +1,5 @@
 
-//rmvod_wa_core.js  Copyright 2022 Paul Tourville
+//rmvod_wa_core.js  Copyright 2022, 2023 Paul Tourville
 
 //This file is part of RIBBBITmedia VideoOnDemand (a.k.a. "rmvod").
 
