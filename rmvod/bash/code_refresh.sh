@@ -1,5 +1,8 @@
 #!/bin/bash
 
+mkdir -p /var/lib/rmvod/py /var/lib/rmvod/bash
+mkdir -p /var/www/html/rmvod/js/ /var/www/html/rmvod/css
+
 echo "Cloning the repo..."
 cd && mkdir -p git && \
 pushd ~/git && \
