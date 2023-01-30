@@ -14,6 +14,7 @@ cp js/* /var/www/html/rmvod/js/ && \
 cp html/* /var/www/html/rmvod/ && \
 cp css/* /var/www/html/rmvod/css/ && \
 cp py/* /var/lib/rmvod/py/ && \
+cp bash/* /var/lib/rmvod/bash/ && \
 popd && \
 date
 
