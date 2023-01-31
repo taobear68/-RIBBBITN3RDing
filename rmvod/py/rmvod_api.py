@@ -1940,6 +1940,9 @@ class MediaLibraryDB:
         return retDict
     def apiCreateSingleArtifact(self,argDictIn): # UPDATED FOR NEW RETURN OBJECT MODEL
         
+        #artifactid = str(uuid.uuid4())
+        artifactid = None
+        
         tmpRetObj = copy.deepcopy(self.libMeta['retdicttempl'])
         tmpRetObj['method'] = 'apiCreateSingleArtifact'
         tmpRetObj['params'] = [argDictIn]
@@ -1975,7 +1978,8 @@ class MediaLibraryDB:
         if evenTry == True:
             try:
                 print("trying newSingleArtifact...")
-                artifactid = str(uuid.uuid4())
+                
+                #print("Artifact ID: " +  artifactid)
                 artiData = {}
                 artiData['title'] = dictIn['file']
                 # if dictIn['majtype'] == 'tvseries':
@@ -2000,6 +2004,7 @@ class MediaLibraryDB:
                 #artiData[''] = '';
                 # artifactid = self.createArtifact(artiData)
                 # result = {'status':'success','statusdetail':dictIn['file'],'data':{'artifactid':artifactid}}
+                artifactid = self.createArtifact(artiData)
                 tmpRetObj['status']['success'] = True
                 tmpRetObj['status']['detail'] = dictIn['file']
                 tmpRetObj['data'] = [{'artifactid':artifactid}]
