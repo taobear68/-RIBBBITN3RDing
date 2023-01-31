@@ -1975,6 +1975,7 @@ class MediaLibraryDB:
         if evenTry == True:
             try:
                 print("trying newSingleArtifact...")
+                artifactid = str(uuid.uuid4())
                 artiData = {}
                 artiData['title'] = dictIn['file']
                 # if dictIn['majtype'] == 'tvseries':
