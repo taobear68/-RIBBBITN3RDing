@@ -60,7 +60,8 @@ popd
 pushd /var/lib/ && \
 mkdir rmvod && \
 cd rmvod && \
-mkdir py; \
+mkdir py && \
+mkdir bash; \
 popd
 
 
@@ -73,12 +74,15 @@ apache  bash  css  doc  html  img  js  license  py  sql
 
 Execute the following commands as a sufficiently privileged user:
 
-cp js/* /var/www/html/rmvod/js/
-cp img/* /var/www/html/rmvod/img/
-cp html/* /var/www/html/rmvod/
-cp css/* /var/www/html/rmvod/css/
-cp py/* /var/lib/rmvod/py/
-cp apache/sites-available/*  /etc/apache2/sites-available/
+cp js/* /var/www/html/rmvod/js/ && \
+cp img/* /var/www/html/rmvod/img/ && \
+cp html/* /var/www/html/rmvod/ && \
+cp css/* /var/www/html/rmvod/css/ && \
+cp py/* /var/lib/rmvod/py/ && \
+cp bash/* /var/lib/rmvod/bash/ && \
+cp apache/sites-available/*  /etc/apache2/sites-available/ && \
+chmod o+x /var/lib/rmvod/bash/*.sh && \
+chmod o+x /var/lib/rmvod/py/*.sh 
 
 
 
