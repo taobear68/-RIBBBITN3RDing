@@ -86,7 +86,7 @@ file_copy(){
     cp bash/* /var/lib/rmvod/bash/ && \
     cp apache/sites-available/*  /etc/apache2/sites-available/ && \
     chmod o+x /var/lib/rmvod/bash/*.sh && \
-    chmod o+x /var/lib/rmvod/py/*.sh  || \
+    chmod o+x /var/lib/rmvod/py/*.py  || \
     {
         echo "File Copy failed"
         exit 1 
