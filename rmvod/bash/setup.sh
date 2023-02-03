@@ -28,37 +28,67 @@ echo "This setup script is not ready for execution.  Giving up."
 exit 1
 
 
-#Confirm that we are root
+IAM=$(WHOAMI)
+if [[ "${IAM}" != "root" ]] 
+    then
+        echo "This script must be run under sudo or as root."
+        exit 1
+    fi
+    
+# Install packages
+apt-get install \
+python3 apache2 mariadb-server python3-flask \
+python3-pymysql python3-yaml || \
+{echo "Package install failed."; exit 1}
+
+echo "Making sure we're in the right starting directory."
+echo "This may take a moment..."
+PYFIL="$(find $(pwd) -wholename "*/py/rmvod_api.py" | head -n 1)"
+INSTSRCDIR="$(dirname $(dirname ${PYFIL}))"
+pushd ${INSTSRCDIR} || \
+{echo "Something has gone horribly wrong.  I don't know where I am."; \
+    echo ${INSTSRCDIR}; exit 1; }
+
+# Setup filesystem
+echo "Setting up the filesystem..."
+pushd /var/www/html && \
+mkdir -p rmvod && \
+cd rmvod && \
+mkdir -p api css data dl img js vidsrc; \
+popd && \
+pushd /var/lib/ && \
+mkdir -p rmvod && \
+cd rmvod && \
+mkdir -p py && \
+mkdir -p bash; \
+popd || \
+{echo "Filesystem Setup failed!"; exit 1;}
+
+# Put Files in the proper places
+echo "Copying files to the apropriate places..."
+cp js/* /var/www/html/rmvod/js/ && \
+cp img/* /var/www/html/rmvod/img/ && \
+cp html/* /var/www/html/rmvod/ && \
+cp css/* /var/www/html/rmvod/css/ && \
+cp py/* /var/lib/rmvod/py/ && \
+cp bash/* /var/lib/rmvod/bash/ && \
+cp apache/sites-available/*  /etc/apache2/sites-available/ && \
+chmod o+x /var/lib/rmvod/bash/*.sh && \
+chmod o+x /var/lib/rmvod/py/*.sh  || \
+{echo "File Copy failed!"; exit 1;}
+
+# Adjust Apache2 configuration
+echo "Setting up Apache2..."
+a2enmod proxy_http2 proxy_http proxy ssl && \
+pushd /etc/apache2/sites-enabled && \
+rm ./* && \
+ln -s ../sites-available/001-api-proxy.conf && \
+popd && \
+systemctl restart apache2 || \
+{echo "Apache Setup failed!"; exit 1;}
 
 
-#MAKE SURE ALL SOFTWARE IS INSTALLED
-#Confirm Apache2 is present and if not install it
-
-#Confirm Python 3 is present, and if not install it
-
-#Confirm Flask is present, and if not install it
-
-#Confirm the following Python 3 modules are present, and if not install them: 
- #pymysql, copy, json, uuid, base64, os, yaml, requests
-
-#Ask whether DB will be local or remote
-#IF DB is local, confirm MariaDB is present, and if not install it
-#IF DB is remote, get connection information (host, user, password, dbname)
-
-
-echo "Creating some dorectories under /var/www/html for rmvod"
-#MAKE SURE FILESYSTEM HAS NEEDED COMPONENTS
-mkdir -p /var/www/html/rmvid/css
-mkdir -p /var/www/html/rmvid/js
-mkdir -p /var/www/html/rmvid/py
-mkdir -p /var/www/html/rmvid/api
-mkdir -p /var/www/html/rmvid/img
-mkdir -p /var/www/html/rmvid/data
-mkdir -p /var/www/html/rmvid/dl
-
-
-# We probably want to make sure whether this is actual or a symlink
-mkdir -p /var/www/html/rmvid/vidsrc
-
-
+# Setup Database
+mariadb <  ./sql/vodlib_setup.sql  || \
+{echo "Database Setup failed!"; exit 1;}
 
