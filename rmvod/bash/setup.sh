@@ -42,7 +42,10 @@ pkg_install(){
     apt-get install \
     python3 apache2 mariadb-server python3-flask \
     python3-pymysql python3-yaml || \
-    {echo "Package install failed."; exit 1 }
+    {
+        echo "Package install failed."
+        exit 1 
+    }
 }
 
 fs_setup(){
@@ -52,10 +55,11 @@ fs_setup(){
             mkdir -p rmvod && cd rmvod && \
             mkdir -p api css data dl img js vidsrc 
         } || {
-            echo "Filesystem Setup failed (var/www/html)!"; exit 1 
+            echo "Filesystem Setup failed (var/www/html)."
+            exit 1 
         }
     } && popd || {
-        echo "Filesystem Setup failed!"; exit 1 
+        echo "Filesystem Setup failed."; exit 1 
     }
     
     pushd /var/lib/ && {
@@ -63,10 +67,12 @@ fs_setup(){
             mkdir -p rmvod && cd rmvod && \
             mkdir -p py && mkdir -p bash 
         } || {
-            echo "Filesystem Setup failed (/var/lib/)!"; exit 1 
+            echo "Filesystem Setup failed (/var/lib/)."
+            exit 1 
         }
     } && popd || {
-        echo "Filesystem Setup failed!"; exit 1 
+        echo "Filesystem Setup failed."
+        exit 1 
     }
 }
 
@@ -81,7 +87,10 @@ file_copy(){
     cp apache/sites-available/*  /etc/apache2/sites-available/ && \
     chmod o+x /var/lib/rmvod/bash/*.sh && \
     chmod o+x /var/lib/rmvod/py/*.sh  || \
-    {echo "File Copy failed!"; exit 1 }
+    {
+        echo "File Copy failed"
+        exit 1 
+    }
 }
 
 wbsvr_setup(){
@@ -94,14 +103,14 @@ wbsvr_setup(){
     } && { 
         systemctl restart apache2 
     } || {
-        echo "Apache Setup failed!"
+        echo "Apache Setup failed"
         exit 1 
     }
 }
 
 db_setup(){
     mariadb <  ./sql/vodlib_setup.sql  || {
-        echo "Database Setup failed!"
+        echo "Database Setup failed."
         exit 1 
     }
 }
@@ -148,4 +157,6 @@ wbsvr_setup || exit 1
 # Setup Database
 echo
 db_setup || exit 1
+
+popd
 
