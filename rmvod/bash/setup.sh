@@ -22,13 +22,13 @@
 # see <https://www.gnu.org/licenses/>.
 
 
-######
-# This is nowhere near ready for execution.  Let's just bail out here.
-echo "This setup script is not ready for execution.  Giving up."
-exit 1
+#######
+## This is nowhere near ready for execution.  Let's just bail out here.
+#echo "This setup script is not ready for execution.  Giving up."
+#exit 1
 
 
-IAM=$(WHOAMI)
+IAM=$(whoami)
 if [[ "${IAM}" != "root" ]] 
     then
         echo "This script must be run under sudo or as root."
@@ -39,7 +39,7 @@ if [[ "${IAM}" != "root" ]]
 apt-get install \
 python3 apache2 mariadb-server python3-flask \
 python3-pymysql python3-yaml || \
-{echo "Package install failed."; exit 1}
+{echo "Package install failed."; exit 1 }
 
 echo "Making sure we're in the right starting directory."
 echo "This may take a moment..."
@@ -47,7 +47,7 @@ PYFIL="$(find $(pwd) -wholename "*/py/rmvod_api.py" | head -n 1)"
 INSTSRCDIR="$(dirname $(dirname ${PYFIL}))"
 pushd ${INSTSRCDIR} || \
 {echo "Something has gone horribly wrong.  I don't know where I am."; \
-    echo ${INSTSRCDIR}; exit 1; }
+    echo ${INSTSRCDIR}; exit 1 }
 
 # Setup filesystem
 echo "Setting up the filesystem..."
@@ -62,7 +62,7 @@ cd rmvod && \
 mkdir -p py && \
 mkdir -p bash; \
 popd || \
-{echo "Filesystem Setup failed!"; exit 1;}
+{echo "Filesystem Setup failed!"; exit 1 }
 
 # Put Files in the proper places
 echo "Copying files to the apropriate places..."
@@ -75,7 +75,7 @@ cp bash/* /var/lib/rmvod/bash/ && \
 cp apache/sites-available/*  /etc/apache2/sites-available/ && \
 chmod o+x /var/lib/rmvod/bash/*.sh && \
 chmod o+x /var/lib/rmvod/py/*.sh  || \
-{echo "File Copy failed!"; exit 1;}
+{echo "File Copy failed!"; exit 1 }
 
 # Adjust Apache2 configuration
 echo "Setting up Apache2..."
@@ -85,10 +85,10 @@ rm ./* && \
 ln -s ../sites-available/001-api-proxy.conf && \
 popd && \
 systemctl restart apache2 || \
-{echo "Apache Setup failed!"; exit 1;}
+{echo "Apache Setup failed!"; exit 1 }
 
 
 # Setup Database
 mariadb <  ./sql/vodlib_setup.sql  || \
-{echo "Database Setup failed!"; exit 1;}
+{echo "Database Setup failed!"; exit 1 }
 
