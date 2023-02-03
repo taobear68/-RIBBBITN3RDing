@@ -118,7 +118,7 @@ db_setup(){
 
 # Install packages
 echo
-pkg_install || exit 1
+pkg_install && echo "OK." || exit 1
 
 echo
 echo "Making sure we're in the right starting directory."
@@ -136,7 +136,7 @@ pushd ${INSTSRCDIR} || {
 
 # Setup filesystem
 echo
-fs_setup || exit 1
+fs_setup  && echo "OK." || exit 1
 
 # Just in case filesystem setup left us in a weird place, let's make 
 # sure we're where we're supposed to be...
@@ -152,16 +152,16 @@ pushd ${INSTSRCDIR} || \
 
 # Put Files in the proper places
 echo
-file_copy || exit 1
+file_copy && echo "OK."  || exit 1
 
 
 # Adjust Apache2 configuration
 echo
-wbsvr_setup || exit 1
+wbsvr_setup && echo "OK."  || exit 1
 
 # Setup Database
 echo
-db_setup || exit 1
+db_setup && echo "OK."  || exit 1
 
-popd
+popd && echo "\nDone."
 
