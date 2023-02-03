@@ -39,6 +39,7 @@ if [[ "${IAM}" != "root" ]]
 
 #### FUNCTIONS
 pkg_install(){
+    echo "Installing packages..."
     apt-get install \
     python3 apache2 mariadb-server python3-flask \
     python3-pymysql python3-yaml || \
@@ -109,6 +110,7 @@ wbsvr_setup(){
 }
 
 db_setup(){
+    echo "Setting up the Library Database"
     mariadb <  ./sql/vodlib_setup.sql  || {
         echo "Database Setup failed."
         exit 1 
@@ -163,5 +165,5 @@ wbsvr_setup && echo "OK."  || exit 1
 echo
 db_setup && echo "OK."  || exit 1
 
-popd && echo "\nDone."
+popd && echo && echo "Done."
 
