@@ -123,11 +123,16 @@ pkg_install || exit 1
 echo
 echo "Making sure we're in the right starting directory."
 echo "This may take a moment..."
+dirs -c
 PYFIL="$(find $(pwd) -wholename "*/py/rmvod_api.py" | head -n 1)"
+echo ${PYFIL}
 INSTSRCDIR="$(dirname $(dirname ${PYFIL}))"
-pushd ${INSTSRCDIR} || \
-{echo "Something has gone horribly wrong.  I don't know where I am."; \
-    echo ${INSTSRCDIR}; exit 1 }
+echo ${INSTSRCDIR}
+pushd ${INSTSRCDIR} || {
+    echo "Something has gone horribly wrong.  I don't know where I am."
+    echo ${INSTSRCDIR}
+    exit 1 
+}
 
 # Setup filesystem
 echo
