@@ -2831,6 +2831,11 @@ def addArtisToSeries(): # UPDATED FOR NEW RETURN OBJECT MODEL
     retobj = ml.addEpisodesToSeries(dictIn['seriesaid'],dictIn['filepath'],dictIn['filefrag'])
     return json.dumps(retobj)
     pass
+
+@app.route('/logplay/post',methods=['POST'])
+def logPlayback():
+    print('logPlayback: ' + json.dumps(request.json))
+    return json.dumps({})
     
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Optional app description')

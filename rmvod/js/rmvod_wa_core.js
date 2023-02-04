@@ -830,7 +830,7 @@ class RMVodWebApp {
         this.cc = new CookieCrisp();
         this.cc.extantCookieCheck();
     }
-    initStorage(){
+    initStorage(){  // <<==== HERE BE CRUFT
         var sstorTemplObj = [];
         sstorTemplObj.push({'name':'blob','type':'dict','content':'{}'}); // Tree Metadata
         
@@ -892,7 +892,7 @@ class RMVodWebApp {
         this.apiFetchRemoteVersions();
         this.postJSVer("0.5.7");
     }
-    generateMyUuid(){
+    generateMyUuid(){  // <<==== HERE BE CRUFT
         var browserId;
         try {
             //var browserId = Crypto.randomUUID();
@@ -1152,6 +1152,15 @@ class RMVodWebApp {
         const apiEndpoint = '/rmvod/api/artifact/get'; 
         const payload = {'artifactid':artiIdIn};
         this.genericApiCall(payload,apiEndpoint,cbFunc);
+        this.apiLogPlay(artiIdIn);
+    }
+    apiLogPlay(artiIdIn){
+        var cbFunc = function(dataObjIn){
+            console.log('RMVodWebApp.apiLogPlay.cdFunc: ' + JSON.stringify(dataObjIn));
+        }
+        const apiEndpoint = '/rmvod/api/logplay/post'; 
+        const payload = {'artifactid':artiIdIn,'clientid':this.cc.getCookie('clientid')};
+        this.genericApiCall(payload,apiEndpoint,cbFunc);        
     }
     vodPlayNextTitle(artiIdIn){ //UPDATED FOR NEW RETURN OBJECT MODEL
         //// Confirm checkbox is checked
