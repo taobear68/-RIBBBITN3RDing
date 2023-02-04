@@ -2427,6 +2427,7 @@ pass
 
 @app.route('/')
 def index():
+    # print(json.dumps(request))
     ## THE FOLLOWING HTML SHOULD PROBABLY NOT BE HERE FOR FUTURE USE.
     ## IT IS INTENDED PRIMARILY FOR DEVELOPMENT AND TESTING OF THE 
     ## WEB SERVICE FOR RMPC

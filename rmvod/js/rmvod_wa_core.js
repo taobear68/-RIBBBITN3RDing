@@ -864,10 +864,36 @@ class RMVodWebApp {
         this.apiFetchCompaniesList();
         this.apiFetchTagsList();
         
+        var bid;
+        // Browser ID Cookie
+        try {
+            bid = this.cc.getCookie('clientid');
+        } catch (e) {
+            console.log('RMVodWebApp.initStorage - Failed to fetch clientid cookie (' + e + ')');
+        }
+        try {
+            if (bid == undefined){
+                bid = this.generateMyUuid();
+                this.cc.setCookie('clientid',bid,370);
+            }
+        } catch (e) {
+            console.log('RMVodWebApp.initStorage - Failed to set clientid cookie (' + e + ')');
+        }
+        
         // These version bits will eventually need to involve polling 
         // the API and DB for their versions
         this.apiFetchRemoteVersions();
         this.postJSVer("0.5.7");
+    }
+    generateMyUuid(){
+        var browserId;
+        try {
+            browserId = crypto.randomUUID();
+        } catch (e) {
+            browserId = 'thisIsAFakeId-' + Date.now();
+            console.log("RMVodWebApp.generateMyUuid - crypto.randomUUID barfed.  Using " + browserId);
+        }
+        return browserId;
     }
     postCSSVer(verStrIn){  // <<==== DEPRECATED
         const methNm = 'postCSSVer';
