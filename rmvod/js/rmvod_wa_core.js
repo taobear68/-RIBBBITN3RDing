@@ -866,25 +866,25 @@ class RMVodWebApp {
         
         var bid;
         // Browser ID Cookie
-        console.log('RMVodWebApp.initStorage - About to try to fetch clientid cookie');
+        //console.log('RMVodWebApp.initStorage - About to try to fetch clientid cookie');
         try {
             bid = this.cc.getCookie('clientid');
-            console.log('RMVodWebApp.initStorage - Tried to fetch clientid cookie.  Got back (' + bid + ')');
+            //console.log('RMVodWebApp.initStorage - Tried to fetch clientid cookie.  Got back (' + bid + ')');
         } catch (e) {
             console.log('RMVodWebApp.initStorage - Failed to fetch clientid cookie (' + e + ')');
         }
-        console.log('RMVodWebApp.initStorage - About to try to create clientid value if I don\'t have it yet (' + bid + ')');
+        //console.log('RMVodWebApp.initStorage - About to try to create clientid value if I don\'t have it yet (' + bid + ')');
         try {
             if  ((bid == undefined) || (bid == '')){
                 bid = this.generateMyUuid();
-                console.log('RMVodWebApp.initStorage - Tried to create clientid value.  Got back (' + bid + ')');
+                //console.log('RMVodWebApp.initStorage - Tried to create clientid value.  Got back (' + bid + ')');
                 var didit = this.cc.setCookie('clientid',bid,370);
-                console.log('RMVodWebApp.initStorage - Tried to set clientid cookie.  Got back (' + didit + ')');
+                //console.log('RMVodWebApp.initStorage - Tried to set clientid cookie.  Got back (' + didit + ')');
             }
         } catch (e) {
             console.log('RMVodWebApp.initStorage - Failed to set clientid cookie (' + e + ')');
         }
-        console.log('RMVodWebApp.initStorage - I should have a valid clientid value now');
+        //console.log('RMVodWebApp.initStorage - I should have a valid clientid value now');
         console.log('bid: ' + bid);
         
         // These version bits will eventually need to involve polling 
