@@ -19,6 +19,7 @@
 -- # along with RIBBBITmedia VideoOnDemand (a.k.a. "rmvod"). If not, 
 -- # see <https://www.gnu.org/licenses/>.
 
+-- # VERSION 0.2.0
 
 
 create database if not exists vodlib;
@@ -42,6 +43,13 @@ CREATE TABLE IF NOT EXISTS artifacts (
     eidrid VARCHAR (50),
     imdbid VARCHAR (50),
     arbmeta TEXT NOT NULL DEFAULT '{"string":"string"}'
+);
+
+CREATE TABLE IF NOT EXISTS playlog_live (
+    clientid VARCHAR(100) NOT NULL,
+    artifactid VARCHAR(40) NOT NULL,
+    reqtime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    comment VARCHAR(100)
 );
 
 CREATE TABLE IF NOT EXISTS tags (

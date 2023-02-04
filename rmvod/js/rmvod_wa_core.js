@@ -890,7 +890,7 @@ class RMVodWebApp {
         // These version bits will eventually need to involve polling 
         // the API and DB for their versions
         this.apiFetchRemoteVersions();
-        this.postJSVer("0.5.7");
+        this.postJSVer("0.5.8");
     }
     generateMyUuid(){  // <<==== HERE BE CRUFT
         var browserId;
@@ -1156,7 +1156,7 @@ class RMVodWebApp {
     }
     apiLogPlay(artiIdIn){
         var cbFunc = function(dataObjIn){
-            console.log('RMVodWebApp.apiLogPlay.cdFunc: ' + JSON.stringify(dataObjIn));
+            //console.log('RMVodWebApp.apiLogPlay.cdFunc: ' + JSON.stringify(dataObjIn));
         }
         const apiEndpoint = '/rmvod/api/logplay/post'; 
         const payload = {'artifactid':artiIdIn,'clientid':this.cc.getCookie('clientid')};

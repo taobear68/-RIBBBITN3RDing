@@ -38,7 +38,7 @@ import requests
 
 #fileStr = "vodLibrarydb.py"
 fileStr = "rmvod_api.py"
-versionStr = "0.2.6"
+versionStr = "0.2.7"
 
 # moving to "proper" deployment via WSGI:  https://flask.palletsprojects.com/en/2.0.x/deploying/mod_wsgi/
 class VodLibDB:
@@ -116,7 +116,8 @@ class VodLibDB:
             #raise Exception("Insert failed!")
         return retval
     def getDBVersion(self):
-        return "0.1.0"
+        # return "0.1.0"
+        return "0.2.0" # Table playlog_live added 
     def fetchArtiDeetsFromOmdbapi(self):
         print("vldb.fetchArtiDeetsFromOmdbapi")
         maxRows = 10
@@ -2053,6 +2054,7 @@ class MediaLibraryDB:
             #logPlay(self,artiIdIn,clientIdIn)
         except:
             print('MediaLibraryDB.apiLogPlay is sad.')
+            retDict['status']['detail'] = 'MediaLibraryDB.apiLogPlay is sad.'
         return retDict
         
 
@@ -2867,7 +2869,7 @@ def addArtisToSeries(): # UPDATED FOR NEW RETURN OBJECT MODEL
 
 @app.route('/logplay/post',methods=['POST'])
 def logPlayback():
-    print('logPlayback: ' + json.dumps(request.json))
+    # print('logPlayback: ' + json.dumps(request.json))
     ml = MediaLibraryDB()
     retDict = ml.apiLogPlay(request.json['artifactid'],request.json['clientid'])
     # apiLogPlay
