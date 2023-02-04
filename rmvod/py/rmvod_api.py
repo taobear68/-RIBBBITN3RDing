@@ -1123,6 +1123,23 @@ class VodLibDB:
     def addEpisodeToSeries(self,serAIDIn,epAIDIn):
         insSql = 'INSERT INTO s2e SET seriesaid = "' + serAIDIn + '", episodeaid = "' + epAIDIn +'"'
         result = self._stdInsert(insSql)
+    def logPlay(self,artiIdIn,clientIdIn):
+        retval = None
+        insSql = 'INSERT INTO playlog_live SET '
+        insSql += 'clientid = "' + clientIdIn + '", ';
+        insSql += 'artifactid = "' + artiIdIn + '" ';
+        retval = self._stdInsert(insSql)
+        
+        # CREATE TABLE IF NOT EXISTS playlog_live (
+            # clientid VARCHAR(100) NOT NULL,
+            # artifactid VARCHAR(40) NOT NULL,
+            # reqtime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            # comment VARCHAR(100)
+        # );
+        
+        
+        
+        return retval
         
 
 class MediaLibraryDB:
@@ -2021,6 +2038,22 @@ class MediaLibraryDB:
             pass
         # print(json.dumps(tmpRetObj))
         return tmpRetObj
+    def apiLogPlay(self,artiIdIn,clientIdIn):
+        retDict = {}
+        retDict['method'] = 'apiLogPlay'
+        retDict['params'] = [artiIdIn,clientIdIn]
+        retDict['status'] = {'success':False,'detail':'','log':[]}
+        retDict['data'] = []
+        
+        try:
+            vldb = VodLibDB()
+            retval = vldb.logPlay(artiIdIn,clientIdIn)
+            retDict['status']['success'] = True
+            retDict['status']['detail'] = retval
+            //logPlay(self,artiIdIn,clientIdIn)
+        except:
+            print('MediaLibraryDB.apiLogPlay is sad.')
+        return retDict
         
 
 class MLCLI:
@@ -2835,7 +2868,17 @@ def addArtisToSeries(): # UPDATED FOR NEW RETURN OBJECT MODEL
 @app.route('/logplay/post',methods=['POST'])
 def logPlayback():
     print('logPlayback: ' + json.dumps(request.json))
-    return json.dumps({})
+    ml = MediaLibraryDB()
+    retDict = ml.apiLogPlay(request.json['artifactid'],[request.json['clientid'])
+    # apiLogPlay
+    
+    # CREATE TABLE IF NOT EXISTS playlog_live (
+        # clientid VARCHAR(100) NOT NULL,
+        # artifactid VARCHAR(40) NOT NULL,
+        # reqtime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        # comment VARCHAR(100)
+    # );
+    return json.dumps(retDict)
     
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Optional app description')
