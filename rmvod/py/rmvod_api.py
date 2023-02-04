@@ -2869,7 +2869,7 @@ def addArtisToSeries(): # UPDATED FOR NEW RETURN OBJECT MODEL
 def logPlayback():
     print('logPlayback: ' + json.dumps(request.json))
     ml = MediaLibraryDB()
-    retDict = ml.apiLogPlay(request.json['artifactid'],[request.json['clientid'])
+    retDict = ml.apiLogPlay(request.json['artifactid'],request.json['clientid'])
     # apiLogPlay
     
     # CREATE TABLE IF NOT EXISTS playlog_live (
