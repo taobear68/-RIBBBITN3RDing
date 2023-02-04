@@ -2050,7 +2050,7 @@ class MediaLibraryDB:
             retval = vldb.logPlay(artiIdIn,clientIdIn)
             retDict['status']['success'] = True
             retDict['status']['detail'] = retval
-            //logPlay(self,artiIdIn,clientIdIn)
+            #logPlay(self,artiIdIn,clientIdIn)
         except:
             print('MediaLibraryDB.apiLogPlay is sad.')
         return retDict
