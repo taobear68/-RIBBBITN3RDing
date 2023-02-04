@@ -866,12 +866,14 @@ class RMVodWebApp {
         
         var bid;
         // Browser ID Cookie
+        console.log('RMVodWebApp.initStorage - About to try to fetch clientid cookie');
         try {
             bid = this.cc.getCookie('clientid');
             console.log('RMVodWebApp.initStorage - Tried to fetch clientid cookie.  Got back (' + bid + ')');
         } catch (e) {
             console.log('RMVodWebApp.initStorage - Failed to fetch clientid cookie (' + e + ')');
         }
+        console.log('RMVodWebApp.initStorage - About to try to create clientid value if I don\'t have it yet (' + bid + ')');
         try {
             if (bid == undefined){
                 bid = this.generateMyUuid();
@@ -882,6 +884,7 @@ class RMVodWebApp {
         } catch (e) {
             console.log('RMVodWebApp.initStorage - Failed to set clientid cookie (' + e + ')');
         }
+        console.log('RMVodWebApp.initStorage - I should have a valid clientid value now');
         console.log('bid: ' + bid);
         
         // These version bits will eventually need to involve polling 
