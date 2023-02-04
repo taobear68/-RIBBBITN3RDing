@@ -875,7 +875,7 @@ class RMVodWebApp {
         }
         console.log('RMVodWebApp.initStorage - About to try to create clientid value if I don\'t have it yet (' + bid + ')');
         try {
-            if (bid == undefined){
+            if  ((bid == undefined) || (bid == '')){
                 bid = this.generateMyUuid();
                 console.log('RMVodWebApp.initStorage - Tried to create clientid value.  Got back (' + bid + ')');
                 var didit = this.cc.setCookie('clientid',bid,370);
