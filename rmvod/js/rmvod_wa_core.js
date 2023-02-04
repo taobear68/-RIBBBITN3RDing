@@ -868,17 +868,21 @@ class RMVodWebApp {
         // Browser ID Cookie
         try {
             bid = this.cc.getCookie('clientid');
+            console.log('RMVodWebApp.initStorage - Tried to fetch clientid cookie.  Got back (' + bid + ')');
         } catch (e) {
             console.log('RMVodWebApp.initStorage - Failed to fetch clientid cookie (' + e + ')');
         }
         try {
             if (bid == undefined){
                 bid = this.generateMyUuid();
-                this.cc.setCookie('clientid',bid,370);
+                console.log('RMVodWebApp.initStorage - Tried to create clientid value.  Got back (' + bid + ')');
+                var didit = this.cc.setCookie('clientid',bid,370);
+                console.log('RMVodWebApp.initStorage - Tried to set clientid cookie.  Got back (' + didit + ')');
             }
         } catch (e) {
             console.log('RMVodWebApp.initStorage - Failed to set clientid cookie (' + e + ')');
         }
+        console.log('bid: ' + bid);
         
         // These version bits will eventually need to involve polling 
         // the API and DB for their versions
