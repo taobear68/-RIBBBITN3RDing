@@ -895,10 +895,10 @@ class RMVodWebApp {
     generateMyUuid(){
         var browserId;
         try {
-            browserId = crypto.randomUUID();
+            var browserId = crypto.randomUUID();
         } catch (e) {
             browserId = 'thisIsAFakeId-' + Date.now();
-            console.log("RMVodWebApp.generateMyUuid - crypto.randomUUID barfed.  Using " + browserId);
+            console.log("RMVodWebApp.generateMyUuid - crypto.randomUUID barfed because (" + e + ").  Using " + browserId);
         }
         return browserId;
     }
