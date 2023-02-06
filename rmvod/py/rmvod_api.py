@@ -1692,6 +1692,7 @@ class MediaLibraryDB:
         retobj = []
         idList = []
         tmpResObj = {"tag":[],"string":[],"majtype":[],'relyear':[],'sqlwhere':[]}
+        tmpResObj = {}
         if (mfSrchObjIn['tag'] != ''):
             tmpResObj['tag'] = self.getArtifactsByTag(mfSrchObjIn['tag'])
         if (mfSrchObjIn['string'] != ''):
