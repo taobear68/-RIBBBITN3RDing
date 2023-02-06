@@ -1782,7 +1782,7 @@ class MediaLibraryDB:
             tmpRetObj['data'] = vldb.getArtifactListByTitleFrag(artiNameFragStrIn)
             tmpRetObj['status']['success'] = True
         except:
-            print("findArtifactsByName FAILED!"
+            print("findArtifactsByName FAILED!")
         
             
         return tmpRetObj
