@@ -1311,12 +1311,7 @@ class RMVodWebApp {
     }
     execSearchSingleFactor2(factorStrIn,srchValObjIn) { // UPDATED FOR NEW RETURN OBJECT MODEL
         
-        
-        //put a throbber in to replace any old content
-        var editDiv = document.getElementById('sideartilistwidget');
-        editDiv.innerHTML = '<div class="throbber-ring"></div>';        
-                
-        
+ 
         
         try{ // React correctly to MultiFactor Search Y/N
             var mfsyn = document.getElementById('mfsearchyn');
@@ -1330,6 +1325,11 @@ class RMVodWebApp {
             console.log('mfsearchyn must not exist yet.');
         }
         
+        //put a throbber in to replace any old content
+        var editDiv = document.getElementById('sideartilistwidget');
+        editDiv.innerHTML = '<div class="throbber-ring"></div>';        
+                
+               
         var payloadObj = {};
         var endpoint = '';
         var cbFunc = function(){};
@@ -1427,12 +1427,7 @@ class RMVodWebApp {
     }
     execSearchMultiFactor(){ // UPDATED FOR NEW RETURN OBJECT MODEL
         
-        
-        //put a throbber in to replace any old content
-        var editDiv = document.getElementById('sideartilistwidget');
-        editDiv.innerHTML = '<div class="throbber-ring"></div>';        
-                
-              
+
         
         
         var sfValsObj = {}
@@ -1449,6 +1444,15 @@ class RMVodWebApp {
         sfValsObj['sqlwhere'] =  document.getElementById('sql-where-srch').value;// sql-where-srch
         
         //console.log('execSearchMultiFactor: ' + JSON.stringify(sfValsObj));
+        
+        
+        //put a throbber in to replace any old content
+        var editDiv = document.getElementById('sideartilistwidget');
+        editDiv.innerHTML = '<div class="throbber-ring"></div>';        
+                
+                  
+        
+        
         
         var cbFunc = function(dataObjIn){
             var objIn = dataObjIn['data'];
