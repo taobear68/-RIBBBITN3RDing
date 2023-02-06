@@ -38,7 +38,7 @@ import requests
 
 #fileStr = "vodLibrarydb.py"
 fileStr = "rmvod_api.py"
-versionStr = "0.2.7"
+versionStr = "0.2.8"
 
 # moving to "proper" deployment via WSGI:  https://flask.palletsprojects.com/en/2.0.x/deploying/mod_wsgi/
 class VodLibDB:
