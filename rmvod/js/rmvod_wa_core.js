@@ -1456,6 +1456,11 @@ class RMVodWebApp {
     }
     renderArtifactEdit(artiIdIn){ //UPDATED FOR NEW RETURN OBJECT MODEL
         console.log('renderArtifactEdit: ' + artiIdIn);
+        
+        //put a throbber in to replace any old content
+        var editDiv = document.getElementById('structfeatureedit');
+        editDiv.innerHTML = '<div class="throbber-ring"></div>';        
+        
         var cbFunc = function (objIn) {
             //var wa = new RMVodWebApp();
             
