@@ -1714,11 +1714,13 @@ class MediaLibraryDB:
                 if len(idList) == 0:
                     #tmpIdList = []
                     for lElObj in tmpResObj[key]:
+                        print('lElObj: ' + json.dumps(lElObj))
                         idList.append(lElObj['artifactid'])
                     pass
                 else:
                     tmpIdList = []
                     for lElObj in tmpResObj[key]:
+                        print('lElObj: ' + json.dumps(lElObj))
                         if lElObj['artifactid'] in idList:
                             tmpIdList.append(lElObj['artifactid'])
                         pass
