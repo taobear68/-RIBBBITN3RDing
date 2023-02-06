@@ -1634,7 +1634,7 @@ class MediaLibraryDB:
         tmpRetObj['method'] = 'getArtifactsByTag'
         tmpRetObj['params'] = [tagStrIn]
         #tmpRetObj['status']['success'] = True
-        
+        print("getArtifactsByTag.tagStrIn: " + tagStrIn)
         ntag = self.__normalizeTagStr(tagStrIn)
         retobj = []
         try:

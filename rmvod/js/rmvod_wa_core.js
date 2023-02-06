@@ -1336,6 +1336,7 @@ class RMVodWebApp {
         switch (factorStrIn) {
             case "tag":  //UPDATED FOR NEW RETURN OBJECT MODEL
                 cbFunc = function (dataObjIn){
+                    console.log("execSearchSingleFactor2.tag.cbfunc.dataObjIn: " + JSON.stringify(dataObjIn));
                     //console.log('execSearchSingleFactor2.dataObjIn: ' + JSON.stringify(dataObjIn));
                     var objIn = dataObjIn['data'];
                     var wa = new RMVodWebApp();
