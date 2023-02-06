@@ -1731,21 +1731,21 @@ class MediaLibraryDB:
                     print('Cannot process dates.  Sad.')
         if (mfSrchObjIn['sqlwhere'] != ''):
             tmpResObj['sqlwhere'] = self.getArtifactsByArbWhereClause(mfSrchObjIn['sqlwhere'])
-        print("tmpResObj: " + json.dumps(tmpResObj))
+        # print("tmpResObj: " + json.dumps(tmpResObj))
         troKeys = list(tmpResObj.keys())
-        print("troKeys: " + json.dumps(troKeys))
+        # print("troKeys: " + json.dumps(troKeys))
         for key in troKeys:
             if len(tmpResObj[key]['data']) > 0: # If we got results
                 if len(idList) == 0: # If this would be our first result
                     #tmpIdList = []
                     for lElObj in tmpResObj[key]['data']: # For each result on this key
-                        print('lElObj: ' + json.dumps(lElObj))
+                        # print('lElObj: ' + json.dumps(lElObj))
                         idList.append(lElObj['artifactid'])
                     pass
                 else:
                     tmpIdList = []
                     for lElObj in tmpResObj[key]['data']:
-                        print('lElObj: ' + json.dumps(lElObj))
+                        # print('lElObj: ' + json.dumps(lElObj))
                         if lElObj['artifactid'] in idList:
                             tmpIdList.append(lElObj['artifactid'])
                         pass
