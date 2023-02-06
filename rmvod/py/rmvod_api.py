@@ -1709,7 +1709,9 @@ class MediaLibraryDB:
         if (mfSrchObjIn['sqlwhere'] != ''):
             tmpResObj['sqlwhere'] = self.getArtifactsByArbWhereClause(mfSrchObjIn['sqlwhere'])
         print("tmpResObj: " + json.dumps(tmpResObj))
-        for key in list(tmpResObj.keys()):
+        troKeys = list(tmpResObj.keys())
+        print("troKeys: " + json.dumps(troKeys))
+        for key in troKeys:
             if len(tmpResObj[key]) > 0: # If we got results
                 if len(idList) == 0: # If this would be our first result
                     #tmpIdList = []
