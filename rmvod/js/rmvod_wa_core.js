@@ -1426,6 +1426,15 @@ class RMVodWebApp {
         }
     }
     execSearchMultiFactor(){ // UPDATED FOR NEW RETURN OBJECT MODEL
+        
+        
+        //put a throbber in to replace any old content
+        var editDiv = document.getElementById('sideartilistwidget');
+        editDiv.innerHTML = '<div class="throbber-ring"></div>';        
+                
+              
+        
+        
         var sfValsObj = {}
         // Get TAG value:
         sfValsObj['tag'] =  document.getElementById('tag-search-select').value;
