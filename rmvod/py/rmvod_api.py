@@ -2613,11 +2613,11 @@ def apiVersion():  # UPDATED FOR NEW RETURN OBJECT MODEL
 @app.route('/titleidlist/get',methods=['POST','GET'])
 def getListTitleId():  # UPDATED FOR NEW RETURN OBJECT MODEL
     
+    ml = MediaLibraryDB()
     
     ########THIS HAS BEEN PUSHED UPSTREAM
     ###  THIS Model should really be pushed upstream, but
     ###  this configuration just gets us working sooner.
-    # ml = MediaLibraryDB()
     # tmpRetObj = copy.deepcopy(ml.libMeta['retdicttempl'])
     # tmpRetObj['method'] = 'getListTitleId'
     #tmpRetObj['status']['success'] = True
