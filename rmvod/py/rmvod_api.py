@@ -1774,8 +1774,18 @@ class MediaLibraryDB:
         return retobj
     def findArtifactsByName(self,artiNameFragStrIn):
         vldb = VodLibDB()
-        resList = vldb.getArtifactListByTitleFrag(artiNameFragStrIn)
-        return resList
+        tmpRetObj = copy.deepcopy(self.libMeta['retdicttempl'])
+        tmpRetObj['method'] = 'findArtifactsByName'
+        tmpRetObj['params'] = [artiNameFragStrIn]
+        
+        try:
+            tmpRetObj['data'] = vldb.getArtifactListByTitleFrag(artiNameFragStrIn)
+            tmpRetObj['status']['success'] = True
+        except:
+            print("findArtifactsByName FAILED!"
+        
+            
+        return tmpRetObj
     def getIdTitleListBySeriesArtiId(self,atriIdIn): # UPDATED FOR NEW RETURN OBJECT MODEL
         tmpRetObj = copy.deepcopy(self.libMeta['retdicttempl'])
         tmpRetObj['method'] = 'getIdTitleListBySeriesArtiId'
