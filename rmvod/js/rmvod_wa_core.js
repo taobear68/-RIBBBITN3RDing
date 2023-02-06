@@ -1310,6 +1310,14 @@ class RMVodWebApp {
         this.genericApiCall(payloadObj,endpoint,cbFunc);
     }
     execSearchSingleFactor2(factorStrIn,srchValObjIn) { // UPDATED FOR NEW RETURN OBJECT MODEL
+        
+        
+        //put a throbber in to replace any old content
+        var editDiv = document.getElementById('sideartilistwidget');
+        editDiv.innerHTML = '<div class="throbber-ring"></div>';        
+                
+        
+        
         try{ // React correctly to MultiFactor Search Y/N
             var mfsyn = document.getElementById('mfsearchyn');
             //console.log(document.getElementById('mfsearchyn').id);
