@@ -1629,39 +1629,61 @@ class MediaLibraryDB:
             print("Well, poop.")
         pass
         return retval
-    def getArtifactsByTag(self,tagStrIn):  
+    def getArtifactsByTag(self,tagStrIn):   # UPDATED FOR NEW RETURN OBJECT MODEL 
+        tmpRetObj = copy.deepcopy(self.libMeta['retdicttempl'])
+        tmpRetObj['method'] = 'getArtifactsByTag'
+        tmpRetObj['params'] = [tagStrIn]
+        #tmpRetObj['status']['success'] = True
+        
         ntag = self.__normalizeTagStr(tagStrIn)
         retobj = []
         try:
             vldb = VodLibDB()
             retobj = vldb.getArtifactListByTagList([ntag])
+            tmpRetObj['data'] = retobj
+            tmpRetObj['status']['success'] = True
         except:
             print('getArtifactsByTag  BARF')
             pass
         pass
-        return retobj
-    def getArtifactsByMajtype(self,majtypeStrIn):
+        return tmpRetObj
+    def getArtifactsByMajtype(self,majtypeStrIn): # UPDATED FOR NEW RETURN OBJECT MODEL 
+        tmpRetObj = copy.deepcopy(self.libMeta['retdicttempl'])
+        tmpRetObj['method'] = 'getArtifactsByMajtype'
+        tmpRetObj['params'] = [majtypeStrIn]
+        #tmpRetObj['status']['success'] = True
+        
+        
         retobj = [];
         try:
             vldb = VodLibDB()
             retobj = vldb.getArtifactListByMajtype(majtypeStrIn)
+            tmpRetObj['data'] = retobj
+            tmpRetObj['status']['success'] = True
             pass
         except:
             print('getArtifactsByMajtype  BARF')
             pass
         pass
-        return retobj
-    def getArtifactsByRelyear(self,relyear1In,relyear2In):
+        return tmpRetObj
+    def getArtifactsByRelyear(self,relyear1In,relyear2In): # UPDATED FOR NEW RETURN OBJECT MODEL 
+        tmpRetObj = copy.deepcopy(self.libMeta['retdicttempl'])
+        tmpRetObj['method'] = 'getArtifactsByRelyear'
+        tmpRetObj['params'] = [relyear1In,relyear2In]
+        #tmpRetObj['status']['success'] = True
+                
         retobj = [];
         try:
             vldb = VodLibDB()
             retobj = vldb.getArtifactListByRelyear(relyear1In,relyear2In)
+            tmpRetObj['data'] = retobj
+            tmpRetObj['status']['success'] = True
             pass
         except:
             print('getArtifactsByRelyear  BARF')
             pass
         pass
-        return retobj  
+        return tmpRetObj  
     def findArtifactsBySrchStr(self,srchStrIn): # UPDATED FOR NEW RETURN OBJECT MODEL 
         #ntag = self.__normalizeTagStr(srchStrIn)
         tmpRetObj = copy.deepcopy(self.libMeta['retdicttempl'])
