@@ -38,7 +38,7 @@ import requests
 
 #fileStr = "vodLibrarydb.py"
 fileStr = "rmvod_api.py"
-versionStr = "0.2.8"
+versionStr = "0.2.9"
 
 # moving to "proper" deployment via WSGI:  https://flask.palletsprojects.com/en/2.0.x/deploying/mod_wsgi/
 class VodLibDB:
@@ -2613,11 +2613,13 @@ def apiVersion():  # UPDATED FOR NEW RETURN OBJECT MODEL
 @app.route('/titleidlist/get',methods=['POST','GET'])
 def getListTitleId():  # UPDATED FOR NEW RETURN OBJECT MODEL
     
+    
+    ########THIS HAS BEEN PUSHED UPSTREAM
     ###  THIS Model should really be pushed upstream, but
     ###  this configuration just gets us working sooner.
-    ml = MediaLibraryDB()
-    tmpRetObj = copy.deepcopy(ml.libMeta['retdicttempl'])
-    tmpRetObj['method'] = 'getListTitleId'
+    # ml = MediaLibraryDB()
+    # tmpRetObj = copy.deepcopy(ml.libMeta['retdicttempl'])
+    # tmpRetObj['method'] = 'getListTitleId'
     #tmpRetObj['status']['success'] = True
     #tmpRetObj['data'] = [{'api_version':versionStr,'api_file':fileStr,'db_version':ml.getDBVersion(),'css_version':cssVerStr,'html_version':htmlVerStr}]
         
@@ -2657,9 +2659,9 @@ def getListTitleId():  # UPDATED FOR NEW RETURN OBJECT MODEL
     else:
         result = ml.findArtifactsByName('')
         pass
-    tmpRetObj['data'] = result;
-    tmpRetObj['status']['success'] = True
-    return json.dumps(tmpRetObj)
+    # tmpRetObj['data'] = result;
+    # tmpRetObj['status']['success'] = True
+    return json.dumps(result)
 
 @app.route('/seriestidlist/get',methods=['POST'])
 def getSeriesEpisodesTIDList():  # UPDATED FOR NEW RETURN OBJECT MODEL
