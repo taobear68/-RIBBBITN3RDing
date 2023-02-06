@@ -1708,12 +1708,12 @@ class MediaLibraryDB:
                     print('Cannot process dates.  Sad.')
         if (mfSrchObjIn['sqlwhere'] != ''):
             tmpResObj['sqlwhere'] = self.getArtifactsByArbWhereClause(mfSrchObjIn['sqlwhere'])
-        
+        print("tmpResObj: " + json.dumps(tmpResObj))
         for key in list(tmpResObj.keys()):
-            if len(tmpResObj[key]) > 0:
-                if len(idList) == 0:
+            if len(tmpResObj[key]) > 0: # If we got results
+                if len(idList) == 0: # If this would be our first result
                     #tmpIdList = []
-                    for lElObj in tmpResObj[key]:
+                    for lElObj in tmpResObj[key]: # For each result on this key
                         print('lElObj: ' + json.dumps(lElObj))
                         idList.append(lElObj['artifactid'])
                     pass
