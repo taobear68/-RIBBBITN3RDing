@@ -18,6 +18,7 @@
 //along with RIBBBITmedia VideoOnDemand (a.k.a. "rmvod"). If not, 
 //see <https://www.gnu.org/licenses/>.
 
+// A Class which provides standardized "Tabbed Interface" functionality
 class RNWATabWidget {
     constructor() {
         // WIDGET NAME MUST BE "ALL ONE WORD", WITH NO DASHES/HYPHENS ("-")
@@ -113,6 +114,7 @@ class RNWATabWidget {
     }
 }
 
+// A Class which provides standardized "List Field Widget" functionality
 class RNWAListFieldWidget {
     constructor(){
         // WIDGET NAME MUST BE "ALL ONE WORD", WITH NO DASHES/HYPHENS ("-")
@@ -217,6 +219,8 @@ class RNWAListFieldWidget {
     }
 }
 
+// A Class which provides a minimum set of standardized Browser Cookie
+// handling methods
 class CookieCrisp {
     // This is an abstraction layer over cookie handling.
     constructor(){
@@ -316,6 +320,12 @@ class CookieCrisp {
     }
 }
 
+// A Class which provides HTML generator functions for the rmvid web app.  
+// Some are just heaps of string assignments and some are strings of
+// document.createElementcalls.  The bottom line is that these
+// methods were moved out to a separate class to shave some time
+// of loading the rmvid web app base class and reduce its memory 
+// footprint a bit
 class RMVWAHtmlGenerator {
     constructor(){
     }
@@ -789,6 +799,9 @@ class RMVWAHtmlGenerator {
     }
 }
 
+// A Class intended to provide a set of standardized DOM actions with
+// aother activities frequently called with the DOM actions.
+// This was started as a proof-of-concept, and may eventually be removed.
 class RMVWADOMActions{
     constructor(){
     }
@@ -821,6 +834,8 @@ class RMVWADOMActions{
     }
 }
 
+// A Class which provides the core functionality of the rmvod web 
+// application.
 class RMVodWebApp {
     constructor(){
         this.logUtil = new RMLogUtil('RMPCWebApp',3);
@@ -830,6 +845,8 @@ class RMVodWebApp {
         this.cc = new CookieCrisp();
         this.cc.extantCookieCheck();
     }
+    // Method should only be called on-load.  Performs session storage
+    // setup, and other "run once on load" functions.
     initStorage(){  // <<==== HERE BE CRUFT
         var sstorTemplObj = [];
         sstorTemplObj.push({'name':'blob','type':'dict','content':'{}'}); // Tree Metadata
@@ -892,6 +909,8 @@ class RMVodWebApp {
         this.apiFetchRemoteVersions();
         this.postJSVer("0.5.8");
     }
+    // Returns a "likely unique" ID for this browser to be used in 
+    // play request logging.
     generateMyUuid(){  // <<==== HERE BE CRUFT
         var browserId;
         try {
@@ -913,10 +932,15 @@ class RMVodWebApp {
         console.log("DO NOT CALL " + methNm + " -- IT IS DEPRECATED!");
         throw methNm + " <<====DEPRECATED";
     }
+    // Sets the "javascript version" in the footer of the main page
+    // Performs DOM updates directly.
     postJSVer(verStrIn){
         //console.log("postJSVer: " + verStrIn);
         document.getElementById("version_js").innerText = "js version: " + verStrIn;
     }
+    // Initiates an "interval" which updates the clock in the page 
+    // header.
+    // Performs DOM updates directly.
     clockSet() {
         
         var gtFunc = function () {
@@ -960,6 +984,8 @@ class RMVodWebApp {
         //console.log("Interval: " + intv);
         
     }
+    // Method which performs a standard call to the rmvod API
+    // Returns an empty Object
     genericApiCall(payloadObjIn,endpointIn,cbFuncIn){
         /*
          * payloadeObjIn must minimally be {}
@@ -1001,6 +1027,8 @@ class RMVodWebApp {
     
     
     // METHODS MAKE API CALL
+    // Poll the API for the versions of server-side resources.
+    // Performs DOM updates directly.
     apiFetchRemoteVersions(){ //UPDATED FOR NEW RETURN OBJECT MODEL
         //console.log("This is where we get API and DB versions");
         var cbFunc = function (objIn) {
@@ -1013,6 +1041,8 @@ class RMVodWebApp {
         const endpoint = '/rmvod/api/apiversion/get';
         var result = this.genericApiCall(payloadObj,endpoint,cbFunc);
     }
+    // Retrieves a fresh copy of the "persons" list
+    // Stores result in Session Storage
     apiFetchPersonsList(){ //UPDATED FOR NEW RETURN OBJECT MODEL
         //var cbFunc = function (dataObjIn) {
             //// Write to Session Store
@@ -1028,6 +1058,8 @@ class RMVodWebApp {
         const endpoint = '/rmvod/api/suplist/get';
         var result = this.genericApiCall(payloadObj,endpoint,cbFunc);
     }
+    // Retrieves a fresh copy of the "vompanies" list
+    // Stores result in Session Storage
     apiFetchCompaniesList(){ //UPDATED FOR NEW RETURN OBJECT MODEL
         //var cbFunc = function (dataObjIn) {
             //// Write to Session Store
@@ -1043,6 +1075,8 @@ class RMVodWebApp {
         const endpoint = '/rmvod/api/suplist/get';
         var result = this.genericApiCall(payloadObj,endpoint,cbFunc);
     }
+    // Retrieves a fresh copy of the "tags" list
+    // Stores result in Session Storage
     apiFetchTagsList(){ //UPDATED FOR NEW RETURN OBJECT MODEL
         var cbFunc = function (objIn) {
             var dataObjIn = objIn['data'];
@@ -1057,6 +1091,10 @@ class RMVodWebApp {
         const endpoint = '/rmvod/api/suplist/get';
         var result = this.genericApiCall(payloadObj,endpoint,cbFunc);
     }
+    // Associated with RNWAListFieldWidget, this method performs an
+    // API call to corrspond with action taken by the user on a
+    // RNWAListFieldWidget control.
+    // Performs a refreshFieldListWidget when done.
     apiExecListAction(deIdIn, actionIn){ //UPDATED FOR NEW RETURN OBJECT MODEL
         
         var listName = deIdIn.split('_')[0];
@@ -1100,6 +1138,12 @@ class RMVodWebApp {
         }
         var result = this.genericApiCall(payloadObj,endpoint,cbFunc);
     }
+    // This really is the point of the whole thing, isn't it?  
+    // This method initiates playback of an artifact based on its 
+    // artifactid.  
+    // There's some plumbing in here which fiddles with cookies and
+    // intervals related to resuming playback on reload.
+    // Performs DOM updates directly.
     vodPlayTitleApi3(artiIdIn){ //UPDATED FOR NEW RETURN OBJECT MODEL
         var cbFunc = function (objIn) {
             
@@ -1154,6 +1198,7 @@ class RMVodWebApp {
         this.genericApiCall(payload,apiEndpoint,cbFunc);
         this.apiLogPlay(artiIdIn);
     }
+    // Make an API call to log what is being played
     apiLogPlay(artiIdIn){
         var cbFunc = function(dataObjIn){
             //console.log('RMVodWebApp.apiLogPlay.cdFunc: ' + JSON.stringify(dataObjIn));
@@ -1162,6 +1207,11 @@ class RMVodWebApp {
         const payload = {'artifactid':artiIdIn,'clientid':this.cc.getCookie('clientid')};
         this.genericApiCall(payload,apiEndpoint,cbFunc);        
     }
+    // This method is called when playback completes -- that is, the 
+    // video has played all the way to the end.  If the artifact which
+    // has just finished playing is a tvepisode, do an API call to see 
+    // what the "next" episode in the series is, and intiate playback
+    // of that espisode by way of vodPlayTitleApi3.
     vodPlayNextTitle(artiIdIn){ //UPDATED FOR NEW RETURN OBJECT MODEL
         //// Confirm checkbox is checked
         if (document.getElementById('serplaynext').checked == false) {
@@ -1179,6 +1229,9 @@ class RMVodWebApp {
         const endpoint = '/rmvod/api/nextepisode/get';
         this.genericApiCall(payloadObj,endpoint,cbFunc);
     }
+    // Refresh the Tag select list in the search widget by way of 
+    // direct API call.
+    // Performs DOM updates directly.
     tagSelListRefresh(){ //UPDATED FOR NEW RETURN OBJECT MODEL  //  NEEDS TO BE BETTER - maybe involve apiFetchTagsList
         var tsl = document.getElementById('tag-search-select');
         // Clear the current list of options
@@ -1211,6 +1264,8 @@ class RMVodWebApp {
         const payload = {'table':'tags'};
         this.genericApiCall(payload,endpoint,cbFunc);
     }
+    // Display list of TV Series Episodes in the Side List.
+    // Performs DOM updates directly.
     populateSeriesEpisodes(seriesArtiIdIn){ //UPDATED FOR NEW RETURN OBJECT MODEL
         const cbFunc = function (objIn) {
             // console.log('populateSeriesEpisodes.cbFunc: ' + JSON.stringify(objIn))
@@ -1229,6 +1284,8 @@ class RMVodWebApp {
         const payloadObj = {'artifactid':seriesArtiIdIn};
         this.genericApiCall(payloadObj,endpoint,cbFunc);
     }
+    // Display artifact details in the Side List.
+    // Performs DOM updates directly.
     populateArtifactDetails(artiIdIn){ //UPDATED FOR NEW RETURN OBJECT MODEL
         
         this.apiFetchPersonsList();
@@ -1309,6 +1366,9 @@ class RMVodWebApp {
         const payloadObj = {'artifactid':artiIdIn};
         this.genericApiCall(payloadObj,endpoint,cbFunc);
     }
+    // Execute a single-factor artifact search based on the value
+    // in the search widget most recently changed.
+    // Performs DOM updates directly.
     execSearchSingleFactor2(factorStrIn,srchValObjIn) { // UPDATED FOR NEW RETURN OBJECT MODEL
         
  
@@ -1426,6 +1486,9 @@ class RMVodWebApp {
             console.log("Ignoring this error: " + e.toString());
         }
     }
+    // Execute a multi-factor artifact search based on the values
+    // in the search widget.
+    // Performs DOM updates directly.
     execSearchMultiFactor(){ // UPDATED FOR NEW RETURN OBJECT MODEL
         
 
@@ -1476,6 +1539,8 @@ class RMVodWebApp {
         }
         
     }
+    // Render the Artifact Edit form with values from an API call.
+    // Performs DOM updates directly.
     renderArtifactEdit(artiIdIn){ //UPDATED FOR NEW RETURN OBJECT MODEL
         console.log('renderArtifactEdit: ' + artiIdIn);
         
@@ -1731,6 +1796,7 @@ class RMVodWebApp {
         this.genericApiCall(payloadObj,endpoint,cbFunc);
         //END OF renderArtifactEdit
     }
+    // Push updated Artifact Edit value(s) to the API
     postArtifactFieldEdit(deidIn,argObjIn){  //UPDATED FOR NEW RETURN OBJECT MODEL
         console.log('postArtifactFieldEdit ' + deidIn + ': ' + JSON.stringify(argObjIn));
         var wrkArtiId = deidIn.substring(0,36);
@@ -1798,6 +1864,8 @@ class RMVodWebApp {
         const payload = {'artifactid':wrkArtiId,'values':updateObj};
         this.genericApiCall(payload,endpoint,cbFunc);
     }
+    // Submit "Add Single Artifact" form
+    // Performs DOM updates directly.
     apiSubmitNewSingleArtiForm(){ //UPDATED FOR NEW RETURN OBJECT MODEL
 
         //{
@@ -1821,7 +1889,7 @@ class RMVodWebApp {
         var cbFunc = function(dataObjIn){
             // dataObjIn is the result object returned from the API
             var ml =  new RMVodWebApp();
-            if (dataObjIn['status'] == 'success') {
+            if (dataObjIn['status']['success'] == true) {
                 // Add succeeded
                 ml.renderArtifactEdit(dataObjIn['data']['artifactid']);
                 const ev = new Event('click');
@@ -1836,6 +1904,8 @@ class RMVodWebApp {
         this.genericApiCall(payload,endpoint,cbFunc);
         
     }
+    // Submit "Add Multiple Artifacts" form
+    // Performs DOM updates directly.
     apiSubmitNewMultiArtiForm(){ //UPDATED FOR NEW RETURN OBJECT MODEL
         
         //{
@@ -1884,6 +1954,8 @@ class RMVodWebApp {
     
     
     // DOM Util
+    // Check for, and if they are present, load and respect 
+    // cookie-stored option values
     onloadOptions(){
         // serplaynext
         // resumeplay
@@ -1915,6 +1987,8 @@ class RMVodWebApp {
             
         }
     }
+    // Perform functions that accompany a state change of the "Multi-
+    // Factor Search" Checkbox.
     handleMFSCBStateChange(checkedBoolIn){
         if (checkedBoolIn == true) {
             document.getElementById('mfsexeccontainer').style.display = 'block';
@@ -1925,6 +1999,8 @@ class RMVodWebApp {
 
     
     // HTML Util
+    // Take a string in and return the string wrapped in a span, which
+    // has an onclick function, which calls execDirectStringSrch.
     srchSpan(strIn) {
         // Takes a simple string in, and wraps it in a span with onclick
         // set to do execDirectStringSrch in the switchboard
@@ -1936,9 +2012,9 @@ class RMVodWebApp {
         retStr += '</span>'
         return retStr;
     }
+    // This just turns an Array object into a String list with 
+    // commas between the elements.
     l2s(arrayIn){
-        // This just turns an Array object into a String list with 
-        // commas between the elements.
         var listStr = '';
         var aLen = arrayIn.length;
         for (var i = 0; i < aLen; i++) {
@@ -1950,10 +2026,9 @@ class RMVodWebApp {
         }
         return listStr
     }
+    // This just turns an Array object into a HTML list of 
+    // "searchable" elements with commas between the elements.
     l2sSrch(arrayIn){
-        // This just turns an Array object into a HTML list of 
-        // "searchable" elements with commas between the elements.
-        
         var plainValList = ['string','none',''];
         var listStr = '';
         var aLen = arrayIn.length;
@@ -1970,6 +2045,7 @@ class RMVodWebApp {
         }
         return listStr
     }
+    // Render the "Search Widget"
     renderStaticModernSearchWidget(){
         var hr = new RMVWAHtmlGenerator();
         var newSrchWidget = hr.renderDESearchWidgetContainer();
@@ -1980,6 +2056,8 @@ class RMVodWebApp {
         
         this.tagSelListRefresh();
     }
+    // Render the "Side Artifact List" using a provided list of 
+    // artifactid values.  Returns a DOM element.
     renderSALByIdList(artiIdListIn){
         //console.log('renderSALByIdList.artiIdListIn: ' + JSON.stringify(artiIdListIn));
         // Whole List -- No details or episodes
@@ -1992,6 +2070,8 @@ class RMVodWebApp {
         }
         return tmpDiv;
     }
+    // Render an individual artifact for the "Side Artifact List" based 
+    // on its majtype value.  Returns the DOM element
     renderSALElementById(artiTitleIdObjIn){
         var elementDiv = undefined;
         switch (artiTitleIdObjIn['majtype']) {
@@ -2016,6 +2096,8 @@ class RMVodWebApp {
         }
         return elementDiv;
     }
+    // Render a "movie" for the "Side Artifact List".  Returns a DOM
+    // element.
     renderSideListMovie(artiTIDobjIn){
         var rplStr = this.cc.getCookie('recentPlays');
         if (rplStr == undefined) {
@@ -2067,6 +2149,8 @@ class RMVodWebApp {
         
         return listElContainer;
     }
+    // Render a "tvseries" for the "Side Artifact List".  Returns a DOM
+    // element.
     renderSideListTvSeries(artiTIDobjIn){
         var tdSpanClass = "";
         var tdSpanOnclick = "switchboard('tvsExpandEpisodes','" + artiTIDobjIn['artifactid'] + "',{})"; //artiTIDobjIn['artifactid'];
@@ -2109,6 +2193,8 @@ class RMVodWebApp {
         
         return listElContainer;
     }
+    // Render a "tvseries" for the "Side Artifact List".  Returns a DOM
+    // element.
     renderSideListTvEpisode(artiTIDobjIn){
         var rplStr = this.cc.getCookie('recentPlays');
         if (rplStr == undefined) {
@@ -2161,6 +2247,8 @@ class RMVodWebApp {
         
         return listElContainer;
     }
+    // Render the base page layout for the rmvod web application.
+    // Performs DOM updates directly.
     basePageLayout02(){  //  BASE PAGE LAYOUT FOR vodlib_static_3.html
         var hr = new RMVWAHtmlGenerator();
         var masterCont = document.getElementById('mastercont');
@@ -2169,8 +2257,10 @@ class RMVodWebApp {
         masterCont.appendChild(hr.renderDETabContainer());
         masterCont.appendChild(hr.renderDEFooterContainer());
     }
+    // Render "Show Details" button for a TV Series Artifact.  
+    // Performs DOM update directly.
     tvsDetailShowButton(artiIdIn) {
-        // "Show Details" button for a TV Series Artifact
+        
         var innerHtml = '';
         innerHtml += '<span class="" id="" style="font-size:10px;"';
         innerHtml += 'onclick="switchboard(\'xpopslseriesdetail\',\'' + artiIdIn + '\',{})" ';
@@ -2183,6 +2273,8 @@ class RMVodWebApp {
         deetDiv.innerHTML = innerHtml;       
          
     }
+    // Clears "search" form fields.
+    // Performs DOM updates directly.
     resetSearchFactors(){
         // Clear Text Search
         document.getElementById('txt-srch-str').value = '';
@@ -2197,6 +2289,8 @@ class RMVodWebApp {
         document.getElementById('sql-where-srch').value = '';// sql-where-srch
         
     }
+    // Render the "Now Playing" artifact detail header
+    // Performs DOM updates directly.
     renderArtifactDetailHeader(artiObj){
         //console.log('renderArtifactDetailHeader');
         var prodStr = '';
@@ -2222,6 +2316,8 @@ class RMVodWebApp {
         document.getElementById('header-production').innerHTML = 'Production: ' + prodStr;
         document.getElementById('header-cast').innerHTML = 'Cast: ' + castStr;
     }
+    // Refresh "Filed List Widget"
+    // Performs DOM updates directly.
     refreshFieldListWidget(fieldNmIn,valuesListIn){
         //console.log('refreshFieldListWidget: ' + fieldNmIn + ': ' + JSON.stringify(valuesListIn));
         var blobKey = '';
@@ -2255,9 +2351,12 @@ class RMVodWebApp {
         boxDiv.innerHTML = lewDE.children[1].innerHTML;        
         
     }
+    // A placeholder method for a "unified" "New Artifact Form"
     renderUnifiedNewArtifactForm(ModeStrIn){ // Someday
         // Someday
     }
+    // Render a form for data entry to create a new single artifact
+    // Performs DOM updates directly.
     renderNewSingleArtiForm(){ // Reworked to use hg.renderStackFormRow
         //Web UI for Create a Single Artifact:
         //You put in filepath, file, majtype
@@ -2323,6 +2422,9 @@ class RMVodWebApp {
         const ev = new Event('click');
         document.getElementById('tabspan2').dispatchEvent(ev);
     }
+    // Render a form for data entry to associate tvepisode artifacts 
+    // with a tvseries artifact.
+    // Performs DOM updates directly.
     renderSeriesEpisodeAddForm(argObjIn){ // Reworked to use hg.renderStackFormRow
         //Web UI for Associate Episodes with Series:
         //You put in filepath, file, majtype
@@ -2381,6 +2483,8 @@ class RMVodWebApp {
         const ev = new Event('click');
         document.getElementById('tabspan2').dispatchEvent(ev);
     }
+    // Render a form for data entry to create multiple new artifacts
+    // Performs DOM updates directly.
     renderNewMultiArtiForm(){ // Reworked to use hg.renderStackFormRow
         //Web UI for Create a Single Artifact:
         //You put in filepath, file, majtype
@@ -2395,16 +2499,6 @@ class RMVodWebApp {
         
         
         var hg = new RMVWAHtmlGenerator();
-        //defaultValuesObj['rowDivClassName'] = "";
-        //defaultValuesObj['labelDivClassName'] = "";
-        //defaultValuesObj['contentDivClassName'] = "";
-        //defaultValuesObj['labelSpanClassName'] = "";
-        //defaultValuesObj['contentSpanClassName'] = "";
-        //defaultValuesObj['rowWidth'] = "260px";
-        //defaultValuesObj['labelWidth'] = "80px";
-        //defaultValuesObj['fieldWidth'] = "160px";
-        //defaultValuesObj['labelContentHtml'] = "Label:";
-        //defaultValuesObj['fieldContentHtml'] = "Field edit content";        
         
         var argsObj = {};
         argsObj['labelContentHtml'] = 'Path: ';
@@ -2416,27 +2510,10 @@ class RMVodWebApp {
         
         var row1 = hg.renderStackFormRow(argsObj);
         
-        
-        
-        //tmpHtml += '<span id="" class="" style="font-weight:bold">Path:  </span>';
-        //tmpHtml += '<input id="nafilepath" type="text" class="">';
-        //tmpHtml += '<br>';
-        
-        
         argsObj['labelContentHtml'] = 'Filename: ';
         argsObj['fieldContentHtml'] = '<textarea id="nafilename" cols="40" rows="12" class=""></textarea>';
         var row2 = hg.renderStackFormRow(argsObj);
                 
-        
-        
-        
-        //tmpHtml += '<span id="" class="" style="font-weight:bold">Filename:  </span>';
-        //tmpHtml += '<textarea id="nafilename" cols="40" rows="12" class=""></textarea>';
-        //tmpHtml += '<br>';
-        
-        
-        
-        
         var tmpHtml2 = '<select name="namajtype" id="namajtype" class="">';
         tmpHtml2 += '<option value="none"></option>';
         tmpHtml2 += '<option value="movie">movie</option>';
@@ -2448,22 +2525,8 @@ class RMVodWebApp {
         argsObj['fieldContentHtml'] = tmpHtml2;
         var row3 = hg.renderStackFormRow(argsObj);
         
-        //tmpHtml += '<span id="" class="" style="font-weight:bold">Major Type:  </span>';
-        //tmpHtml += '<select name="namajtype" id="namajtype" class="">';
-        //tmpHtml += '<option value="none"></option>';
-        //tmpHtml += '<option value="movie">movie</option>';
-        //tmpHtml += '<option value="tvepisode">tvepisode</option>';
-        //tmpHtml += '</select>';
-        //tmpHtml += '<br>';
-        
-        
-        
-        
-        
-        
         const tagList = this.sse.ssRead('blob')['tags'];
         
-        //tmpHtml += '<span id="" class="" style="font-weight:bold">Starting Tag:  </span>';
         var tmpHtml3 = '<select name="natag" id="natag" class="">';
         tmpHtml3 += '<option value="none">None</option>';
         
@@ -2471,9 +2534,6 @@ class RMVodWebApp {
             tmpHtml3 += '<option value="' + tagList[i] + '">' + tagList[i] + '</option>';
         }
         tmpHtml3 += '</select>';
-        //tmpHtml3 += '<br>';
-        
-        
         
         argsObj['labelContentHtml'] = 'Starting Tag: ';
         argsObj['fieldContentHtml'] = tmpHtml3;
@@ -2509,6 +2569,8 @@ class RMVodWebApp {
         const ev = new Event('click');
         document.getElementById('tabspan2').dispatchEvent(ev);
     }
+    // Execute an API call which associates tvepisode artifacts 
+    // with a tvseries artifact
     execAddSeriesEpisodes(seriesaidIn,filepathIn,filefragIn){
         var cbFunc = function(dataObjIn) {
             console.log('execAddSeriesEpisodes.cbFunc: \n' + JSON.stringify(dataObjIn));
@@ -2637,6 +2699,7 @@ class RMVodWebApp {
 
 }
 
+// Provide a single entrypoint into the RMVodWebApp
 function switchboard(actionIn,objIdIn,argObjIn) {
     var ml = new RMVodWebApp();
     
@@ -2854,21 +2917,25 @@ function switchboard(actionIn,objIdIn,argObjIn) {
     }
 }
 
+// Handle "Playback Ends" event
 function pbEnded (artiIdIn) {
     console.log('The playback it has ended');
     switchboard('vodPlayNextTitle',artiIdIn,{});
 }   
 
+// Handle "Remove Member" event of RNWAListFieldWidget
 function removeMember(deIdIn) {
     console.log('removeMember - ' + deIdIn);
     switchboard('listAction',deIdIn,{'action':'remove-member'})
 }
- 
+
+// Handle "Add Member" event of RNWAListFieldWidget
 function addMember(deIdIn) {
     console.log('addMember - ' + deIdIn);
     switchboard('listAction',deIdIn,{'action':'add-member'})
 }
 
+// Handle "Add Choice" event of RNWAListFieldWidget
 function addChoice(deIdIn) {
     var re = /_AddMemberButton/;
     if (deIdIn.search(re) > -1) {

@@ -45,6 +45,7 @@ CREATE TABLE IF NOT EXISTS artifacts (
     arbmeta TEXT NOT NULL DEFAULT '{"string":"string"}'
 );
 
+ -- ADDED IN r0.2.0
 CREATE TABLE IF NOT EXISTS playlog_live (
     clientid VARCHAR(100) NOT NULL,
     artifactid VARCHAR(40) NOT NULL,

@@ -2667,6 +2667,8 @@ def getListTitleId():  # UPDATED FOR NEW RETURN OBJECT MODEL
         result = ml.getArtifactsByArbWhereClause(dictIn['whereclause'])
         pass
     else:
+        # I'm not sure, but I think "tag" has a way of dealing with 
+        # no input... investigate using that, instead, maybe?
         result = ml.findArtifactsByName('')
         pass
     # tmpRetObj['data'] = result;
