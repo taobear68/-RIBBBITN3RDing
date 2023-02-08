@@ -375,6 +375,23 @@ class RMVWAHtmlGenerator {
         
         return hContDiv;
     }
+    // USES NEW TAB WIDGET
+    renderDETabWidget(){
+        var tw = new RNWATabWidget();
+        tw.widgetName = "RNWATabWidget";
+        tw.tabCount = 4;
+        tw.defaultActiveTab = 1;
+        tw.tabTagLabelList = ['Player','List/Search','Edit','Settings'];
+        var tmpAry = [];
+        tmpAry.push('<div id="structfeatureplayer">' + this.renderHTMLPlayerTab() + '</div>');
+        tmpAry.push('<div id="structfeaturesearch">' + this.renderHTMLSearchTab() + '</div>');
+        tmpAry.push('<div id="structfeatureedit">' + this.renderHTMLEditTab() + '</div>');
+        tmpAry.push('<div id="structfeaturesettings">' + this.renderHTMLSettingsTab() + '</div>');
+        tw.tabBodyContentHtmlList = tmpAry;
+        tw.tabPickFunction = 'tabPick';
+        
+        return tw.renderWidget();
+    }
     renderDETabContainer(){
         
         var renderTabTabDiv = function(tabNmbrIn,tabLabelIn,selBoolIn) {
@@ -907,7 +924,7 @@ class RMVodWebApp {
         // These version bits will eventually need to involve polling 
         // the API and DB for their versions
         this.apiFetchRemoteVersions();
-        this.postJSVer("0.5.8");
+        this.postJSVer("0.5.9");
     }
     // Returns a "likely unique" ID for this browser to be used in 
     // play request logging.
@@ -1172,7 +1189,8 @@ class RMVodWebApp {
             var currSrc = avpDE.currentSrc;
             wa.cc.setCookie('artifact_source_uri',currSrc,5);
             // Event to set Tab 0  as the active tab
-            document.getElementById('tabspan0').click();
+            //document.getElementById('tabspan0').click();  //  RNWATabWidget-tabspan-0
+            document.getElementById('RNWATabWidget-tabspan-0').click();  //  RNWATabWidget-tabspan-0
             // Populate the artifact details in the page header
             wa.renderArtifactDetailHeader(dataObjIn);
             // Setup an "interval" to post the current play time to a 
@@ -1783,11 +1801,11 @@ class RMVodWebApp {
             editDiv.innerHTML = '';
             editDiv.appendChild(edOuterDiv);
             
-            // THIS SHOULD BE DONE WITH A "CLICK" EVENT TO THE EDIT TAB 
-            // INSTEAD OF THIS DIRECT ACTION ON DIVS
-            document.getElementById('structfeatureplayer').style.display = 'none';
-            document.getElementById('structfeaturesearch').style.display = 'none';
-            document.getElementById('structfeatureedit').style.display = 'block';
+            //// THIS SHOULD BE DONE WITH A "CLICK" EVENT TO THE EDIT TAB 
+            //// INSTEAD OF THIS DIRECT ACTION ON DIVS
+            //document.getElementById('structfeatureplayer').style.display = 'none';
+            //document.getElementById('structfeaturesearch').style.display = 'none';
+            //document.getElementById('structfeatureedit').style.display = 'block';
             
             //END of cbFunc 
         }
@@ -2254,7 +2272,8 @@ class RMVodWebApp {
         var masterCont = document.getElementById('mastercont');
         masterCont.innerHTML = '';
         masterCont.appendChild(hr.renderDEThreeCellHeader());
-        masterCont.appendChild(hr.renderDETabContainer());
+        //masterCont.appendChild(hr.renderDETabContainer());  // renderDETabWidget
+        masterCont.appendChild(hr.renderDETabWidget());  // renderDETabWidget
         masterCont.appendChild(hr.renderDEFooterContainer());
     }
     // Render "Show Details" button for a TV Series Artifact.  
@@ -2808,7 +2827,8 @@ function switchboard(actionIn,objIdIn,argObjIn) {
         
         case 'initiateArtiEdit':
             ml.renderArtifactEdit(objIdIn);
-            document.getElementById('tabspan2').click();
+            //document.getElementById('tabspan2').click(); // RNWATabWidget-tabspan-2
+            document.getElementById('RNWATabWidget-tabspan-2').click(); // RNWATabWidget-tabspan-2
             break;
             
         case 'updateArtifactField' :
@@ -2947,7 +2967,12 @@ function addChoice(deIdIn) {
         switchboard('listAction',deIdIn,{'action':'add-choice'});
     }
 }
- 
+
+function tabPick(deIdIn){
+    // RNWATabWidget.selectTab
+    var tw = new RNWATabWidget();
+    tw.selectTab(deIdIn);
+}
  
 /*  
 mastercont     // The outermost div
