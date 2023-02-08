@@ -51,8 +51,6 @@ class VodLibDB:
         
         self.keylists = {}
         self.keylists['artifact'] = ['artifactid','title','majtype','runmins','season','episode','file','filepath','director','writer','primcast','relorg','relyear','eidrid','imdbid','arbmeta']
-        #self.keylists['artifact'] = ['artifactid','title','majtype','runmins','season','episode','file','filepath','director','writer','primcast','relorg','relyear','eidrid','imdbid','arbmeta','synopsis']
-        # print('VodLibDB - Got through __init__, anyway .... innit?')
         pass
     def _connect(self):
         dbc = pymysql.connect(host=self.dbc['host'],user=self.dbc['user'],password=self.dbc['password'],database=self.dbc['database'])
@@ -74,7 +72,6 @@ class VodLibDB:
         retval = None
         try:
             assert sqlIn.split(" ")[0].upper() == "UPDATE"
-            #print(sqlIn)
             dbc = self._connect()
             cursor = dbc.cursor()
             cursor.execute(sqlIn)
@@ -89,7 +86,6 @@ class VodLibDB:
         retval = None
         try:
             assert sqlIn.split(" ")[0].upper() == "INSERT"
-            #print(sqlIn)
             dbc = self._connect()
             cursor = dbc.cursor()
             cursor.execute(sqlIn)
@@ -98,13 +94,11 @@ class VodLibDB:
             pass
         except:
             print("_stdInsert Poop : " + sqlIn)
-            #raise Exception("Insert failed!")
         return retval
     def _stdDelete(self,sqlIn):
         retval = None
         try:
             assert sqlIn.split(" ")[0].upper() == "DELETE"
-            #print(sqlIn)
             dbc = self._connect()
             cursor = dbc.cursor()
             cursor.execute(sqlIn)
@@ -113,10 +107,8 @@ class VodLibDB:
             pass
         except:
             print("_stdDelete: Poop")
-            #raise Exception("Insert failed!")
         return retval
     def getDBVersion(self):
-        # return "0.1.0"
         return "0.2.0" # Table playlog_live added 
     def fetchArtiDeetsFromOmdbapi(self):
         print("vldb.fetchArtiDeetsFromOmdbapi")
@@ -237,7 +229,6 @@ class VodLibDB:
                     pass
                 pass
             pass
-            # sqlSetStr += key + ' = ' + artiProto[key]
             
             valTyp = type(artiProto[key])
             if valTyp == type("string"):
@@ -288,7 +279,6 @@ class VodLibDB:
         persCheckSql = 'SELECT personname FROM persons WHERE personname = "' + persNameIn + '"'
         # print(persCheckSql)
         resTuple = self._stdRead(persCheckSql)
-        # print(str(resTuple))
         # If not there, add it
         if (type(resTuple) == type(None)) or (len(resTuple) == 0):
             # It's not there
@@ -424,7 +414,6 @@ class VodLibDB:
         
         return retList
     def getArtifactListByMajtype(self,majtypeStrIn):
-        # print("getArtifactListByMajtype - majtypeStrIn: " + majtypeStrIn)
         assert type(majtypeStrIn) == type('thing')
         if len(majtypeStrIn) > 0:
             fetchSql = '';
@@ -436,7 +425,6 @@ class VodLibDB:
             fetchSql += "FROM artifacts  "
         pass
         fetchSql += "ORDER BY title"
-        # print("getArtifactListByMajtype - fetchSql: " + fetchSql)
         listTuple = self._stdRead(fetchSql)
         retList = []
         for itemTuple in listTuple:
@@ -448,7 +436,6 @@ class VodLibDB:
         pass
         return retList
     def getArtifactListByIdList(self,artiIdListIn):
-        # print("getArtifactListByMajtype - majtypeStrIn: " + majtypeStrIn)
         assert type(artiIdListIn) == type(['thing'])
         if len(artiIdListIn) > 0:
             fetchSql = '';
@@ -468,7 +455,6 @@ class VodLibDB:
             fetchSql += "FROM artifacts  "
         pass
         fetchSql += "ORDER BY title"
-        # print("getArtifactListByMajtype - fetchSql: " + fetchSql)
         listTuple = self._stdRead(fetchSql)
         retList = []
         for itemTuple in listTuple:
@@ -578,12 +564,6 @@ class VodLibDB:
         fetchSql += 'ORDER BY 2'
             
         print(fetchSql)
-        
-        
-        # fetchSql = "SELECT a.artifactid, a.title, a.majtype "
-        # fetchSql += "FROM artifacts  a "
-        # fetchSql += "WHERE a.title LIKE '%" + titleFragIn + "%'"
-        # fetchSql += "ORDER BY a.title"
         listTuple = self._stdRead(fetchSql)
         
         retList = []
@@ -610,9 +590,8 @@ class VodLibDB:
         selSql += "JOIN s2e s ON a.artifactid = s.episodeaid "
         selSql += "WHERE s.seriesaid = (select seriesaid from s2e where episodeaid = '"
         selSql += sEpiIdIn
-        selSql += "' LIMIT 1) " #a7470c75-0514-40ad-8c37-821eda8ccd92')
+        selSql += "' LIMIT 1) " 
         selSql += "ORDER BY a.title;"  
-        #print('getNextEpisodeArtifact - selSql: ' + selSql)  
         rowsTuple = self._stdRead(selSql)
         idList = []
         for rowTuple in rowsTuple:
@@ -620,32 +599,16 @@ class VodLibDB:
         pass
         lastEpIdx = idList.index(sEpiIdIn)
         retList = []
-        # if lastEpIdx < (len(idList) - 2) :
         if lastEpIdx < (len(idList) - 1) :
             nextEpId = idList[lastEpIdx + 1]
             retList = self.getArtifactById(nextEpId,False)
         pass
-        #print(json.dumps(retList))
         return retList
     def getEpisodeTIMListBySeriesId(self,sEpiIdIn):
-        # epiArtiIdList = self.getEpisodeListBySeriesId(sEpiIdIn)
-        # if len(epiArtiIdList) == 0:
-            # print('getEpisodeTIMListBySeriesId: getEpisodeListBySeriesId(' + sEpiIdIn + ') returned no rows')
-            # return []
-        # pass
         fetchSql = "SELECT a.artifactid, a.title, a.majtype "
         fetchSql += " FROM artifacts  a "
         fetchSql += " WHERE a.artifactid IN ("
         fetchSql += " SELECT episodeaid FROM s2e WHERE seriesaid = '" + sEpiIdIn + "') " 
-        # for artiId in epiArtiIdList:
-            # #print(artiId)
-            # fetchSql += "'" + artiId + "'"
-            # if (epiArtiIdList.index(artiId)) < (len(epiArtiIdList) -1 ):
-                # fetchSql += ", "
-            # else: 
-                # fetchSql += ') '
-            # pass
-        
         try:
             fetchSql += "ORDER BY a.title"
         
@@ -690,7 +653,6 @@ class VodLibDB:
             return retval
             
         try:
-            # tagSQL = "SELECT tag FROM tags ORDER BY tag"
             rowsTuple = self._stdRead(slSql)
             itemList = []
             for row in rowsTuple:
@@ -729,8 +691,6 @@ class VodLibDB:
         # 127.0.0.1 - - [11/Oct/2022 13:34:30] "POST /artifact/update HTTP/1.1" 200 -
         
         
-        #print('updateJoinTable: ' + artiIdin + ', ' + keyIn + ', ' + tableIn + ', ' + str(valListIn))
-        
         retval = None
         if tableIn == 'p2a':
             p2aPreClearSql = 'DELETE FROM p2a WHERE artifactid = "'
@@ -738,12 +698,9 @@ class VodLibDB:
             p2aPreClearSql += '" AND artifield = "'
             p2aPreClearSql += keyIn
             p2aPreClearSql += '"'
-            # print('p2aPreClearSql: ' + p2aPreClearSql)
             self._stdDelete(p2aPreClearSql)
             for val in valListIn:
-                # print('Trying to create Person ' + val)
                 self.createPerson(val)
-                # print('Trying to insert into p2a...')
                 p2aInsSql = 'INSERT INTO p2a SET personname = "'
                 p2aInsSql += val
                 p2aInsSql += '", artifactid = "'
@@ -751,9 +708,7 @@ class VodLibDB:
                 p2aInsSql += '", artifield = "'
                 p2aInsSql += keyIn
                 p2aInsSql += '"'
-                # print('p2aInsSql: ' + p2aInsSql)
                 self._stdInsert(p2aInsSql)
-                # print('...done.')
                 pass
             pass
         elif tableIn == 'c2a':
@@ -762,7 +717,6 @@ class VodLibDB:
             c2aPreClearSql += '" AND artifield = "'
             c2aPreClearSql += keyIn
             c2aPreClearSql += '"'
-            # print(c2aPreClearSql)
             self._stdDelete(c2aPreClearSql)
             for val in valListIn:
                 self.createCompany(val)
@@ -780,10 +734,7 @@ class VodLibDB:
         elif tableIn == 't2a':
             t2aPreClearSql = 'DELETE FROM t2a WHERE artifactid = "'
             t2aPreClearSql += artiIdin
-            #t2aPreClearSql += '" AND artifield = "'
-            #t2aPreClearSql += keyIn
             t2aPreClearSql += '"'
-            # print(c2aPreClearSql)
             self._stdDelete(t2aPreClearSql)
             for val in valListIn:
                 self.createTag(val)
@@ -792,27 +743,11 @@ class VodLibDB:
                 t2aInsSql += val
                 t2aInsSql += '", artifactid = "'
                 t2aInsSql += artiIdin
-                #t2aInsSql += '", artifield = "'
-                #t2aInsSql += keyIn
                 t2aInsSql += '"'
                 self._stdInsert(t2aInsSql)
                 pass
             pass
         elif tableIn == 'artitexts':
-            
-            # MariaDB [vodlib]> desc artitexts;
-            # +------------+-------------+------+-----+---------+-------+
-            # | Field      | Type        | Null | Key | Default | Extra |
-            # +------------+-------------+------+-----+---------+-------+
-            # | artifactid | varchar(40) | NO   | PRI | NULL    |       |
-            # | artifield  | varchar(50) | NO   | PRI | NULL    |       |
-            # | artitext   | mediumtext  | NO   |     | NULL    |       |
-            # +------------+-------------+------+-----+---------+-------+
-            # 3 rows in set (0.001 sec)
-            
-            # INSERT INTO ins_duplicate VALUES (4,'Gorilla') 
-            # ON DUPLICATE KEY UPDATE animal='Gorilla';
-            
             atUpdateSql = 'INSERT INTO artitexts VALUES ("'
             atUpdateSql += artiIdin
             atUpdateSql += '","'
@@ -826,13 +761,9 @@ class VodLibDB:
             self._stdInsert(atUpdateSql)
         else:
             print('updateJoinTable - Unknown table type: ' + tableIn)
-        #woof
         pass
         return retval
     def updateArtifactByIdAndDict(self,artiIdIn,updateDictIn):
-        
-        # print('updateArtifactByIdAndDict: ' + artiIdIn + ', ' + json.dumps(updateDictIn))
-        
         # keyList is the reference key list from "self"
         keyList = self.keylists['artifact']
         # workingUD is the "working" Update Dictionary
@@ -853,10 +784,6 @@ class VodLibDB:
             pass
         pass
         
-        # print('updateArtifactByIdAndDict: WOOFWOOF 001 - workingUD: ' + str(workingUD))
-        
-        
-        
         # Put tags (if any) in workingTagsList for separate handling
         if "tags" in diKeys:
             for udiTag in updateDictIn['tags']:
@@ -864,16 +791,11 @@ class VodLibDB:
             pass
         pass
         
-        
-        
-        # print('updateArtifactByIdAndDict: WOOFWOOF 002 - workingTagsList: ' + str(workingTagsList))
-        
         # Set up join table references
         joinTableFieldList = ['director','writer','primcast','relorg','synopsis','tags']
         joinTableLUDict = {'director':'p2a','writer':'p2a','primcast':'p2a','relorg':'c2a','synopsis':'artitexts','tags':'t2a'}
         
         # Start setting up the UPDATE SQL for the artifacts table
-        #workingArtiSql = "UPDATE artifacts SET "
         workingArtiSql = ""
         
         # get the list of keys from the workingUD dictionary, since
@@ -882,19 +804,14 @@ class VodLibDB:
         # wakList = list(workingUD.keys())
         wakList = list(updateDictIn.keys())
         
-        # print('updateArtifactByIdAndDict: WOOFWOOF 003 - wakList: ' + str(wakList))
-        
         #  Now, let's build up the daWKList - this is the keys for 
         # fields we will actually be updating natively in the artifact.
         daWAKList = []
         for key in wakList:
             if key not in joinTableFieldList:
-                # print('Adding ' + key + ' to daWAKList')
                 daWAKList.append(key)
             pass
         pass
-        
-        # print('updateArtifactByIdAndDict: WOOFWOOF 004 - ' + str(daWAKList))
         
         # Process the artifact fields
         if len(daWAKList) > 0:
@@ -902,67 +819,46 @@ class VodLibDB:
             # Start setting up the UPDATE SQL for the artifacts table
             workingArtiSql = "UPDATE artifacts SET "
             for daWKey in daWAKList:
-                # print('Working daWKey: ' + daWKey)
                 wakVal = workingUD[daWKey]
-                # print('wakVal: ' + str(wakVal))
                 workingArtiSql += daWKey + ' = ' 
-                # print('workingArtiSql: ' + workingArtiSql)
                 wakValTyp = type(wakVal)
-                # print('wakValTyp: ' + str(wakValTyp))
                 
                 # Handle different value types
                 if wakValTyp == type('string'):
-                    # print(daWKey + ' STRING!')
-                    # workingArtiSql += "'" + wakVal + "'"
                     workingArtiSql += "'" + wakVal.replace("'","\\\'") + "'"
                 elif wakValTyp == type(-1):
-                    # print(daWKey + ' INTEGER!')
                     workingArtiSql +=  str(wakVal) 
                 elif wakValTyp == type(3.14):
-                    # print(daWKey + ' FLOAT!')
                     workingArtiSql +=  str(wakVal) 
                 elif wakValTyp == type(['poop']):
-                    # print(daWKey + ' LIST!')
                     # Actually, all the lists have been farmed out to 
                     # joining tables, so... this needs to be more complex
                     workingArtiSql +=  "'" + json.dumps(wakVal) + "'"
                 elif wakValTyp == type({'poop':'poop'}):
-                    # print(daWKey + ' DICTIONARY!')
                     workingArtiSql +=  "'" + json.dumps(wakVal) + "'" 
                 else:
                     print(daWKey + ' UNKNOWN! WTF?!')
                     raise Exception ('UNHANDLED TYPE')
                 pass
                 if daWAKList.index(daWKey) < (len(daWAKList) - 1):
-                    # print("Adding a comma.")
                     workingArtiSql += ', '
                 pass
             workingArtiSql += " WHERE artifactid = '" + artiIdIn + "'"
-            # print('workingArtiSql: ' + workingArtiSql)
-            # print('updateArtifactByIdAndDict: WOOFWOOF 005 - workingArtiSql: ' + workingArtiSql)
             self._stdUpdate(workingArtiSql)
         pass
         
         for wak in wakList:
             if wak in joinTableFieldList:
                 #This is where we handle "join table keys"
-                # print('Handling Join Table key ' + wak)
                 newVal = updateDictIn[wak]
                 jTable = joinTableLUDict[wak]
-                # print('jTable: ' + jTable)
                 if jTable == 'artitexts':
                     newVal = [updateDictIn[wak]]
-                # print('newVal: ' + str(newVal))
                 self.updateJoinTable(artiIdIn,wak,jTable,newVal)
                 pass
             pass
         pass
         
-        
-        # print('updateArtifactByIdAndDict: WOOFWOOF 006')
-        
-        # workingArtiSql += " WHERE artifactid = '" + artiIdIn + "'"
-        # print(workingArtiSql)
         # Update the Artifact
         pass
     def deleteArtifact(self,artiIdIn):
@@ -1113,7 +1009,6 @@ class VodLibDB:
         
         resList = [];
         for itemTuple in resTuple:
-            # resList.append(itemTuple[0])
             tmpDict = {}
             tmpDict['artifactid'] = itemTuple[0]
             tmpDict['title'] = itemTuple[1]
@@ -1130,15 +1025,6 @@ class VodLibDB:
         insSql += 'clientid = "' + clientIdIn + '", ';
         insSql += 'artifactid = "' + artiIdIn + '" ';
         retval = self._stdInsert(insSql)
-        
-        # CREATE TABLE IF NOT EXISTS playlog_live (
-            # clientid VARCHAR(100) NOT NULL,
-            # artifactid VARCHAR(40) NOT NULL,
-            # reqtime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            # comment VARCHAR(100)
-        # );
-        
-        
         
         return retval
         
@@ -1173,17 +1059,13 @@ class MediaLibraryDB:
     def artifactFileCheck(self,pathIn,fileIn):
         basePath = '/var/www/html/rmvod/vidsrc/'
         exist = os.path.exists(basePath + pathIn + '/' + fileIn)
-        # print("newArtiPreCheck exist " + fileIn, exist)
         return  exist    
     def newArtiPreCheck(self,pathIn,fileIn):
-        #print("newArtiPreCheck " + pathIn + ", " +fileIn)
         basePath = '/var/www/html/rmvod/vidsrc/'
         exist = os.path.exists(basePath + pathIn + '/' + fileIn)
-        #print("newArtiPreCheck exist " + fileIn, exist)
         
         vldb = VodLibDB()
         count = vldb.getArtifactCountByFieldValue('file',fileIn)
-        #print("newArtiPreCheck count " + fileIn, count)
         
         retval = False
         if (exist == True) and (count == 0):
@@ -1222,9 +1104,7 @@ class MediaLibraryDB:
         pass
     def readCssFile(self,cssFilPathIn):
         verNmbrStr = "Undetermined";
-        # srchStr = "vodlib.css version"
         srchStr = "rmvod_core.css version"
-        # /* vodlib.css version 0.2.1 */
         try:
             fh2 = open(cssFilPathIn,'rt')
             foundIt = False
@@ -1233,7 +1113,6 @@ class MediaLibraryDB:
                 if (lineStr == ""):
                     print(srchStr + ' not found in ' + cssFilPathIn)
                     break
-                # if ("vodlib.css version" in lineStr):
                 if (srchStr in lineStr):
                     foundIt = True
                     partList = lineStr.split(" ")
@@ -1250,9 +1129,7 @@ class MediaLibraryDB:
         pass
         return verNmbrStr  
     def readHtmlFile(self,htmlFilPathIn):
-         # <!-- vodlib_static_3.html version 
         verNmbrStr = "Undetermined";
-        #srchStr = "<!-- vodlib_static_3.html version "
         srchStr = "<!-- rmvod.html version "
         try:
             fh2 = open(htmlFilPathIn,'rt')
@@ -1388,12 +1265,9 @@ class MediaLibraryDB:
         ntag = self.__normalizeTagStr(tagStrIn)
         retval = -1
         try:
-            #retval = self.libDict['tags'].index(ntag)
-            
             vldb = VodLibDB()
             resTagList = vldb.findTag(ntag)
             retval = len(resTagList)
-            
         except:
             retval = -1
         pass
@@ -1403,22 +1277,14 @@ class MediaLibraryDB:
         tmpRetObj = copy.deepcopy(self.libMeta['retdicttempl'])
         tmpRetObj['method'] = 'getSupportList'
         tmpRetObj['params'] = [tableNameIn]
-        # tmpRetObj['status']['success'] = True        
-        
-        
         
         retval = None
         try:
             assert tableNameIn in ['persons','companies','tags']
-            # ntag = self.__normalizeTagStr(tagStrIn)
             vldb = VodLibDB()
-            # retval = vldb.getSupportList(tableNameIn)
             tmpRetObj['data'] = vldb.getSupportList(tableNameIn)
             tmpRetObj['status']['success'] = True 
-            # retval = True
         except:
-            # retval = False
-            pass
             pass
         pass
         return tmpRetObj
@@ -1453,42 +1319,31 @@ class MediaLibraryDB:
         vldb.createArtifact(inserDict)
         return aId
     def modifyArtifact(self,artifactIdIn,artifactDictIn): # UPDATED FOR NEW RETURN OBJECT MODEL
-        #retval = False
-        
         tmpRetObj = copy.deepcopy(self.libMeta['retdicttempl'])
         tmpRetObj['method'] = 'modifyArtifact'
         tmpRetObj['params'] = [artifactIdIn, artifactDictIn]
-        # tmpRetObj['status']['success'] = True
         
-        # artifactDictIn = self.titleLibTweak(artifactDictIn)
         try:
             vldb = VodLibDB()
             foo = vldb.updateArtifactByIdAndDict(artifactIdIn,artifactDictIn)
-            # retval = True
             tmpRetObj['status']['success'] = True
         except:
-            # retval = False
             print('Artifact update failed')
         pass
         return tmpRetObj
     def artifactListFieldAction(self,paramObjIn): # UPDATED FOR NEW RETURN OBJECT MODEL
-        
         tmpRetObj = copy.deepcopy(self.libMeta['retdicttempl'])
         tmpRetObj['method'] = 'artifactListFieldAction'
         tmpRetObj['params'] = [paramObjIn]
-        # tmpRetObj['status']['success'] = True
         
-        # {"action": "remove-member", "field": "tags", "artifactid": "b013a2e4-a681-4312-bba0-2e476782fe1b", "value": "animation"}
         artiObj = self.getArtifactById(paramObjIn['artifactid'])
         wrkList = artiObj[paramObjIn['field']]
-        #retObj = {paramObjIn['field']:wrkList}
         tmpRetObj['data'].append({paramObjIn['field']:wrkList})
         tmpRetObj['status']['log'].append(json.dumps(tmpRetObj['data'][0]))
         if paramObjIn['action'] == 'remove-member':
             try:
                 wrkList.remove(paramObjIn['value'])
                 self.modifyArtifact(artiObj['artifactid'],{paramObjIn['field']:wrkList})
-                #retObj[paramObjIn['field']] = wrkList
                 tmpRetObj['data'][0][paramObjIn['field']] = wrkList
                 tmpRetObj['status']['success'] = True
             except:
@@ -1498,18 +1353,15 @@ class MediaLibraryDB:
             if not (paramObjIn['value'] in wrkList):
                 wrkList.append(paramObjIn['value'])
                 self.modifyArtifact(artiObj['artifactid'],{paramObjIn['field']:wrkList})
-                #retObj[paramObjIn['field']] = wrkList
                 tmpRetObj['data'][0][paramObjIn['field']] = wrkList
                 tmpRetObj['status']['success'] = True
             else:
                 print('artifactListFieldAction: ' +  paramObjIn['value'] + ' is already a member of ' + paramObjIn['field'])
             pass
         elif paramObjIn['action'] == 'add-choice':
-            #print('artifactListFieldAction: ' +  "Don't know what to do with add-choice")
             wrkList.append(paramObjIn['value']);
             self.modifyArtifact(artiObj['artifactid'],{paramObjIn['field']:wrkList})
             artiObj2 = self.getArtifactById(paramObjIn['artifactid'])
-            #retObj[paramObjIn['field']] = artiObj2[paramObjIn['field']]
             tmpRetObj['data'][0][paramObjIn['field']] = artiObj2[paramObjIn['field']]
             tmpRetObj['status']['success'] = True
             
@@ -1550,7 +1402,6 @@ class MediaLibraryDB:
             vldb = VodLibDB()
             retval = vldb.getArtifactById(artiIdIn,False)[0]
             retval = self.titleLibTweak(retval)
-            #tmpRetObj['data'] = [retval]
             tmpRetObj['data'].append(retval)
         except:
             tmpRetObj['status']['success'] = False
@@ -1558,7 +1409,6 @@ class MediaLibraryDB:
             print("getArtifactById for " + artiIdIn + " FAILED")
         pass
         try:
-            #retval['poster'] = self.fetchPosterFile(retval['imdbid'])
             tmpRetObj['data'][0]['poster'] = self.fetchPosterFile(retval['imdbid'])
         except:
             print("getArtifactById couldn't get the poster file.  Sad.")
@@ -1589,11 +1439,8 @@ class MediaLibraryDB:
         retval = None
         try:
             vldb = VodLibDB()
-            #retval = vldb.getNextEpisodeArtifact(artiIdIn)[0]
             tmpres = vldb.getNextEpisodeArtifact(artiIdIn)[0]
-            #print(json.dumps(tmpres))
             tmpRetObj['data'] = vldb.getNextEpisodeArtifact(artiIdIn)
-            #print(json.dumps(tmpRetObj))
         except:
             print("getNextEpisodeArtifactById for " + artiIdIn + " FAILED")
         return tmpRetObj # retval
@@ -1633,7 +1480,6 @@ class MediaLibraryDB:
         tmpRetObj = copy.deepcopy(self.libMeta['retdicttempl'])
         tmpRetObj['method'] = 'getArtifactsByTag'
         tmpRetObj['params'] = [tagStrIn]
-        #tmpRetObj['status']['success'] = True
         print("getArtifactsByTag.tagStrIn: " + tagStrIn)
         ntag = self.__normalizeTagStr(tagStrIn)
         retobj = []
@@ -1651,8 +1497,6 @@ class MediaLibraryDB:
         tmpRetObj = copy.deepcopy(self.libMeta['retdicttempl'])
         tmpRetObj['method'] = 'getArtifactsByMajtype'
         tmpRetObj['params'] = [majtypeStrIn]
-        #tmpRetObj['status']['success'] = True
-        
         
         retobj = [];
         try:
@@ -1670,7 +1514,6 @@ class MediaLibraryDB:
         tmpRetObj = copy.deepcopy(self.libMeta['retdicttempl'])
         tmpRetObj['method'] = 'getArtifactsByRelyear'
         tmpRetObj['params'] = [relyear1In,relyear2In]
-        #tmpRetObj['status']['success'] = True
                 
         retobj = [];
         try:
@@ -1685,14 +1528,11 @@ class MediaLibraryDB:
         pass
         return tmpRetObj  
     def findArtifactsBySrchStr(self,srchStrIn): # UPDATED FOR NEW RETURN OBJECT MODEL 
-        #ntag = self.__normalizeTagStr(srchStrIn)
         tmpRetObj = copy.deepcopy(self.libMeta['retdicttempl'])
         tmpRetObj['method'] = 'findArtifactsBySrchStr'
         tmpRetObj['params'] = [srchStrIn]
-        #tmpRetObj['status']['success'] = True
         
         retobj = []
-        # print ('findArtifactsBySrchStr: ' + str(type(srchStrIn)) + str(srchStrIn))
         try:
             vldb = VodLibDB()
             retobj = vldb.getArtifactListByPersTitleStr(str(srchStrIn))
@@ -1704,12 +1544,9 @@ class MediaLibraryDB:
         pass
         return tmpRetObj
     def getArtifactsByMultiFactorSrch(self,mfSrchObjIn): # UPDATED FOR NEW RETURN OBJECT MODEL 
-        # {"tag":"science_fiction","string":"star","majtype":"movie","relyearstart":"","relyearend":"","sqlwhere":""}
-        
         tmpRetObj = copy.deepcopy(self.libMeta['retdicttempl'])
         tmpRetObj['method'] = 'getArtifactsByMultiFactorSrch'
         tmpRetObj['params'] = [mfSrchObjIn]
-        #tmpRetObj['status']['success'] = True        
         
         retobj = []
         idList = []
@@ -1731,21 +1568,16 @@ class MediaLibraryDB:
                     print('Cannot process dates.  Sad.')
         if (mfSrchObjIn['sqlwhere'] != ''):
             tmpResObj['sqlwhere'] = self.getArtifactsByArbWhereClause(mfSrchObjIn['sqlwhere'])
-        # print("tmpResObj: " + json.dumps(tmpResObj))
         troKeys = list(tmpResObj.keys())
-        # print("troKeys: " + json.dumps(troKeys))
         for key in troKeys:
             if len(tmpResObj[key]['data']) > 0: # If we got results
                 if len(idList) == 0: # If this would be our first result
-                    #tmpIdList = []
                     for lElObj in tmpResObj[key]['data']: # For each result on this key
-                        # print('lElObj: ' + json.dumps(lElObj))
                         idList.append(lElObj['artifactid'])
                     pass
                 else:
                     tmpIdList = []
                     for lElObj in tmpResObj[key]['data']:
-                        # print('lElObj: ' + json.dumps(lElObj))
                         if lElObj['artifactid'] in idList:
                             tmpIdList.append(lElObj['artifactid'])
                         pass
@@ -1760,7 +1592,6 @@ class MediaLibraryDB:
         tmpRetObj['data'] = retobj
         return tmpRetObj        
     def getArtifactsByArbWhereClause(self,whereClauseStrIn):
-         # getArtifactListByArbWhereClause
         retobj = []
         print ('MediaLibraryDB.getArtifactsByArbWhereClause: ' + whereClauseStrIn)
         try:
@@ -1875,7 +1706,6 @@ class MediaLibraryDB:
         posterUri = ''
         if imdbidIn == 'string' or imdbidIn == 'none' or imdbidIn == '':
             return posterUri
-        # print("fetchPosterLink - Attempting to fetch for " + imdbidIn)
         try:
             api_url = "http://www.omdbapi.com/?i=" + imdbidIn + "&apikey=87edb0eb"
             response = requests.get(api_url)
@@ -1884,7 +1714,6 @@ class MediaLibraryDB:
         except:
             print("fetchPosterLink Failed to fetch " + api_url)
             pass
-        # print("Got back Poster URI: " + posterUri)
         return posterUri        
     def fetchPosterFile(self,imdbidIn):
         if imdbidIn == '' or imdbidIn == 'string' or imdbidIn == 'none':
@@ -1894,7 +1723,6 @@ class MediaLibraryDB:
         uriPath = '/rmvod/img/poster_00/' + imdbidIn + '.jpg'
         filnm = baseDir + uriPath
         if not (os.path.exists(filnm)):
-            # print("fetchPosterFile - Apparently " + filnm + " does not exist locally.  Trying to fetch it ")
             try: 
                 posterUri = self.fetchPosterLink(imdbidIn)
                 response = requests.get(posterUri)
@@ -1929,7 +1757,6 @@ class MediaLibraryDB:
     def addEpisodesToSeries(self,seriesArtiIdIn,filePathIn,fnFragIn): # UPDATED FOR NEW RETURN OBJECT MODEL
         vldb = VodLibDB()
 
-        #retDict = {'method':addEpisodesToSeries,'params':[seriesArtiIdIn,filePathIn,fnFragIn],'result':[]}
         retDict = {}
         retDict['method'] = 'addEpisodesToSeries'
         retDict['params'] = [seriesArtiIdIn,filePathIn,fnFragIn]
@@ -1944,10 +1771,6 @@ class MediaLibraryDB:
         
         # > Get list of "tvepisode" artifacts with the filePath and fnFrag
         episodeList = vldb.getTVEposidesByPathFileFrag(filePathIn,fnFragIn)
-        # print('addEpisodesToSeries - episodeList: ' + str(episodeList))
-        # episodeAIDList = []
-        # for epiDict in episodeList:
-            # episodeAIDList.append(epiDict['artifactid'])
         
         seriesAddList = []
         failCount = 0
@@ -1961,7 +1784,6 @@ class MediaLibraryDB:
                     xStr = 'File does not exist: ' + artifactDict['file']
                     retDict['status']['log'].append(xStr)
                     failCount += 1
-                    #raise Exception(xStr)
                     continue
                 pass
                 # > Is it is already associated with a series?
@@ -1976,7 +1798,6 @@ class MediaLibraryDB:
                     pass
                     # > If not:
                     # > Add it to the series (insert into s2e)
-                    # seriesAddList.append(artifactDict['artifactid'])
                     vldb.addEpisodeToSeries(seriesArtiIdIn,artifactDict['artifactid'])
                     # > Add tags associated with the series to the artifact (?)
                     # > Append it to retDict['result']
@@ -1994,53 +1815,38 @@ class MediaLibraryDB:
             retDict['status']['success'] = True
         return retDict
     def apiCreateSingleArtifact(self,argDictIn): # UPDATED FOR NEW RETURN OBJECT MODEL
-        
-        #artifactid = str(uuid.uuid4())
         artifactid = None
         
         tmpRetObj = copy.deepcopy(self.libMeta['retdicttempl'])
         tmpRetObj['method'] = 'apiCreateSingleArtifact'
         tmpRetObj['params'] = [argDictIn]
-        # tmpRetObj['status']['success'] = True        
         
         assert type(argDictIn) == type({'this':'that'})
         dictIn = argDictIn
-        # result = {'status':'failed','statusdetail':'did not even begin','data':{'artifactid':''}}
         tmpRetObj['status']['success'] = False
         tmpRetObj['status']['detail'] = 'did not even begin'
         tmpRetObj['data'] = [{'artifactid':''}]
         evenTry = True
-        # print('apiCreateSingleArtifact: ' + json.dumps(tmpRetObj))
         if dictIn['majtype'] != 'tvseries':
             try:
-                #print("Trying newArtiPreCheck...",dictIn['filepath'],dictIn['file'])
                 checkVal = self.newArtiPreCheck(dictIn['filepath'],dictIn['file'])
-                #print(checkVal)
                 assert checkVal == True
-                #print("Tried newArtiPreCheck.")
             except:
                 evenTry = False
                 sdStr = "Artifact for file = " + dictIn['file'] 
                 sdStr += " already exists, or file is not present in the specified path."
-                #result = {'status':'failed','statusdetail':sdStr,'data':{'artifactid':''}}
                 tmpRetObj['status']['success'] = False
                 tmpRetObj['status']['detail'] = sdStr
                 tmpRetObj['data'] = [{'artifactid':''}]
         else:
-            #print("Skipping file pre-test because this is a tvseries")
             pass
         pass
         if evenTry == True:
             try:
                 print("trying newSingleArtifact...")
                 
-                #print("Artifact ID: " +  artifactid)
                 artiData = {}
                 artiData['title'] = dictIn['file']
-                # if dictIn['majtype'] == 'tvseries':
-                    # artiData['file'] = ''
-                # else:
-                    # artiData['file'] = dictIn['file']
                 artiData['file'] = dictIn['file']
                 artiData['majtype'] = dictIn['majtype']
                 artiData['filepath'] = dictIn['filepath']
@@ -2055,10 +1861,6 @@ class MediaLibraryDB:
                 artiData['eidrid'] = 'string'
                 artiData['imdbid'] = 'string'
                 artiData['arbmeta'] = '{}'
-                # artiData['tags'] = str(dictIn['tags'])
-                #artiData[''] = '';
-                # artifactid = self.createArtifact(artiData)
-                # result = {'status':'success','statusdetail':dictIn['file'],'data':{'artifactid':artifactid}}
                 artifactid = self.createArtifact(artiData)
                 tmpRetObj['status']['success'] = True
                 tmpRetObj['status']['detail'] = dictIn['file']
@@ -2067,14 +1869,11 @@ class MediaLibraryDB:
             except:
                 print("newSingleArtifact EXCEPTION!")
                 detailStr = 'Attempt to insert failed with input values ' + json.dumps(dictIn) + ' and artifact values ' + json.dumps(artiData)
-                # print(detailStr)
-                # result = {'status':'failed','statusdetail':detailStr,'data':{'artifactid':artifactid}}
                 tmpRetObj['status']['success'] = False
                 tmpRetObj['status']['detail'] = detailStr
                 tmpRetObj['data'] = [{'artifactid':artifactid}]
                 pass
             pass
-        # print(json.dumps(tmpRetObj))
         return tmpRetObj
     def apiLogPlay(self,artiIdIn,clientIdIn):
         retDict = {}
@@ -2088,7 +1887,6 @@ class MediaLibraryDB:
             retval = vldb.logPlay(artiIdIn,clientIdIn)
             retDict['status']['success'] = True
             retDict['status']['detail'] = retval
-            #logPlay(self,artiIdIn,clientIdIn)
         except:
             print('MediaLibraryDB.apiLogPlay is sad.')
             retDict['status']['detail'] = 'MediaLibraryDB.apiLogPlay is sad.'
@@ -2503,55 +2301,7 @@ def index():
     ## THE FOLLOWING HTML SHOULD PROBABLY NOT BE HERE FOR FUTURE USE.
     ## IT IS INTENDED PRIMARILY FOR DEVELOPMENT AND TESTING OF THE 
     ## WEB SERVICE FOR RMPC
-    
-    # retval = """<html>
-    # <head>
-        # <style>
-            
-           
-            # body {
-                # font-family: arial;
-                # font-size: small;
-                # color: #cccccc;
-                # background-color: #222222;
-            # }
-            # div {
-                # margin: 0px;
-                # margin-left: 0px;
-                # margin-right: 0px;
-                # margin-top: 0px;
-                # margin-bottom: 0px;
-                # padding: 0px;
-                # border: 1px solid gray;
-                # /* border: 0px; */
-            # }            
-            
-            # div.artifact-default-disp-cell {
-                # display:inline-flex;
-                # border-width: 1px;
-                # border-color: #000000;
-                # border-style: solid;
-                # padding:3px;
-            # }
-        # </style>
-        # <script type="text/javascript" src="http://freezer/freezer/js/RMWebAppCoreUtil.js"></script>
-        # <script type="text/javascript" src="http://localhost/vodlib/js/vodlibsketch.js"></script>
-    # </head>
-    # <body onload="switchboard('firstthing','',{})">
-        # <div id="vodlibworld" style="width:720px;height:720;overflow:auto;">
-            # <div id="titletop"  style="width:700px; height:50px;">
-                # <b>RIBBBITVOD</b><br>
-            # </div>
-            # <div id='big-search-container' style="width:700px; height:400px; display:none;"></div>
-            # <div id="div00"  style="width:700px; height:400px;">
-                # <div id="playercontainer">a player might go here</div>
-            # </div>
-            # <div id="div01" style="width:700px;height:250px;overflow:auto;"></div>
-        # </div>
-        # <!-- text after div01 -->
-    # </body>
-# </html>
-# """
+
     retval = """<!DOCTYPE html>
 
 <!-- rmvod.html version 0.4.3  -->
@@ -2587,7 +2337,7 @@ see <https://www.gnu.org/licenses/>.
         <script type="text/javascript" src="/rmvod/js/rmvod_wa_core.js"></script> 
     </head>
     <body onload="switchboard('firstthing','',{})">
-        <div class="mastercont" id="mastercont" style="width:1210px;height:760px;"> <!-- 710px; -->
+        <div class="mastercont" id="mastercont">
         </div>
     </body>
 </html>
@@ -2596,18 +2346,9 @@ see <https://www.gnu.org/licenses/>.
 """
     return retval
 
-###### DEPRECATED
-# @app.route('/blob/get',methods=['POST'])
-# def blobRead():
-    # ml = MediaLibraryDB()
-    # ml.loadLibraryFromFile()
-    # return ml.extractJsonLibrary()
-
 @app.route('/apiversion/get',methods = ['POST','GET'])
 def apiVersion():  # UPDATED FOR NEW RETURN OBJECT MODEL
     ml = MediaLibraryDB()
-    # cssVerStr = ml.readCssFile('../css/vodlib.css')
-    # htmlVerStr = ml.readHtmlFile('../vodlib_static_3.html')
     cssVerStr = ml.readCssFile('/var/www/html/rmvod/css/rmvod_core.css')
     htmlVerStr = ml.readHtmlFile('/var/www/html/rmvod/rmvod.html')
     
@@ -2616,23 +2357,12 @@ def apiVersion():  # UPDATED FOR NEW RETURN OBJECT MODEL
     tmpRetObj['status']['success'] = True
     tmpRetObj['data'] = [{'api_version':versionStr,'api_file':fileStr,'db_version':ml.getDBVersion(),'css_version':cssVerStr,'html_version':htmlVerStr}]
     
-    
-    # tmpRetObj = {'api_version':versionStr,'api_file':fileStr,'db_version':ml.getDBVersion(),'css_version':cssVerStr,'html_version':htmlVerStr}
     return json.dumps(tmpRetObj)
 
 @app.route('/titleidlist/get',methods=['POST','GET'])
 def getListTitleId():  # UPDATED FOR NEW RETURN OBJECT MODEL
     
     ml = MediaLibraryDB()
-    
-    ########THIS HAS BEEN PUSHED UPSTREAM
-    ###  THIS Model should really be pushed upstream, but
-    ###  this configuration just gets us working sooner.
-    # tmpRetObj = copy.deepcopy(ml.libMeta['retdicttempl'])
-    # tmpRetObj['method'] = 'getListTitleId'
-    #tmpRetObj['status']['success'] = True
-    #tmpRetObj['data'] = [{'api_version':versionStr,'api_file':fileStr,'db_version':ml.getDBVersion(),'css_version':cssVerStr,'html_version':htmlVerStr}]
-        
     
     dictIn = {}
     diKeysList = []
@@ -2644,7 +2374,6 @@ def getListTitleId():  # UPDATED FOR NEW RETURN OBJECT MODEL
         dictIn = {}
         diKeysList = []
     pass
-    #ml = MediaLibraryDB()
     if "title" in diKeysList:
         # Let's search for artifacts based on a title fragment
         result = ml.findArtifactsByName(dictIn['title'])
@@ -2671,8 +2400,6 @@ def getListTitleId():  # UPDATED FOR NEW RETURN OBJECT MODEL
         # no input... investigate using that, instead, maybe?
         result = ml.findArtifactsByName('')
         pass
-    # tmpRetObj['data'] = result;
-    # tmpRetObj['status']['success'] = True
     return json.dumps(result)
 
 @app.route('/seriestidlist/get',methods=['POST'])
@@ -2706,7 +2433,6 @@ def getArtifactObj(): # UPDATED FOR NEW RETURN OBJECT MODEL
         diKeysList = []
     pass
     ml = MediaLibraryDB()
-    #artiDict = ml.getArtifactById(dictIn['artifactid']) # getArtifactByIdNew
     artiDict = ml.getArtifactByIdNew(dictIn['artifactid']) # getArtifactByIdNew
     return json.dumps(artiDict)
 
@@ -2730,13 +2456,6 @@ def getNxtEpArtifactObj(): # UPDATED FOR NEW RETURN OBJECT MODEL
     artiDict = ml.getNextEpisodeArtifactById(dictIn['artifactid'])
     return json.dumps(artiDict)
 
-###### DEPRECATED
-# @app.route('/taglist/get',methods=['POST','GET'])
-# def getTagList():
-    # print('>>> HEY HEY HEY >>> getTagList <<<< HEY HEY HEY <<<')
-    # ml = MediaLibraryDB()
-    # return json.dumps(ml.getTagList())
-
 @app.route('/suplist/get',methods=['POST','GET'])
 def getSupportList(): # UPDATED FOR NEW RETURN OBJECT MODEL
     
@@ -2749,7 +2468,6 @@ def getSupportList(): # UPDATED FOR NEW RETURN OBJECT MODEL
         assert "table" in diKeysList
         assert type(dictIn['table']) == type("string")
         assert dictIn['table'] in ['persons','companies','tags']
-        #assert len(dictIn['table']) > 3
     except:
         print("What came in: " + request.json)
         dictIn = {}
@@ -2759,8 +2477,6 @@ def getSupportList(): # UPDATED FOR NEW RETURN OBJECT MODEL
     artiDict = ml.getSupportList(dictIn['table'])
     return json.dumps(artiDict)
     
-    # ml = MediaLibraryDB()
-    # return json.dumps(ml.getTagList())
     pass
 
 @app.route('/artifact/listfield/update',methods=['POST'])
@@ -2781,7 +2497,6 @@ def updateArtifactListField(): # UPDATED FOR NEW RETURN OBJECT MODEL
     pass
     ml = MediaLibraryDB()
     response = ml.artifactListFieldAction(reqJson)
-    # print('updateArtifactListField - ' + json.dumps(reqJson))
     return json.dumps(response)
 
 @app.route('/artifact/update',methods=['POST'])
@@ -2804,12 +2519,8 @@ def updateArtifact():  # UPDATED FOR NEW RETURN OBJECT MODEL
         diKeysList = []
     pass
     ml = MediaLibraryDB()
-    # print('updateArtifact: ' + json.dumps(dictIn))
     result = ml.modifyArtifact(dictIn['artifactid'],dictIn['values']) # sartifactIdIn,artifactDictIn)
-    # print(result)
     return json.dumps(result)
-    # artiDict = ml.getArtifactById(dictIn['artifactid'])
-    # return json.dumps(artiDict)
     pass
 
 @app.route('/artifact/newsingle',methods=['POST'])
@@ -2831,7 +2542,6 @@ def newSingleArtifact(): # UPDATED FOR NEW RETURN OBJECT MODEL
     pass
     ml = MediaLibraryDB()  
     result = ml.apiCreateSingleArtifact(dictIn)
-    # print(json.dumps(result))
     return json.dumps(result)
     pass
     
@@ -2869,9 +2579,6 @@ def simpleTextSearch(): # UPDATED FOR NEW RETURN OBJECT MODEL
         assert type(dictIn['srchstr']) == type("string")
         assert 1 < len(dictIn['srchstr']) < 100
         print("simpleTextSearch GOT THROUGH THE ASSERTS!!")
-        
-        # assert 'values' in diKeysList
-        # assert type(dictIn['values']) == type({'key':'value'})
     except:
         print("What came in: " + str(request.json))
         dictIn = {}
@@ -2881,7 +2588,6 @@ def simpleTextSearch(): # UPDATED FOR NEW RETURN OBJECT MODEL
     srchStr = str(dictIn['srchstr'])
     print(srchStr)
     
-    #  getArtifactListByPersTitleStr
     ml = MediaLibraryDB()
     result = ml.findArtifactsBySrchStr(srchStr)
     return json.dumps(result)
@@ -2910,17 +2616,8 @@ def addArtisToSeries(): # UPDATED FOR NEW RETURN OBJECT MODEL
 
 @app.route('/logplay/post',methods=['POST'])
 def logPlayback():
-    # print('logPlayback: ' + json.dumps(request.json))
     ml = MediaLibraryDB()
     retDict = ml.apiLogPlay(request.json['artifactid'],request.json['clientid'])
-    # apiLogPlay
-    
-    # CREATE TABLE IF NOT EXISTS playlog_live (
-        # clientid VARCHAR(100) NOT NULL,
-        # artifactid VARCHAR(40) NOT NULL,
-        # reqtime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        # comment VARCHAR(100)
-    # );
     return json.dumps(retDict)
     
 if __name__ == '__main__':
