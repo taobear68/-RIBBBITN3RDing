@@ -23,7 +23,7 @@
  * 
  *  */
 
-/* rmvod_core.css version 0.2.5 */
+/* rmvod_core.css version 0.2.6 */
 
 body {
     background-color:#0c0c0c;
@@ -42,8 +42,10 @@ div {
 }
 div.mastercont {
     display:block;
-    width:1120px;
-    height:700px;
+    /* width:1120px;
+    height:700px; */
+    width:1210px;
+    height:760px;
     margin-top: 10px;
     margin-bottom: 0px;
     margin-left:10px;
@@ -209,45 +211,6 @@ textarea.edit-simple-textarea {
     width: 350px;
 }
 
-/* Tab-related elements */
-/*
-div.tab-unsel{
-    width:150px;
-    height:20px;
-    border:2px;
-    margin:2px;
-    padding:5px;
-    border-top-style:solid;
-    border-bottom-style:solid;
-    border-left-style:solid;
-    border-right-style:solid;
-    border-color:#cccccc;
-    background-color:#444444;
-    
-}
-span.tab-unsel{
-    font-weight:normal;
-}
-div.tab-sel{
-    width:150px;
-    height:20px;
-    border:3px;
-    margin:2px;
-    padding:5px;
-    border-top-style:solid;
-    border-bottom-style:none;
-    border-left-style:solid;
-    border-right-style:solid;
-    border-color:#cccccc;
-    background-color:#444444;
-}
-span.tab-sel{
-    font-weight:bold;
-}
-
-*/
-
-
 
 /*
 CSS FOR fancy list edit fields
@@ -346,18 +309,6 @@ div.RNWATabWidget {
     height:580px;
 }
 div.RNWATabWidgetTabTab-sel {
-    /*
-    background-color:#dddddd;
-    border-color:#000000;
-    border-top:4px;
-    border-left:4px;
-    border-right:4px;
-    border-bottom:0px;
-    border-top-style:solid;
-    border-bottom-style:none;
-    border-left-style:solid;
-    border-right-style:solid;
-    * */
     width:150px;
     height:30px;
     border:3px;
@@ -372,18 +323,6 @@ div.RNWATabWidgetTabTab-sel {
     
 }
 div.RNWATabWidgetTabTab-unsel {
-    /*
-    background-color:#bbbbbb;
-    border-color:#000000;
-    border-top:2px;
-    border-left:2px;
-    border-right:2px;
-    border-bottom:4px;
-    border-top-style:solid;
-    border-bottom-style:solid;
-    border-left-style:solid;
-    border-right-style:solid;
-    * */
     width:150px;
     height:30px;
     border:2px;
@@ -394,9 +333,6 @@ div.RNWATabWidgetTabTab-unsel {
     border-left-style:solid;
     border-right-style:solid;
     border-color:#cccccc;
-    /* 
-    background-color:#444444;
-    * */
 }
 span.RNWATabWidgetTabTab-sel {
     font-weight:bold;
@@ -415,15 +351,14 @@ span.RNWATabWidgetTabTab-unsel {
     margin-bottom:0px;
 }
 div.RNWATabWidgetTabBody-outer {
-    /* background-color:#dddddd; */
     border-color:#000000;
-    width:1190px;
-    height:530px;
+    width:1180px;
+    height:520px;
     overflow:auto;
     border-top:0px;
-    border-left:4px;
-    border-right:4px;
-    border-bottom:4px;
+    border-left:2px;
+    border-right:2px;
+    border-bottom:2px;
     border-top-style:none;
     border-bottom-style:solid;
     border-left-style:solid;
@@ -435,45 +370,10 @@ div.RNWATabWidgetTabBody-sel {
 div.RNWATabWidgetTabBody-unsel {
     display:none;
 }
-
-
-
-/* Tab-related elements */
-/*
-div.tab-unsel{
-    width:150px;
-    height:20px;
-    border:2px;
-    margin:2px;
+div.RNWATabWidgetTabBody-outer {
     padding:5px;
-    border-top-style:solid;
-    border-bottom-style:solid;
-    border-left-style:solid;
-    border-right-style:solid;
-    border-color:#cccccc;
-    background-color:#444444;
-    
 }
-span.tab-unsel{
-    font-weight:normal;
-}
-div.tab-sel{
-    width:150px;
-    height:20px;
-    border:3px;
-    margin:2px;
-    padding:5px;
-    border-top-style:solid;
-    border-bottom-style:none;
-    border-left-style:solid;
-    border-right-style:solid;
-    border-color:#cccccc;
-    background-color:#444444;
-}
-span.tab-sel{
-    font-weight:bold;
-}
-*/
+
 
 
   
