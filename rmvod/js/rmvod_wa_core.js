@@ -28,7 +28,6 @@ class RNWATabWidget {
         this.tabTagLabelList = ['Tab 0','Tab 1'];
         this.tabBodyContentHtmlList = ['<div>Tab 0 Content</div>','<div>Tab 1 Content</div>'];
         this.tabPickFunction = 'tabPick';
-        //this.setChildNames();
     }
     setChildNames(){
         this.tabTabClassNameBase = this.widgetName + "TabTab";
@@ -49,7 +48,6 @@ class RNWATabWidget {
         var contCont = document.createElement('div');
         contCont.className = this.tabBodyClassNameBase + '-outer';
         contCont.id = this.widgetName + '-contentrow';
-        //contCont.style.display = "inline-flex";
         contCont.style.display = "block";
         for (var i=0; i< this.tabCount; i++) {
             contCont.appendChild(this.renderTabBody(i));
@@ -80,7 +78,6 @@ class RNWATabWidget {
         }
         spanTab.setAttribute("onclick",this.tabPickFunction + "(this.id);");
         spanTab.innerText = this.tabTagLabelList[tabNmbrIn];
-        //<div class="tab-unsel" id="tab3"><span class="tab-unsel" id="tabspan3" onclick="switchboard('tabPick',this.id,{})">Settings</span></div>        
         divOuter.appendChild(spanTab);
         return divOuter;
     }
@@ -141,7 +138,6 @@ class RNWAListFieldWidget {
         var listDiv = document.createElement('div');
         listDiv.id = this.widgetName + '_Box';
         listDiv.className = this.widgetName + 'Box';
-        //listDiv.style = "display:block;width:400px;height:200px;border-width:2px;border-style:solid;border-color:#000000;";
         for (var i = 0; i < this.listMembers.length; i++) {
             listDiv.appendChild(this.renderListMember(i,this.listMembers[i]));
         }
@@ -149,7 +145,6 @@ class RNWAListFieldWidget {
         var addButtonDiv = document.createElement('div');
         addButtonDiv.id = this.widgetName + "_AddMember";
         addButtonDiv.className = this.widgetName + "AddMember";
-        //addButtonDiv.style = "display:inline-flex;padding:4px;border-radius:25px;border-style:solid;border-color:#000000;margin:3px;";
         
         var addButtonSpan = document.createElement('span');
         addButtonSpan.id = this.widgetName + "_AddMemberButton";
@@ -170,7 +165,6 @@ class RNWAListFieldWidget {
         var lmDiv = document.createElement('div');
         lmDiv.id = this.widgetName + '_Member_' + idxZFStr;
         lmDiv.className = this.widgetName + 'Member';
-        //lmDiv.style = "display:inline-flex;padding:4px;border-radius:25px;border-style:solid;border-color:#000000;margin:3px;";
         
         var labelSpan = document.createElement('span');
         labelSpan.className = this.widgetName + 'MemberLabel';
@@ -180,7 +174,6 @@ class RNWAListFieldWidget {
         rmvSpan.id = this.widgetName  + "_Member_" + idxZFStr + "_rmv";
         rmvSpan.className = this.widgetName + 'MemberRmv';
         rmvSpan.setAttribute("onclick",this.removeMemberFunction + "(this.id);");
-        //rmvSpan.style = "margin-left:5px;";
         rmvSpan.innerText = "X";
         
         lmDiv.appendChild(labelSpan);
@@ -192,13 +185,11 @@ class RNWAListFieldWidget {
         var slDiv = document.createElement('div');
         slDiv.id = this.widgetName + "_SelectDiv";
         slDiv.name = this.widgetName + "SelectDiv";
-        //slDiv.style = this.widgetName + "SelectDiv";
         
         var selectDE = document.createElement('select');
         selectDE.id = this.widgetName + "_Select";
         selectDE.name = this.widgetName + "Select";
         selectDE.className = this.widgetName + "Select";
-        //selectDE.setAttribute("onclick",this.removeMemberFunction + "(this.id);");
         selectDE.setAttribute("onchange",this.addMemberFunction + "(this.id);");
         
         var opt = document.createElement('option');
@@ -252,7 +243,6 @@ class CookieCrisp {
         return "";
     }
     clearCookie(cname){
-        //console.log("Clearing cookie " + cname);
         document.cookie = cname + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
     }
     initializeCookie(){
@@ -274,10 +264,8 @@ class CookieCrisp {
         try{
             var anStr = this.getCookie('appName');
             if (anStr != this.template['appName']) {
-                //console.log("Cookie key appName not found.  Initializing cookies.");
                 throw("Cookie key appName not found.  Initializing cookies.");
             }
-            //console.log("Cookie key appName found.");
             retval = true;
         } catch (e) {
             this.initializeCookie();
@@ -285,19 +273,14 @@ class CookieCrisp {
         return retval;
     }
     addRecentPlay(artiIdIn){
-        //console.log("CookieCrisp.addRecentPlay - Trying to add recent play for AID: " + artiIdIn);
         var cStr = this.getCookie('recentPlays');
         var rpList = [];
         if (cStr.length > 1) {
             rpList = cStr.split(',');
         }
-        //console.log('CookieCrisp.addRecentPlay - List length: ' + rpList.length);
         if (rpList.indexOf(artiIdIn) < 0) {
-            //console.log('CookieCrisp.addRecentPlay - Artifact ' + artiIdIn + ' not found in the Recent Plays list.');
             rpList.push(artiIdIn);
-            //console.log('CookieCrisp.addRecentPlay - recentPlays: ' + JSON.stringify(rpList));
             while (rpList.length > this.maxRecentPlays) {
-                //console.log("CookieCrisp.addRecentPlay - deleting a recent play " + rpList[0]);
                 rpList.splice(0,1);
             }
         }
@@ -308,15 +291,7 @@ class CookieCrisp {
                 newCStr += ',';
             } 
         }
-        //console.log('addRecentPlay DONE: ' + newCStr);
-        //console.log("CookieCrisp.addRecentPlay - Updated recentPlays cookie: " + newCStr);
         this.setCookie('recentPlays',newCStr,this.cExpDays);
-        //var talkback = this.getCookie('recentPlays');
-        //if (talkback == newCStr) {
-            //console.log("CookieCrisp.addRecentPlay - Confirmed write SUCCEEDED.");
-        //} else {
-            //console.log("CookieCrisp.addRecentPlay - Confirmed write FAILED!");
-        //}
     }
 }
 
@@ -542,13 +517,11 @@ class RMVWAHtmlGenerator {
         newSrchWidget.style.margin = "8px";
         
         var mfPicker = document.createElement('div');
-        // mfPicker.innerHTML = 'Multi-Factor Search:&nbsp;<input name="mfsearchyn"  id="mfsearchyn" type="checkbox">';
         
         var tmpHtml = 'Multi-Factor Search:&nbsp;<input name="mfsearchyn"  id="mfsearchyn" ';
         tmpHtml += ' onchange="switchboard(\'mfSetCheck\',this.id,{})" ';
         tmpHtml += ' type="checkbox">';
         
-        //var tmpHtml = 'Multi-Factor Search:&nbsp;<input name="mfsearchyn"  id="mfsearchyn" onchange="switchboard(\'mfSetCheck\',this.id,{})" type="checkbox">';
         mfPicker.innerHTML = tmpHtml;
         
         newSrchWidget.appendChild(mfPicker);
@@ -600,7 +573,6 @@ class RMVWAHtmlGenerator {
         dTitle.style.width = factorTitleDivWidth;
         var dCont = document.createElement('div');
         dCont.style.display= "inline-flex";
-        // var tmpHtml = '<select style="font-family:arial;font-size:18px;" id="majtype-search-select" name="majtype-search-select" onchange="switchboard(\'execMajTypSearch\',\'majtype-search-select\',{})">';
         var tmpHtml = '<select style="font-family:arial;font-size:18px;" id="majtype-search-select" name="majtype-search-select" onchange="switchboard(\'execMajTypSrch\',this.id,{})">';
         tmpHtml += '<option value="">All</option>';
         tmpHtml += '<option value="movie">Movies</option>';
@@ -625,8 +597,7 @@ class RMVWAHtmlGenerator {
         dTitle.style.width = factorTitleDivWidth;
         var dCont = document.createElement('div');
         dCont.style.display= "inline-flex";
-        // var tmpHtml = 'Start:&nbsp;<input id="relyear-srch-start" type="text" size="5" onchange="switchboard(\'\',this.id,{})">';
-        var tmpHtml = 'Start:&nbsp;<input id="relyear-srch-start" type="text" size="5" >'; // onchange="switchboard(\'\',this.id,{})"
+        var tmpHtml = 'Start:&nbsp;<input id="relyear-srch-start" type="text" size="5" >'; 
         tmpHtml += '&nbsp;-&nbsp;';
         tmpHtml += 'End:&nbsp;<input id="relyear-srch-end" type="text" size="5" onchange="switchboard(\'execRelyearSrch\',this.id,{})">';
         dCont.innerHTML = tmpHtml;
@@ -965,7 +936,6 @@ class RMVodWebApp {
     // header.
     // Performs DOM updates directly.
     clockSet() {
-        
         var gtFunc = function () {
             var dObj = new Date();
             var yr = dObj.getFullYear();
@@ -995,17 +965,12 @@ class RMVodWebApp {
                 scStr = "0" + sc.toString();
             }
             var dateStr = yr.toString() + '-' + moStr + '-' + dyStr;
-            //var timeStr = hrStr + ':' + mnStr + ':' + scStr;
-            var timeStr = hrStr + ':' + mnStr // + ':' + scStr;
-            var datTimStr = dateStr + ' ' + timeStr; // yr.toString() + '-' + moStr + '-' + dyStr + ' ' + hrStr + ':' + mnStr + ':' + scStr;
-            //var datTimStr = yr.toString() + '-' + moStr + '-' + dyStr + ' ' + hrStr + ':' + mnStr + ':' + scStr;
-            //console.log(datTimStr);
+            var timeStr = hrStr + ':' + mnStr;
+            var datTimStr = dateStr + ' ' + timeStr;
             document.getElementById('headerblock3').innerHTML = '<div><b>' + datTimStr + '</b></div>';
         }
         gtFunc();
         var intv = setInterval(gtFunc,15000);
-        //console.log("Interval: " + intv);
-        
     }
     // Method which performs a standard call to the rmvod API
     // Returns an empty Object
@@ -1053,11 +1018,8 @@ class RMVodWebApp {
     // Poll the API for the versions of server-side resources.
     // Performs DOM updates directly.
     apiFetchRemoteVersions(){ //UPDATED FOR NEW RETURN OBJECT MODEL
-        //console.log("This is where we get API and DB versions");
         var cbFunc = function (objIn) {
             var da = new RMVWADOMActions();
-            //da.updateVersions(objIn);
-            //console.log(JSON.stringify(objIn));
             da.updateVersions(objIn['data'][0]);
         }
         const payloadObj = {};
@@ -1067,11 +1029,9 @@ class RMVodWebApp {
     // Retrieves a fresh copy of the "persons" list
     // Stores result in Session Storage
     apiFetchPersonsList(){ //UPDATED FOR NEW RETURN OBJECT MODEL
-        //var cbFunc = function (dataObjIn) {
-            //// Write to Session Store
+        //// Write to Session Store
         var cbFunc = function (objIn) {
             var dataObjIn = objIn['data'];
-            //console.log('apiFetchPersonsList.cbFunc: ' + JSON.stringify(dataObjIn));
             var sse = new RMSSSEnhanced();
             var theBlob = sse.ssRead('blob');
             theBlob['persons'] = dataObjIn;
@@ -1084,11 +1044,9 @@ class RMVodWebApp {
     // Retrieves a fresh copy of the "vompanies" list
     // Stores result in Session Storage
     apiFetchCompaniesList(){ //UPDATED FOR NEW RETURN OBJECT MODEL
-        //var cbFunc = function (dataObjIn) {
-            //// Write to Session Store
+        //// Write to Session Store
         var cbFunc = function (objIn) {
             var dataObjIn = objIn['data'];
-            //console.log('apiFetchCompaniesList.cbFunc: ' + JSON.stringify(dataObjIn));
             var sse = new RMSSSEnhanced();
             var theBlob = sse.ssRead('blob');
             theBlob['companies'] = dataObjIn;
@@ -1103,7 +1061,6 @@ class RMVodWebApp {
     apiFetchTagsList(){ //UPDATED FOR NEW RETURN OBJECT MODEL
         var cbFunc = function (objIn) {
             var dataObjIn = objIn['data'];
-            //console.log('apiFetchTagsList.cbFunc: ' + JSON.stringify(dataObjIn));
             // Write to Session Store
             var sse = new RMSSSEnhanced();
             var theBlob = sse.ssRead('blob');
@@ -1119,7 +1076,6 @@ class RMVodWebApp {
     // RNWAListFieldWidget control.
     // Performs a refreshFieldListWidget when done.
     apiExecListAction(deIdIn, actionIn){ //UPDATED FOR NEW RETURN OBJECT MODEL
-        
         var listName = deIdIn.split('_')[0];
         var artiId = document.getElementById(listName + '_DocId').innerText;
         var endpoint = "/rmvod/api/artifact/listfield/update";
@@ -1138,26 +1094,18 @@ class RMVodWebApp {
                 payloadObj['value'] = actionValue;
                 break;
             case 'add-choice':
-                // Haven't quite worked this one out.
                 var actionValue = document.getElementById(deIdIn).value;
-                // console.log('apiExecListAction - ' + actionIn + ': ' + actionValue);
                 payloadObj['value'] = actionValue;
                 break;
             default:
                 console.log('apiExecListAction - Well, this is a fine how do you do.  ' + deIdIn + ", " + actionIn);
         }
-        // console.log('apiExecListAction - endpoint: ' + endpoint);
-        // console.log('apiExecListAction - payload: ' + JSON.stringify(payloadObj));
         var cbFunc = function(dataObjIn){
             console.log('apiExecListAction.cbFunc: dataObjIn = ' + JSON.stringify(dataObjIn));
             var objIn = dataObjIn['data'][0];
-            //console.log('apiExecListAction.cbFunc: objIn = ' + JSON.stringify(objIn));
-            // console.log('apiExecListAction.cbfunc');
-            // console.log(JSON.stringify(objIn))
             var fieldNm = Object.keys(objIn)[0];
             var wa = new RMVodWebApp()
             wa.refreshFieldListWidget(fieldNm,objIn[fieldNm]);
-            
         }
         var result = this.genericApiCall(payloadObj,endpoint,cbFunc);
     }
@@ -1169,7 +1117,6 @@ class RMVodWebApp {
     // Performs DOM updates directly.
     vodPlayTitleApi3(artiIdIn){ //UPDATED FOR NEW RETURN OBJECT MODEL
         var cbFunc = function (objIn) {
-            
             var dataObjIn = objIn['data'][0];
             
             var wa = new RMVodWebApp();
@@ -1195,7 +1142,6 @@ class RMVodWebApp {
             var currSrc = avpDE.currentSrc;
             wa.cc.setCookie('artifact_source_uri',currSrc,5);
             // Event to set Tab 0  as the active tab
-            //document.getElementById('tabspan0').click();  //  RNWATabWidget-tabspan-0
             document.getElementById('RNWATabWidget-tabspan-0').click();  //  RNWATabWidget-tabspan-0
             // Populate the artifact details in the page header
             wa.renderArtifactDetailHeader(dataObjIn);
@@ -1243,10 +1189,8 @@ class RMVodWebApp {
             return;
         }
         var cbFunc = function(dataObjIn){
-            //console.log('vodPlayNextTitle.cbFunc: ' + JSON.stringify(dataObjIn));
             var objIn = dataObjIn['data'][0];
             var wa = new RMVodWebApp();
-            //wa.vodPlayTitleApi2(objIn['artifactid']);
             wa.vodPlayTitleApi3(objIn['artifactid']);
         }
         const payloadObj = {'artifactid':artiIdIn};
@@ -1282,8 +1226,6 @@ class RMVodWebApp {
                 }
             }
         }
-        //const endpoint = '/rmvid/api/taglist/get';
-        //const payload = {};
         const endpoint = '/rmvod/api/suplist/get';
         const payload = {'table':'tags'};
         this.genericApiCall(payload,endpoint,cbFunc);
@@ -1292,14 +1234,10 @@ class RMVodWebApp {
     // Performs DOM updates directly.
     populateSeriesEpisodes(seriesArtiIdIn){ //UPDATED FOR NEW RETURN OBJECT MODEL
         const cbFunc = function (objIn) {
-            // console.log('populateSeriesEpisodes.cbFunc: ' + JSON.stringify(objIn))
             var epListDEID = seriesArtiIdIn += '-sidelist-episode-list-outer';
             document.getElementById(epListDEID).innerHTML = '';
             var wa = new RMVodWebApp();
-            //for (var idx = 0; idx < objIn.length; idx++) {
             for (var idx = 0; idx < objIn['data'].length; idx++) {
-                //var listDiv = wa.renderSALElementById(objIn[idx]);
-                //document.getElementById(epListDEID).appendChild(listDiv);
                 var listDiv = wa.renderSALElementById(objIn['data'][idx]);
                 document.getElementById(epListDEID).appendChild(listDiv);
             }
@@ -1311,7 +1249,6 @@ class RMVodWebApp {
     // Display artifact details in the Side List.
     // Performs DOM updates directly.
     populateArtifactDetails(artiIdIn){ //UPDATED FOR NEW RETURN OBJECT MODEL
-        
         this.apiFetchPersonsList();
         this.apiFetchCompaniesList();
         this.apiFetchTagsList();
@@ -1325,9 +1262,7 @@ class RMVodWebApp {
             var dValStr = "" ;
             
             try {
-                //console.log("Trying to work with poster value");
                 if ((objIn['poster'] != '') && (objIn['imdbid'] != 'string') && (objIn['imdbid'] != 'none') && (objIn['imdbid'] != '')){
-                    //dValStr += '<img src="'  + objIn['poster'] + '" width="150" height="230"><br>';
                     dValStr += '<img src="'  + objIn['poster'] + '" width="300" height="460"><br>';
                 }
             } catch (e) {
@@ -1335,7 +1270,7 @@ class RMVodWebApp {
             }
             
             for ( var idx=0; idx<colList.length; idx++ ) {
-                dValStr += '<b>' + colList[idx] + ": </b>"; // + objIn[colList[idx]] + '<br>';
+                dValStr += '<b>' + colList[idx] + ": </b>"; 
                 switch (colList[idx]) {
                     case 'director':
                     case 'writer':
@@ -1360,7 +1295,7 @@ class RMVodWebApp {
             innerHtml += '</span><br>'
             innerHtml += '<span class="" id="" style="font-size:10px;"';
             innerHtml += 'onclick="switchboard(\'initiateArtiEdit\',\'' + objIn['artifactid'] + '\',{})" ';
-            innerHtml += '>'; // initiateArtiEdit
+            innerHtml += '>'; 
             innerHtml += '<u>Edit</u>';
             innerHtml += '</span>';
             
@@ -1369,18 +1304,15 @@ class RMVodWebApp {
                 innerHtml += '&nbsp;&nbsp;';
                 innerHtml += '<span class="" id="" style="font-size:10px;"';
                 innerHtml += 'onclick="switchboard(\'seriesAddEpisodesForm\',\'' ;
-                //innerHtml +=  objIn['artifactid'] + '\',{\'title\':\'' + objIn['title'].replace("'","\\\'") ;
                 innerHtml +=  objIn['artifactid'] + '\',{\'title\':\'' + objIn['title'].replace(regex,"\\\'") ;
                 innerHtml += '\',\'artifactid\':\'' + objIn['artifactid'] ;
                 innerHtml += '\',\'filepath\':\'' + objIn['filepath'] ;
                 innerHtml += '\',\'file\':\'' + objIn['file'] ;
                 innerHtml += '\'})" ';
-                innerHtml += '>'; // initiateArtiEdit
+                innerHtml += '>'; 
                 innerHtml += '<u>Associate Episodes</u>';
                 innerHtml += '</span>';                
             }
-            
-            // if majtype == 'tvseries' add "associate episodes" button
             
             var docElId = artiIdIn + '-sidelist-detail-outer';
             var deetDiv = document.getElementById(docElId);
@@ -1394,15 +1326,9 @@ class RMVodWebApp {
     // in the search widget most recently changed.
     // Performs DOM updates directly.
     execSearchSingleFactor2(factorStrIn,srchValObjIn) { // UPDATED FOR NEW RETURN OBJECT MODEL
-        
- 
-        
         try{ // React correctly to MultiFactor Search Y/N
             var mfsyn = document.getElementById('mfsearchyn');
-            //console.log(document.getElementById('mfsearchyn').id);
-            //console.log("mfsyn: " + mfsyn.checked.toString());
             if (mfsyn.checked == true) {
-                //console.log("Multi-Factor Search enabled.  Single search Factor " + factorStrIn + " ignored.");
                 return;
             } 
         } catch (e) {
@@ -1420,8 +1346,6 @@ class RMVodWebApp {
         switch (factorStrIn) {
             case "tag":  //UPDATED FOR NEW RETURN OBJECT MODEL
                 cbFunc = function (dataObjIn){
-                    //console.log("execSearchSingleFactor2.tag.cbfunc.dataObjIn: " + JSON.stringify(dataObjIn));
-                    //console.log('execSearchSingleFactor2.dataObjIn: ' + JSON.stringify(dataObjIn));
                     var objIn = dataObjIn['data'];
                     var wa = new RMVodWebApp();
                     var artiTitleIdList = wa.sse.ssRead('titleidlist');
@@ -1430,7 +1354,7 @@ class RMVodWebApp {
                     document.getElementById('sideartilistwidget').appendChild(tmpDiv);
                 }
                 if (srchValObjIn['tag'].length > 0){
-                    payloadObj = {'tag':srchValObjIn['tag']}; // srchValObjIn['tag']
+                    payloadObj = {'tag':srchValObjIn['tag']};
                 } 
                 endpoint = "/rmvod/api/titleidlist/get";
                 break;
@@ -1446,14 +1370,13 @@ class RMVodWebApp {
                     }
                 }
                 if (srchValObjIn['text'].length > 0){
-                    payloadObj = {'srchstr':srchValObjIn['text']}; // srchValObjIn['text']
+                    payloadObj = {'srchstr':srchValObjIn['text']}; 
                 }
                 var endpoint = "/rmvod/api/simpletxtsrch/get";
                 break;
             case "majtype":  //UPDATED FOR NEW RETURN OBJECT MODEL
                 cbFunc = function (dataObjIn){
                     var objIn = dataObjIn['data'];
-                    //console.log('execSearchSingleFactor2.majtype.dataObjIn: ' + JSON.stringify(dataObjIn));
                     var wa = new RMVodWebApp();
                     var artiTitleIdList = wa.sse.ssRead('titleidlist');
                     var tmpDiv = wa.renderSALByIdList(objIn);
@@ -1480,7 +1403,6 @@ class RMVodWebApp {
                 endpoint = "/rmvod/api/titleidlist/get";
                 break;
             case "whereclause":  //UPDATED FOR NEW RETURN OBJECT MODEL
-                //console.log("execSearchSingleFactor: " + factorStrIn + ": " + srchValObjIn[factorStrIn]);
                 cbFunc = function (dataObjIn){
                     var objIn = dataObjIn['data'];
                     var wa = new RMVodWebApp();
@@ -1514,10 +1436,6 @@ class RMVodWebApp {
     // in the search widget.
     // Performs DOM updates directly.
     execSearchMultiFactor(){ // UPDATED FOR NEW RETURN OBJECT MODEL
-        
-
-        
-        
         var sfValsObj = {}
         // Get TAG value:
         sfValsObj['tag'] =  document.getElementById('tag-search-select').value;
@@ -1531,22 +1449,13 @@ class RMVodWebApp {
         // Get SQL WHERE value
         sfValsObj['sqlwhere'] =  document.getElementById('sql-where-srch').value;// sql-where-srch
         
-        //console.log('execSearchMultiFactor: ' + JSON.stringify(sfValsObj));
-        
-        
         //put a throbber in to replace any old content
         var editDiv = document.getElementById('sideartilistwidget');
         editDiv.innerHTML = '<div class="throbber-ring"></div>';        
-                
-                  
-        
-        
         
         var cbFunc = function(dataObjIn){
             var objIn = dataObjIn['data'];
-            //console.log(JSON.stringify(objIn));
             var wa = new RMVodWebApp();
-            //var artiTitleIdList = wa.sse.ssRead('titleidlist');
             var tmpDiv = wa.renderSALByIdList(objIn);
             document.getElementById('sideartilistwidget').innerHTML = '';
             document.getElementById('sideartilistwidget').appendChild(tmpDiv);            
@@ -1891,27 +1800,10 @@ class RMVodWebApp {
     // Submit "Add Single Artifact" form
     // Performs DOM updates directly.
     apiSubmitNewSingleArtiForm(){ //UPDATED FOR NEW RETURN OBJECT MODEL
-
-        //{
-            //"method": "apiCreateSingleArtifact", 
-            //"params": [
-                //{"filepath": "boats/Chernobyl", "file": "Chernobyl_S01E02.m4v", "majtype": "tvepisode"}
-            //], 
-            //"status": {
-                //"success": false, 
-                //"detail": "Artifact for file = Chernobyl_S01E02.m4v already exists, or file is not present in the specified path.", 
-                //"log": []
-            //}, 
-            //"data": [
-                //{"artifactid": ""}
-            //]
-        //}
-        
         var nafp = document.getElementById('nafilepath').value;
         var nafn = document.getElementById('nafilename').value;
         var namt = document.getElementById('namajtype').value;
         var cbFunc = function(dataObjIn){
-            // dataObjIn is the result object returned from the API
             var ml =  new RMVodWebApp();
             if (dataObjIn['status']['success'] == true) {
                 // Add succeeded
@@ -1926,27 +1818,10 @@ class RMVodWebApp {
         var payload = {'filepath':nafp,'file':nafn,'majtype':namt};
         var endpoint = "/rmvod/api/artifact/newsingle";
         this.genericApiCall(payload,endpoint,cbFunc);
-        
     }
     // Submit "Add Multiple Artifacts" form
     // Performs DOM updates directly.
     apiSubmitNewMultiArtiForm(){ //UPDATED FOR NEW RETURN OBJECT MODEL
-        
-        //{
-            //"method": "apiCreateSingleArtifact", 
-            //"params": [
-                //{"filepath": "boats/Chernobyl", "file": "Chernobyl_S01E02.m4v", "majtype": "tvepisode"}
-            //], 
-            //"status": {
-                //"success": false, 
-                //"detail": "Artifact for file = Chernobyl_S01E02.m4v already exists, or file is not present in the specified path.", 
-                //"log": []
-            //}, 
-            //"data": [
-                //{"artifactid": ""}
-            //]
-        //}
-        
         var nafp = document.getElementById('nafilepath').value;
         var nafn = document.getElementById('nafilename').value;
         var namt = document.getElementById('namajtype').value;     
@@ -1957,7 +1832,6 @@ class RMVodWebApp {
             var cbFunc = function(dataObjIn){
                 // dataObjIn is the result object returned from the API
                 var ml =  new RMVodWebApp();
-                //if (dataObjIn['status'] == 'success') {
                 if (dataObjIn['status']['success'] == true) {
                     // Add succeeded
                     var tmpDiv = document.createElement('div');
@@ -1981,16 +1855,12 @@ class RMVodWebApp {
     // Check for, and if they are present, load and respect 
     // cookie-stored option values
     onloadOptions(){
-        // serplaynext
-        // resumeplay
-        
         var optList = ['serplaynext','resumeplay'];
         
         for (var idx=0; idx < optList.length; idx++ ) {
             var optNm = optList[idx];
             var tmpCookie = this.cc.getCookie('opt_' + optNm);
             var cbDE = document.getElementById(optNm);
-            //console.log('onloadOptions: ' + optNm + ' - ' + document.getElementById(optNm).name + ' -  ' + cbDE.checked );
             switch (tmpCookie) {
                 case true:
                 case 'true':
@@ -2008,7 +1878,6 @@ class RMVodWebApp {
             var tmpFunc = function(){switchboard('checkboxChange',this.id ,{});}
             
             cbDE.addEventListener("change", tmpFunc);
-            
         }
     }
     // Perform functions that accompany a state change of the "Multi-
@@ -2043,7 +1912,6 @@ class RMVodWebApp {
         var aLen = arrayIn.length;
         for (var i = 0; i < aLen; i++) {
             listStr += arrayIn[i];
-            //listStr += srchSpan(arrayIn[i]);
             if (i < (aLen - 1)) {
                 listStr += ', ';
             }
@@ -2057,7 +1925,6 @@ class RMVodWebApp {
         var listStr = '';
         var aLen = arrayIn.length;
         for (var i = 0; i < aLen; i++) {
-            //listStr += arrayIn[i];
             if (plainValList.indexOf(arrayIn[i]) == -1) {
                 listStr += this.srchSpan(arrayIn[i]);
             } else {
@@ -2083,7 +1950,6 @@ class RMVodWebApp {
     // Render the "Side Artifact List" using a provided list of 
     // artifactid values.  Returns a DOM element.
     renderSALByIdList(artiIdListIn){
-        //console.log('renderSALByIdList.artiIdListIn: ' + JSON.stringify(artiIdListIn));
         // Whole List -- No details or episodes
         var allowedMajTypes = ['tvseries','movie'];
         var tmpDiv = document.createElement('div');
@@ -2147,7 +2013,7 @@ class RMVodWebApp {
         
         // Expand Button DIV
         var bdSpanClass = '';
-        var bdSpanOnclick = "switchboard('xpopsldetail','" + artiTIDobjIn['artifactid'] + "',{})"; //artiTIDobjIn['artifactid']
+        var bdSpanOnclick = "switchboard('xpopsldetail','" + artiTIDobjIn['artifactid'] + "',{})"; 
         var buttDiv = document.createElement('div');
         buttDiv.className = "listelcontxpbutt";
         buttDiv.innerHTML = '<span class="' + bdSpanClass + '" onclick="' + bdSpanOnclick + '"><u>Det</u></span>';
@@ -2184,10 +2050,8 @@ class RMVodWebApp {
         
         var trunclength = 38;
         if (tdTitle.length >= trunclength) {
-            //titleDiv.innerHTML = '<span class="' + tdSpanClass + '" onclick="' + tdSpanOnclick + '"><b><u>' + tdTitle.substring(0,(trunclength-3)) + '...(series)</u></b></span>';
             titleDiv.innerHTML = '<span class="' + tdSpanClass + '" onclick="' + tdSpanOnclick + '"><b><u>' + tdTitle.substring(0,(trunclength-3)) + '...<span style="color:#c0c080">(series)</span></u></b></span>';
         } else {
-            //titleDiv.innerHTML = '<span class="' + tdSpanClass + '" onclick="' + tdSpanOnclick + '"><b><u>' + tdTitle + '(series)</u></b></span>';
             titleDiv.innerHTML = '<span class="' + tdSpanClass + '" onclick="' + tdSpanOnclick + '"><b><u>' + tdTitle + '<span style="color:#c0c080">(series)</u></b></span>';
         }
         
@@ -2231,7 +2095,7 @@ class RMVodWebApp {
         if (rplStr.indexOf(artiTIDobjIn['artifactid']) > -1) {
             tdSpanClass = "listtitleseen";
         }
-        var tdSpanOnclick = "switchboard('vodPlayTitle','" + artiTIDobjIn['artifactid'] + "',{})"; //artiTIDobjIn['artifactid'];
+        var tdSpanOnclick = "switchboard('vodPlayTitle','" + artiTIDobjIn['artifactid'] + "',{})";
         var tdTitle = artiTIDobjIn['title'];
         var titleDiv = document.createElement('div');
         titleDiv.className = "listelseriescolleptitle";
@@ -2245,7 +2109,7 @@ class RMVodWebApp {
         
         // Expand Button DIV
         var bdSpanClass = '';
-        var bdSpanOnclick = "switchboard('xpopsldetail','" + artiTIDobjIn['artifactid'] + "',{})"; //artiTIDobjIn['artifactid']
+        var bdSpanOnclick = "switchboard('xpopsldetail','" + artiTIDobjIn['artifactid'] + "',{})";
         var buttDiv = document.createElement('div');
         buttDiv.className = "listelcontxpbutt";
         buttDiv.innerHTML = '<span class="' + bdSpanClass + '" onclick="' + bdSpanOnclick + '"><u>Det</u></span>';
@@ -2278,14 +2142,12 @@ class RMVodWebApp {
         var masterCont = document.getElementById('mastercont');
         masterCont.innerHTML = '';
         masterCont.appendChild(hr.renderDEThreeCellHeader());
-        //masterCont.appendChild(hr.renderDETabContainer());  // renderDETabWidget
-        masterCont.appendChild(hr.renderDETabWidget());  // renderDETabWidget
+        masterCont.appendChild(hr.renderDETabWidget()); 
         masterCont.appendChild(hr.renderDEFooterContainer());
     }
     // Render "Show Details" button for a TV Series Artifact.  
     // Performs DOM update directly.
     tvsDetailShowButton(artiIdIn) {
-        
         var innerHtml = '';
         innerHtml += '<span class="" id="" style="font-size:10px;"';
         innerHtml += 'onclick="switchboard(\'xpopslseriesdetail\',\'' + artiIdIn + '\',{})" ';
@@ -2296,7 +2158,6 @@ class RMVodWebApp {
         var docElId = artiIdIn + '-sidelist-detail-outer';
         var deetDiv = document.getElementById(docElId);
         deetDiv.innerHTML = innerHtml;       
-         
     }
     // Clears "search" form fields.
     // Performs DOM updates directly.
@@ -2323,11 +2184,9 @@ class RMVodWebApp {
         prodStr += 'Director(s): ' + this.l2sSrch(artiObj['director']) + ' | ';
         prodStr += 'Runtime: ' + artiObj['runmins'] + ' | ';
         prodStr += 'Release Yr.: ' + artiObj['relyear'] + ' | ';
-        //console.log(prodStr);
         
         var castStr = '';
         castStr +=  this.l2sSrch(artiObj['primcast']);
-        //console.log(castStr);
         
         var synoStr = '';
         synoStr += 'Synopsis: ';
@@ -2344,7 +2203,6 @@ class RMVodWebApp {
     // Refresh "Filed List Widget"
     // Performs DOM updates directly.
     refreshFieldListWidget(fieldNmIn,valuesListIn){
-        //console.log('refreshFieldListWidget: ' + fieldNmIn + ': ' + JSON.stringify(valuesListIn));
         var blobKey = '';
         switch (fieldNmIn) {
             case 'tags':
@@ -2404,7 +2262,6 @@ class RMVodWebApp {
         argsObj['rowWidth'] = '800px';
         argsObj['labelWidth'] = '190px';
         argsObj['fieldWidth'] = '480px';
-        //argsObj[''] = '';
         
         var row1 = hg.renderStackFormRow(argsObj);
         
@@ -2428,7 +2285,6 @@ class RMVodWebApp {
         fooDiv.appendChild(row1);
         fooDiv.appendChild(row2);
         fooDiv.appendChild(row3);
-        //fooDiv.appendChild();
         tmpHtml += fooDiv.outerHTML;
         
         tmpHtml += '<div style="padding-left:200px;"><span style="font-weight:bold;text-decoration:underline;" onclick="switchboard(\'singleNewArtiSubmit\',\'\',{})">Submit</span></div>';
@@ -2470,7 +2326,6 @@ class RMVodWebApp {
         argsObj['rowWidth'] = '800px';
         argsObj['labelWidth'] = '190px';
         argsObj['fieldWidth'] = '480px';
-        //argsObj[''] = '';
         var row1 = hg.renderStackFormRow(argsObj);
         
         argsObj['labelContentHtml'] = 'Filename fragment: ';
@@ -2486,7 +2341,6 @@ class RMVodWebApp {
         fooDiv.appendChild(row1);
         fooDiv.appendChild(row2);
         fooDiv.appendChild(row3);
-        //fooDiv.appendChild();
         tmpHtml += fooDiv.outerHTML;
         
         tmpHtml += '<div style="padding-left:200px;"><span style="font-weight:bold;text-decoration:underline;" onclick="switchboard(\'seriesEpisodeAddSubmit\',\'\',{})">Submit</span></div>';
@@ -2531,7 +2385,6 @@ class RMVodWebApp {
         argsObj['rowWidth'] = '800px';
         argsObj['labelWidth'] = '190px';
         argsObj['fieldWidth'] = '490px';
-        //argsObj[''] = '';
         
         var row1 = hg.renderStackFormRow(argsObj);
         
@@ -2571,7 +2424,6 @@ class RMVodWebApp {
         fooDiv.appendChild(row2);
         fooDiv.appendChild(row3);
         fooDiv.appendChild(row4);
-        //fooDiv.appendChild();
         tmpHtml += fooDiv.outerHTML;        
         
         
@@ -2644,9 +2496,7 @@ class RMVodWebApp {
         //  We're going to fake checking the chekcbox for now
         
         var cbFunc = function () {
-            
             // resumeplay
-            
             try {
                 var playerDE = document.getElementById('actualvideoplayer');
                 var wa = new RMVodWebApp();
@@ -2741,7 +2591,6 @@ function switchboard(actionIn,objIdIn,argObjIn) {
             break;
 
         case 'simpleNamesList':  
-            //console.log("Getting simple list with tag " + objIdIn.toString());
             var tmpDiv = ml.renderArtifactBlocksByTag(objIdIn);
             document.getElementById('div01').appendChild(tmpDiv);
             break;        
@@ -2796,32 +2645,22 @@ function switchboard(actionIn,objIdIn,argObjIn) {
             break;   
             
         case 'execTxtSrch' :
-            //console.log("Trying to execTxtSrch: " + objIdIn);
             var srchBoxDE = document.getElementById(objIdIn);
-            //console.log("execTxtSrch for " + srchBoxDE.value);
             ml.execSearchSingleFactor2('text',{'text':srchBoxDE.value});
-            // srchBoxDE.value = "";
             break;
             
         case 'execMajTypSrch':
-            //console.log("Trying to " + actionIn + ": " + objIdIn, JSON.stringify(argObjIn)); 
             var mtVal = document.getElementById(objIdIn).value;
-            //console.log(objIdIn + " has value " + mtVal);
             ml.execSearchSingleFactor2('majtype',{'majtype':mtVal});
             break;
             
         case 'execRelyearSrch':
-            //console.log("Trying to " + actionIn + ": " + objIdIn, JSON.stringify(argObjIn)); 
             var ryVal2 = document.getElementById(objIdIn).value;
-            //document.getElementById(objIdIn).value = "";
             var ryVal1 = document.getElementById('relyear-srch-start').value;
-            //document.getElementById('relyear-srch-start').value = "";
-            //console.log('Dates captured: ', ryVal1, ryVal2); 
             ml.execSearchSingleFactor2('relyear',{'relyear1':ryVal1,'relyear2':ryVal2});
             break;
             
         case 'execWhereClauseSrch':
-            //console.log("Trying to " + actionIn + ": " + objIdIn, JSON.stringify(argObjIn)); 
             const re = /'/g;
             var rawWCStr = document.getElementById(objIdIn).value.replace(re,"\'");
             ml.execSearchSingleFactor2('whereclause',{'whereclause':rawWCStr});
@@ -2833,8 +2672,7 @@ function switchboard(actionIn,objIdIn,argObjIn) {
         
         case 'initiateArtiEdit':
             ml.renderArtifactEdit(objIdIn);
-            //document.getElementById('tabspan2').click(); // RNWATabWidget-tabspan-2
-            document.getElementById('RNWATabWidget-tabspan-2').click(); // RNWATabWidget-tabspan-2
+            document.getElementById('RNWATabWidget-tabspan-2').click();
             break;
             
         case 'updateArtifactField' :
@@ -2883,20 +2721,18 @@ function switchboard(actionIn,objIdIn,argObjIn) {
             break;
         
         case 'listAction':
-            // console.log(actionIn + ', ' + objIdIn + ', ' + JSON.stringify(argObjIn));
             ml.apiExecListAction(objIdIn,argObjIn['action']);
             break;
             
-        case 'formNewSingleArti':  //renderNewMultiArtiForm
+        case 'formNewSingleArti': 
             ml.renderNewSingleArtiForm();
             break;
             
-        case 'formNewMultiArti':  //renderNewMultiArtiForm
+        case 'formNewMultiArti':
             ml.renderNewMultiArtiForm();
             break;
             
         case 'singleNewArtiSubmit':
-            // singleNewArtiSubmit // submitNewSingleArtiForm
             ml.apiSubmitNewSingleArtiForm();
             break;
             
@@ -2909,28 +2745,19 @@ function switchboard(actionIn,objIdIn,argObjIn) {
             ml.handleMFSCBStateChange(de.checked);
             break;
             
-        case 'execmfsrch':  //switchboard('execmfsrch',this.id,{})
-            //console.log('execmfsrch: ' + objIdIn);
+        case 'execmfsrch': 
             ml.execSearchMultiFactor();
-            //console.log('');
             break;
             
         case 'seriesAddEpisodesForm':
-            ml.renderSeriesEpisodeAddForm(argObjIn); //['artifactid'],argObjIn['title']
+            ml.renderSeriesEpisodeAddForm(argObjIn); 
             break;
         case 'seriesEpisodeAddSubmit':
             var seriesaid = document.getElementById('naartifactid').value;
             var filepath = document.getElementById('nafilepath').value;
             var filefrag = document.getElementById('nafilename').value;
-            //var  = document.getElementById('').value;
             ml.execAddSeriesEpisodes(seriesaid,filepath,filefrag);
             break;
-//vodlibsketch3.js:2455 Uncaught Error: Action seriesEpisodeAddSubmit is not recognized!  Received objIdIn =   and argObjIn = {}.
-//    at switchboard (vodlibsketch3.js:2455:19)
-//    at HTMLSpanElement.onclick (vodlib_static_3.html:1:1)            
-            
-            
-            
         /* 
          * Oh no... we should never get here!
          * */
@@ -2938,7 +2765,6 @@ function switchboard(actionIn,objIdIn,argObjIn) {
             var xcStr = 'Action ' + actionIn + ' is not recognized!  ';
             xcStr += 'Received objIdIn = ' + objIdIn + '  and ';
             xcStr += 'argObjIn = ' + JSON.stringify(argObjIn) + '.';
-            // throw 'Action ' + actionIn + ' is not recognized!';       
             throw new Error(xcStr); 
     }
 }
@@ -2980,17 +2806,3 @@ function tabPick(deIdIn){
     tw.selectTab(deIdIn);
 }
  
-/*  
-mastercont     // The outermost div
-headercont     // the container div for the header bar
-bigbusiness    // The container for the main portion of the window
-featurecont    // The container for the left portion of bigbusiness  where the player lives
-listcontainer  // The container for the artifact list on the left
-
-sizeStep -- div sizing should be done in steps based on the size of the window
-
-1024x768
-1280x768
-1920x1080
-
-*/
