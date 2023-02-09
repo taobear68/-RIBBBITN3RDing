@@ -2301,7 +2301,7 @@ class RMVodWebApp {
         
         // tabspan2
         const ev = new Event('click');
-        document.getElementById('tabspan2').dispatchEvent(ev);
+        document.getElementById('RNWATabWidget-tabspan-2').dispatchEvent(ev); // RNWATabWidget-tabspan-2 // tabspan2
     }
     // Render a form for data entry to associate tvepisode artifacts 
     // with a tvseries artifact.
@@ -2360,7 +2360,7 @@ class RMVodWebApp {
         
         // tabspan2
         const ev = new Event('click');
-        document.getElementById('tabspan2').dispatchEvent(ev);
+        document.getElementById('RNWATabWidget-tabspan-2').dispatchEvent(ev);  // RNWATabWidget-tabspan-2 // tabspan2
     }
     // Render a form for data entry to create multiple new artifacts
     // Performs DOM updates directly.
@@ -2444,7 +2444,7 @@ class RMVodWebApp {
         
         // tabspan2
         const ev = new Event('click');
-        document.getElementById('tabspan2').dispatchEvent(ev);
+        document.getElementById('RNWATabWidget-tabspan-2').dispatchEvent(ev); // RNWATabWidget-tabspan-2 // tabspan2
     }
     // Execute an API call which associates tvepisode artifacts 
     // with a tvseries artifact
