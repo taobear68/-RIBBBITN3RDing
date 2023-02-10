@@ -1233,14 +1233,22 @@ class RMVodWebApp {
     // Execute a single-factor artifact search based on the value
     // in the search widget most recently changed.
     // Performs DOM updates directly.
-    execSearchSingleFactor2(factorStrIn,srchValObjIn) { // UPDATED FOR NEW RETURN OBJECT MODEL
-        try{ // React correctly to MultiFactor Search Y/N
-            var mfsyn = document.getElementById('mfsearchyn');
-            if (mfsyn.checked == true) {
-                return;
-            } 
-        } catch (e) {
-            console.log('mfsearchyn must not exist yet.');
+    execSearchSingleFactor2(factorStrIn,srchValObjIn,ignoreMFSIn) { // UPDATED FOR NEW RETURN OBJECT MODEL
+        if (typeof ignoreMFSIn != typeof true {
+            ignoreMFSIn = false;
+        }
+        
+        if (ignoreMFSIn === false) {
+            try{ // React correctly to MultiFactor Search Y/N
+                var mfsyn = document.getElementById('mfsearchyn');
+                if (mfsyn.checked == true) {
+                    return;
+                } 
+            } catch (e) {
+                console.log('mfsearchyn must not exist yet.');
+            }
+        } else {
+            console.log('Ignoring mfsearchyn due to ignoreMFSIn' );
         }
         
         //put a throbber in to replace any old content
@@ -2575,7 +2583,7 @@ function switchboard(actionIn,objIdIn,argObjIn) {
             break;
             
         case 'execDirectStringSrch' :
-            ml.execSearchSingleFactor2('text',{'text':argObjIn['srchstr']});
+            ml.execSearchSingleFactor2('text',{'text':argObjIn['srchstr']},true);
             break;
         
         case 'initiateArtiEdit':
