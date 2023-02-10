@@ -1234,7 +1234,7 @@ class RMVodWebApp {
     // in the search widget most recently changed.
     // Performs DOM updates directly.
     execSearchSingleFactor2(factorStrIn,srchValObjIn,ignoreMFSIn) { // UPDATED FOR NEW RETURN OBJECT MODEL
-        if (typeof ignoreMFSIn != typeof true {
+        if (typeof ignoreMFSIn != typeof true) {
             ignoreMFSIn = false;
         }
         
