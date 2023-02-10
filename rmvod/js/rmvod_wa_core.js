@@ -373,109 +373,17 @@ class RMVWAHtmlGenerator {
     renderDETabContainer(){ // <<====DEPRECATED
         const methNm = 'renderDETabContainer';
         console.log("DO NOT CALL " + methNm + " -- IT IS DEPRECATED!");
-        throw methNm + " <<====DEPRECATED";
-                
-        //var renderTabTabDiv = function(tabNmbrIn,tabLabelIn,selBoolIn) {
-            //var tabTabDiv = document.createElement('div');
-            //tabTabDiv.className = "tab-unsel";
-            //tabTabDiv.id = "tab" + tabNmbrIn.toString();
-            //var tmpHtml = "";
-            //var className = "tab-unsel";
-            //// console.log("className: " + className);
-            //if (selBoolIn == true) {
-                //className = "tab-sel";
-                //// console.log("className: " + className);
-            //}
-            //tmpHtml += '<span class="' + className + '" id="tabspan' + tabNmbrIn.toString() + '" onclick="switchboard(\'tabPick\',this.id,{})">';
-            //tmpHtml += tabLabelIn;
-            //tmpHtml += '</span>';
-            //tabTabDiv.innerHTML = tmpHtml;
-            //tabTabDiv.className = className;
-            //return tabTabDiv;
-        //}
-        
-        //var renderTabContDiv = function(idStrIn,dispBoolIn,contHtmlStrIn) {
-            //var tabContDiv = document.createElement('div');
-            //tabContDiv.className = "featureelement0";
-            //tabContDiv.id = idStrIn;
-            //tabContDiv.style.display = "none";
-            //if (dispBoolIn == true) {
-                //tabContDiv.style.display = "block";
-            //}
-            //tabContDiv.style.overflow = "auto";
-            //tabContDiv.innerHTML = contHtmlStrIn;
-            //return tabContDiv;
-        //}
-        
-        //// Create Tab Heading container
-        //var tabCtrlDiv = document.createElement('div');
-        //tabCtrlDiv.style.width = "1200px";
-        //tabCtrlDiv.style.height = "40px";
-        //tabCtrlDiv.style.display = "inline-flex";
-        
-        //// Create Tab Headings and append Tab Headings to container
-        //tabCtrlDiv.appendChild(renderTabTabDiv(0,'Player',false));
-        //tabCtrlDiv.appendChild(renderTabTabDiv(1,'List/Search',true));
-        //tabCtrlDiv.appendChild(renderTabTabDiv(2,'Edit',false));
-        //tabCtrlDiv.appendChild(renderTabTabDiv(3,'Settings',false));
-        
-        //// Create Tab Content container
-        //var tabContOuterDiv = document.createElement('div');
-        //tabContOuterDiv.className = "featurecont0";
-        //tabContOuterDiv.id = "featurecont";
-        //tabContOuterDiv.style.dicplay = "block";
-        
-        //// Insert Tab Content into Tabs and append Tabs to container
-        //tabContOuterDiv.appendChild(renderTabContDiv('structfeatureplayer',false,this.renderHTMLPlayerTab()));
-        //tabContOuterDiv.appendChild(renderTabContDiv('structfeaturesearch',true,this.renderHTMLSearchTab()));
-        //tabContOuterDiv.appendChild(renderTabContDiv('structfeatureedit',false,this.renderHTMLEditTab()));
-        //tabContOuterDiv.appendChild(renderTabContDiv('structfeaturesettings',false,this.renderHTMLSettingsTab()));
-                    
-        //var outerDiv = document.createElement('div');
-        //outerDiv.appendChild(tabCtrlDiv);
-        //outerDiv.appendChild(tabContOuterDiv);
-        //return outerDiv;
+        throw new Error(methNm + " <<====DEPRECATED");
     }
     renderDEFeatureContainer(){ // <<====DEPRECATED
         const methNm = 'renderDEFeatureContainer';
         console.log("DO NOT CALL " + methNm + " -- IT IS DEPRECATED!");
-        throw methNm + " <<====DEPRECATED";
-                
-        //var featureDiv = document.createElement('div');
-        //featureDiv.id = 'featurecont';
-        //featureDiv.className = 'featurecont';
-        
-        //var playContStr = '';
-        //playContStr += '<div class="featureelement" id="structfeatureplayer" style="display:block;"><!-- Player Container -->';
-        //playContStr += '<div style="margin-left:80px; margin-right:80px;">';
-        //playContStr += '&nbsp;Player Container<br>';
-        //playContStr += '<img src="./img/rmvod_badge_center.png" height=500 width=500>';
-        //playContStr += '</div>';
-        //playContStr += '</div>';
-        
-        //var srchContStr = '';
-        //srchContStr += '<div class="featureelement" id="structfeaturesearch" style="display:none;"><!-- Search Container -->';
-        //srchContStr += '&nbsp;Search Container';
-        //srchContStr += '</div>';
-        
-        //var editContStr = '';
-        //editContStr += '<div class="featureelement" id="structfeatureedit" style="display:none;"><!-- ArtiEdit Container -->';
-        //editContStr += '&nbsp;ArtiEdit Container';
-        //editContStr += '</div>';
-        
-        //var tmpIntDiv = document.createElement('div');
-        //tmpIntDiv.style.display = "block";
-        //tmpIntDiv.innerHTML = playContStr + srchContStr + editContStr;
-        
-        //featureDiv.innerHTML = "";
-        //featureDiv.appendChild(tmpIntDiv);
-        
-        //return featureDiv;
+        throw new Error(methNm + " <<====DEPRECATED");
     }
     renderDEListContainer(){  // <<==== DEPRECATED
         const methNm = 'renderDEListContainer';
         console.log("DO NOT CALL " + methNm + " -- IT IS DEPRECATED!");
-        throw methNm + " <<====DEPRECATED";
+        throw new Error(methNm + " <<====DEPRECATED");
     }
     renderDEFooterContainer(){
 
@@ -2684,43 +2592,6 @@ function switchboard(actionIn,objIdIn,argObjIn) {
             const cookieVal = document.getElementById(objIdIn).checked;
             ml.cc.setCookie(cookieNm,cookieVal,365);
             break;
-            
-        // SHOULD BE RECREATED TO USE THE tabPick METHOD IN THE 
-        // TAB WIDGET CLASS
-        //case "tabPick":
-            //var lu = {};
-            //lu['tabspan0'] = 'structfeatureplayer';
-            //lu['tabspan1'] = 'structfeaturesearch';
-            //lu['tabspan2'] = 'structfeatureedit';
-            //lu['tabspan3'] = 'structfeaturesettings';
-            //var selTabSpan = document.getElementById(objIdIn);
-            //var selTab = selTabSpan.parentElement;
-            //var selStruct = document.getElementById(lu[objIdIn]);
-            //var parChildren = selTab.parentElement.children;
-            //for (var i=0; i < parChildren.length; i++) { 
-                //var tab = parChildren[i];
-                //if (tab.id == selTab.id) {
-                    //// SHOW
-                    //tab.className = "tab-sel";
-                    //var tabChildren = tab.children;
-                    //for (var j = 0 ; j < tabChildren.length; j++ ) { 
-                        //var tabChild = tabChildren[j];
-                        //tabChild.className = "tab-sel";
-                    //}
-                    //document.getElementById(lu[objIdIn]).style.display = "block";
-                //} else {
-                    //// HIDE
-                    //tab.className = "tab-unsel";
-                    //var tabChildren = tab.children;
-                    //for (var j = 0 ; j < tabChildren.length; j++ ) { 
-                        //var tabChild = tabChildren[j];
-                        //tabChild.className = "tab-unsel";
-                    //}
-                    //var structId = lu[tabChildren[0].id]
-                    //document.getElementById(structId).style.display = "none";
-                //}
-            //}
-            //break;
         
         case 'listAction':
             ml.apiExecListAction(objIdIn,argObjIn['action']);
