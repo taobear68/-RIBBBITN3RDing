@@ -49,12 +49,25 @@ pkg_install(){
     }
 }
 
+user_create(){
+    {
+        echo "Creating rmvod user..."
+        groupadd rmvod && \
+        useradd -g rmvod -d /var/lib/rmvod/py -s /bin/nologin rmvod  && \
+        chown rmvod:rmvod /var/www/html/rmvod/img/poster_00 
+    } || {
+        echo "User create failed."
+        exit 1
+    }
+}
+
 fs_setup(){
     echo "Setting up the filesystem..."
     pushd /var/www/html && {
         {
             mkdir -p rmvod && cd rmvod && \
-            mkdir -p api css data dl img js vidsrc 
+            mkdir -p api css data dl img js vidsrc && \
+            mkdir -p img/poster_00
         } || {
             echo "Filesystem Setup failed (var/www/html)."
             exit 1 
@@ -155,6 +168,10 @@ pushd ${INSTSRCDIR} || \
 # Put Files in the proper places
 echo
 file_copy && echo "OK."  || exit 1
+
+# Create the wsgi run-as user
+echo
+user_create && echo "OK." || exit 1
 
 
 # Adjust Apache2 configuration

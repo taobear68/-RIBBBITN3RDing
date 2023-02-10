@@ -33,6 +33,7 @@ Dependent Packages
 rmvod depends on the following (Debian APT) packages being installed:
 python3 - interactive high-level object-oriented language (default python3 version)
 apache2 - Apache HTTP Server
+libapache2-mod-wsgi-py3 - mod_wsgi for Apache2
 mariadb-server - MariaDB database server (metapackage depending on the latest version)
 python3-flask - micro web framework based on Werkzeug and Jinja2 - Python 3.x
 python3-pymysql - Pure-Python MySQL Driver
@@ -55,7 +56,8 @@ As a sufficiently privileged user, issue the following commands:
 pushd /var/www/html && \
 mkdir rmvod && \
 cd rmvod && \
-mkdir api css data dl img js vidsrc; \
+mkdir api css data dl img js vidsrc && \
+mkdir img/poster_00 && \
 popd
 pushd /var/lib/ && \
 mkdir rmvod && \
@@ -84,6 +86,11 @@ cp apache/sites-available/*  /etc/apache2/sites-available/ && \
 chmod o+x /var/lib/rmvod/bash/*.sh && \
 chmod o+x /var/lib/rmvod/py/*.sh 
 
+Create the run-as user for the rmvod API
+
+groupadd rmvod && \
+useradd -g rmvod -d /var/lib/rmvod/py -s /bin/nologin rmvod  && \
+chown rmvod:rmvod /var/www/html/rmvod/img/poster_00 
 
 
 Web Server Configuration
