@@ -2685,40 +2685,42 @@ function switchboard(actionIn,objIdIn,argObjIn) {
             ml.cc.setCookie(cookieNm,cookieVal,365);
             break;
             
-        case "tabPick":
-            var lu = {};
-            lu['tabspan0'] = 'structfeatureplayer';
-            lu['tabspan1'] = 'structfeaturesearch';
-            lu['tabspan2'] = 'structfeatureedit';
-            lu['tabspan3'] = 'structfeaturesettings';
-            var selTabSpan = document.getElementById(objIdIn);
-            var selTab = selTabSpan.parentElement;
-            var selStruct = document.getElementById(lu[objIdIn]);
-            var parChildren = selTab.parentElement.children;
-            for (var i=0; i < parChildren.length; i++) { 
-                var tab = parChildren[i];
-                if (tab.id == selTab.id) {
-                    // SHOW
-                    tab.className = "tab-sel";
-                    var tabChildren = tab.children;
-                    for (var j = 0 ; j < tabChildren.length; j++ ) { 
-                        var tabChild = tabChildren[j];
-                        tabChild.className = "tab-sel";
-                    }
-                    document.getElementById(lu[objIdIn]).style.display = "block";
-                } else {
-                    // HIDE
-                    tab.className = "tab-unsel";
-                    var tabChildren = tab.children;
-                    for (var j = 0 ; j < tabChildren.length; j++ ) { 
-                        var tabChild = tabChildren[j];
-                        tabChild.className = "tab-unsel";
-                    }
-                    var structId = lu[tabChildren[0].id]
-                    document.getElementById(structId).style.display = "none";
-                }
-            }
-            break;
+        // SHOULD BE RECREATED TO USE THE tabPick METHOD IN THE 
+        // TAB WIDGET CLASS
+        //case "tabPick":
+            //var lu = {};
+            //lu['tabspan0'] = 'structfeatureplayer';
+            //lu['tabspan1'] = 'structfeaturesearch';
+            //lu['tabspan2'] = 'structfeatureedit';
+            //lu['tabspan3'] = 'structfeaturesettings';
+            //var selTabSpan = document.getElementById(objIdIn);
+            //var selTab = selTabSpan.parentElement;
+            //var selStruct = document.getElementById(lu[objIdIn]);
+            //var parChildren = selTab.parentElement.children;
+            //for (var i=0; i < parChildren.length; i++) { 
+                //var tab = parChildren[i];
+                //if (tab.id == selTab.id) {
+                    //// SHOW
+                    //tab.className = "tab-sel";
+                    //var tabChildren = tab.children;
+                    //for (var j = 0 ; j < tabChildren.length; j++ ) { 
+                        //var tabChild = tabChildren[j];
+                        //tabChild.className = "tab-sel";
+                    //}
+                    //document.getElementById(lu[objIdIn]).style.display = "block";
+                //} else {
+                    //// HIDE
+                    //tab.className = "tab-unsel";
+                    //var tabChildren = tab.children;
+                    //for (var j = 0 ; j < tabChildren.length; j++ ) { 
+                        //var tabChild = tabChildren[j];
+                        //tabChild.className = "tab-unsel";
+                    //}
+                    //var structId = lu[tabChildren[0].id]
+                    //document.getElementById(structId).style.display = "none";
+                //}
+            //}
+            //break;
         
         case 'listAction':
             ml.apiExecListAction(objIdIn,argObjIn['action']);
