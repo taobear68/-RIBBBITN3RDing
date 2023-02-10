@@ -388,8 +388,11 @@ class RMVWAHtmlGenerator {
     renderDEFooterContainer(){
 
         var footerOuterDiv = document.createElement('div');
-        footerOuterDiv.innerText = "Footer";
-        
+        footerOuterDiv.style.textAlign = 'center';
+        var fHtml = '<span id="copyright_notice" style="font-family:courier;font-size:small;color:#888888;">';
+        fHtml += 'RIBBBIT media VideoOnDemand -- Copyright (c) 2022, 2023 Paul Tourville -- ';
+        fHtml += 'Distributed under the <a href="https://www.gnu.org/licenses/gpl-3.0.html">GNU General Public License v3</a>.</span>'
+        footerOuterDiv.innerHTML = fHtml;
         var versionsContainerDiv = document.createElement('div');
         var tmpHtml = "";
         tmpHtml += '<span id="version_html" style="font-family:courier;font-size:small;color:#888888;">html version: 0.3.1</span>';
@@ -809,7 +812,7 @@ class RMVodWebApp {
         // These version bits will eventually need to involve polling 
         // the API and DB for their versions
         this.apiFetchRemoteVersions();
-        this.postJSVer("0.5.10");
+        this.postJSVer("0.5.11");
     }
     // Returns a "likely unique" ID for this browser to be used in 
     // play request logging.
