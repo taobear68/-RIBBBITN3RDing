@@ -42,7 +42,7 @@ pkg_install(){
     echo "Installing packages..."
     apt-get install \
     python3 apache2 mariadb-server python3-flask \
-    python3-pymysql python3-yaml || \
+    python3-pymysql python3-yaml libapache2-mod-wsgi-py3 || \
     {
         echo "Package install failed."
         exit 1 
