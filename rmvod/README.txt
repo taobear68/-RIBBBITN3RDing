@@ -1,4 +1,4 @@
-As of Feb. 02, 2023, RIBBBITmedia VideoOnDemand has moved to its own repository:
+As of Feb. 12, 2023, RIBBBITmedia VideoOnDemand has moved to its own repository:
 
 https://github.com/taobear68/rmvod
 
