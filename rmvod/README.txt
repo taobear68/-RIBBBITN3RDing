@@ -1,3 +1,17 @@
+As of Feb. 02, 2023, RIBBBITmedia VideoOnDemand has moved to its own repository:
+
+https://github.com/taobear68/rmvod
+
+Please see that resository for code and commentary regarding RIBBBITmedia VideoOnDemand
+
+Files will be preserved for 30 days in this repository, and will then be deleted.  Please update any references, bookmarks, et cetera to the new repository.
+
+Thank you.
+
+
+
+*****=====>>>>> DEPRECATED <<<<<=====*****
+
 This is the RIBBBITmedia VideoOnDemand project.
 
 In the interest of brevity, RIBBBITmedia VideoOnDemand will be referred to as "rmvod" throughout this document.
